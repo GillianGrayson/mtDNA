@@ -7,6 +7,7 @@ data_file = open(data_path + data_table_file_name, 'w')
 header = ''
 for dir_name in os.listdir(data_path):
     if dir_name.startswith('chr'):
+        print(dir_name)
         chr_path = data_path + dir_name + '/'
         for gene_file_name in os.listdir(chr_path):
             f = open(chr_path + gene_file_name)

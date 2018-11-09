@@ -4,7 +4,7 @@ import os
 data_path = '../Data/'
 genes_file_name = 'genes_locations_sort.txt'
 population_file_name = 's_pop.txt'
-target_chromosome = 'chr6'
+target_chromosome = 'chr1'
 result_path = '../Data/' + target_chromosome + '/'
 if not os.path.exists(result_path):
     os.makedirs(result_path)
