@@ -4,7 +4,7 @@ import os
 data_path = '../Data/'
 genes_file_name = 'genes_locations_sort.txt'
 population_file_name = 's_pop.txt'
-target_chromosome = 'chr1'
+target_chromosome = 'chrMT'
 result_path = '../Data/' + target_chromosome + '/'
 if not os.path.exists(result_path):
     os.makedirs(result_path)
@@ -42,7 +42,10 @@ for line in f:
         population_data[pop_name].append(sample_name)
 f.close()
 
-file_name = 'ALL.' + target_chromosome + '.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf'
+if target_chromosome is 'chrMT':
+    file_name = 'ALL.' + target_chromosome + '.phase3_callmom-v0_4.20130502.genotypes.vcf'
+else:
+    file_name = 'ALL.' + target_chromosome + '.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf'
 f = open(data_path + file_name)
 column_names = []
 pop_names = []

@@ -15,6 +15,8 @@ for dir_name in os.listdir(data_path):
                 if header == '':
                     header = line
                     data_file.write(header)
+                elif line == header:
+                    continue
                 else:
                     data_file.write(line)
             f.close()
