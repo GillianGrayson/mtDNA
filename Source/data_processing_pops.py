@@ -3,6 +3,7 @@ import os
 
 data_path = '../Data/'
 genes_file_name = 'genes_locations_sort.txt'
+population_file_name = 's_pop.txt'
 target_chromosome = 'chrMT'
 result_path = '../Data/' + target_chromosome + '/'
 if not os.path.exists(result_path):
@@ -18,6 +19,27 @@ for line in f:
     gene_finish = int(curr_gene_data[3])
     if chromosome_name == target_chromosome:
         gene_data.append([chromosome_name, gene_name, gene_start, gene_finish])
+f.close()
+
+pop_dict = dict()
+pop_dict['GBR'] = 'N_EUR'
+pop_dict['FIN'] = 'N_EUR'
+pop_dict['IBS'] = 'S_EUR'
+pop_dict['TSI'] = 'S_EUR'
+pop_dict['YRI'] = 'AFR'
+pop_dict['LWK'] = 'AFR'
+pop_dict['GWD'] = 'AFR'
+pop_dict['MSL'] = 'AFR'
+pop_dict['ESN'] = 'AFR'
+f = open(data_path + population_file_name)
+population_data = dict((x,[]) for x in set(pop_dict.values()))
+for line in f:
+    curr_population_data = line.split('\t')
+    sample_name = curr_population_data[0]
+    population_name = curr_population_data[1]
+    if population_name in pop_dict.keys():
+        pop_name = pop_dict[population_name]
+        population_data[pop_name].append(sample_name)
 f.close()
 
 if target_chromosome is 'chrMT':
@@ -37,6 +59,12 @@ for line in f:
     elif line.startswith('#CHROM'):
         line = line.replace('\n', '')
         column_names = line.split('\t')
+        for column_id in range(0, len(column_names)):
+            for key in list(population_data.keys()):
+                if column_names[column_id] in population_data[key]:
+                    pop_names.append([column_names[column_id], key])
+        fn = data_path + 'samples_populations.txt'
+        np.savetxt(fn, pop_names, fmt='%s')
     elif line.startswith(target_chromosome[3:]):
         line = line.replace('\n', '')
         row = line.split('\t')
@@ -56,12 +84,10 @@ for line in f:
             curr_gene = gene_name
         elif curr_position > gene_end:
 
-            if len(snp_data) > 0:
-
-                fn = result_path + gene_name + '.txt'
-                snp_data[0] = column_data
-                np.savetxt(fn, snp_data, fmt='%s')
-                snp_data = []
+            fn = result_path + gene_name + '.txt'
+            snp_data[0] = column_data
+            np.savetxt(fn, snp_data, fmt='%s')
+            snp_data = []
 
             genes_passed += 1
             print(genes_passed)
@@ -92,8 +118,11 @@ for line in f:
         column_data = [column_names[0][1:], 'GENE', column_names[1], column_names[2], column_names[3], column_names[4]]
 
         for column_id in range(0, len(column_names)):
-            column_data.append(column_names[column_id])
-            curr_data.append(row[column_id])
+            for key in list(population_data.keys()):
+                if column_names[column_id] in population_data[key]:
+                    pop_names.append([column_names[column_id], key])
+                    column_data.append(column_names[column_id])
+                    curr_data.append(row[column_id])
         if len(set(curr_data[6:])) == 1:
             continue
     else:

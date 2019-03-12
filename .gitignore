@@ -112,3 +112,5 @@ data/
 
 *.out
 Source/\.idea/
+
+\.idea/

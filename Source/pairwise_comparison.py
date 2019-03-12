@@ -1,8 +1,10 @@
+import pandas as pd
+
 data_path = '../Data/'
-data_file_name = 'data_snp_test.txt'
+data_file_name = 'data_snp_test_genes.txt'
 data_file_name_mt = 'data_snp_mt.txt'
 
-pop_file_name = 'samples_populations.txt'
+pop_file_name = 's_pop.txt'
 pop_dict = {}
 f = open(data_path + pop_file_name)
 for line in f:
@@ -14,7 +16,6 @@ for line in f:
         pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
 f.close()
 
-target_chromosomes = ['chr22']
 snp_nuclear_variations = ['0|0', '0|1', '1|0', '1|1']
 snp_mt_variations = ['0', '1']
 
