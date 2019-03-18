@@ -16,17 +16,15 @@ for dir_name in os.listdir(data_path):
             print(dir_name)
             chr_path = data_path + dir_name + '/'
             for gene_file_name in os.listdir(chr_path):
-                f = open(chr_path + gene_file_name)
-                for line in f:
-                    if header == '':
-                        header = line
-                        data_file.write(header)
-                    elif line == header:
-                        continue
-                    else:
-                        curr_gene_data = line.split(' ')
-                        gene_name = curr_gene_data[1]
-                        if gene_name in genes:
+                if gene_file_name[:-4] in genes:
+                    f = open(chr_path + gene_file_name)
+                    for line in f:
+                        if header == '':
+                            header = line
+                            data_file.write(header)
+                        elif line == header:
+                            continue
+                        else:
                             data_file.write(line)
-                f.close()
+                    f.close()
 data_file.close()

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, accuracy_score
 
 data_path = '../Data/'
 data_file_name = 'data_snp_test_genes_short.txt'
@@ -137,10 +137,11 @@ train, test = df[df['is_train']==True], df[df['is_train']==False]
 print('Number of observations in the training data:', len(train))
 print('Number of observations in the test data:',len(test))
 features = df.columns[:-2]
-y = pd.factorize(train['species'])[0]
-clf = RandomForestClassifier(n_jobs=2, random_state=0)
+factor = pd.factorize(train['species'])
+y = factor[0]
+clf = RandomForestClassifier()
 clf.fit(train[features], y)
-preds = [target_pops[i] for i in list(clf.predict(test[features]))]
+preds = list(clf.predict(test[features]))
+preds = [factor[1][i] for i in preds]
 print(classification_report(test['species'], preds))
-
-ololo = 1
+print(accuracy_score(test['species'], preds, normalize=True))
