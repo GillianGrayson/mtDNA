@@ -42,7 +42,7 @@ for sample_name in samples_names:
     if sample_name in reference_list:
         target_samples_mt.append(samples_names.index(sample_name))
         snp_samples[sample_name] = []
-        snp_samples_mt[sample_name] = None
+        snp_samples_mt[sample_name] = []
 
 for line in f:
     line = line.replace('\n', '')
@@ -58,7 +58,7 @@ for line in f:
     if snp_chr == 'chrMT':
         for id in range(0, len(snp_data)):
             sample_name = samples_names[target_samples_mt[id]]
-            snp_samples_mt[sample_name] = snp_data[id]
+            snp_samples_mt[sample_name].append(snp_data[id])
 f.close()
 
 f = open(data_path + data_file_name)
@@ -69,7 +69,12 @@ target_samples = []
 for sample_name in samples_names:
     if sample_name in reference_list and sample_name in snp_samples_mt:
         target_samples.append(samples_names.index(sample_name))
+
+line_count = 0
 for line in f:
+    if line_count % 100 == 0:
+        print('Frequencies calculated: ', line_count)
+
     line = line.replace('\n', '')
     curr_snp_data = line.split(' ')
     snp_chr = curr_snp_data[0]
@@ -80,23 +85,26 @@ for line in f:
 
     snp_data = list(snp_data[i] for i in target_samples)
 
+    sample_id = 0
     for sample in snp_samples.keys():
-        for id in range(0, len(snp_samples_mt)):
-            sample_name = samples_names[target_samples[id]]
-            if snp_samples_mt[sample_name] == '0':
-                if snp_data[id] == '0|0':
+        for id in range(0, len(snp_samples_mt[sample])):
+            if snp_samples_mt[sample][id] == '0':
+                if snp_data[sample_id] == '0|0':
                     reference_frequencies[0] += 1
-                elif snp_data[id] == '0|1' or snp_data[id] == '1|0':
+                elif snp_data[sample_id] == '0|1' or snp_data[sample_id] == '1|0':
                     reference_frequencies[1] += 1
-                elif snp_data[id] == '1|1':
+                elif snp_data[sample_id] == '1|1':
                     reference_frequencies[2] += 1
-            elif snp_samples_mt[sample_name] == '1':
-                if snp_data[id] == '0|0':
+            elif snp_samples_mt[sample][id] == '1':
+                if snp_data[sample_id] == '0|0':
                     reference_frequencies[3] += 1
-                elif snp_data[id] == '0|1' or snp_data[id] == '1|0':
+                elif snp_data[sample_id] == '0|1' or snp_data[sample_id] == '1|0':
                     reference_frequencies[4] += 1
-                elif snp_data[id] == '1|1':
+                elif snp_data[sample_id] == '1|1':
                     reference_frequencies[5] += 1
+        sample_id += 1
+    line_count += 1
+
 f.close()
 
 reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
@@ -112,18 +120,21 @@ snp_samples = {}
 target_samples_mt = []
 snp_samples_mt = {}
 genes_mt = {}
-genes_combinations = {}
+genes_combinations = []
 
 for sample_name in samples_names:
     for target_pop in target_pops:
         if sample_name in pop_dict[target_pop]:
             target_samples_mt.append(samples_names.index(sample_name))
             snp_samples[sample_name] = []
-            snp_samples_mt[sample_name] = None
+            snp_samples_mt[sample_name] = []
             genes_mt[sample_name] = []
-            genes_combinations[sample_name] = []
 
+line_count = 0
 for line in f:
+    if line_count % 1000 == 0:
+        print('Lines in mtDNA file: ', line_count)
+
     line = line.replace('\n', '')
     curr_snp_data = line.split(' ')
     snp_chr = curr_snp_data[0]
@@ -137,8 +148,9 @@ for line in f:
     if snp_chr == 'chrMT':
         for id in range(0, len(snp_data)):
             sample_name = samples_names[target_samples_mt[id]]
-            snp_samples_mt[sample_name] = snp_data[id]
+            snp_samples_mt[sample_name].append(snp_data[id])
             genes_mt[sample_name].append(snp_gene + '_' + snp_pos)
+    line_count += 1
 f.close()
 
 f = open(data_path + data_file_name)
@@ -150,7 +162,12 @@ for sample_name in samples_names:
     for target_pop in target_pops:
         if sample_name in pop_dict[target_pop] and sample_name in snp_samples_mt:
             target_samples.append(samples_names.index(sample_name))
+
+line_count = 0
 for line in f:
+    if line_count % 100 == 0:
+        print('Lines in nDNA file: ', line_count)
+
     line = line.replace('\n', '')
     curr_snp_data = line.split(' ')
     snp_chr = curr_snp_data[0]
@@ -161,24 +178,27 @@ for line in f:
 
     snp_data = list(snp_data[i] for i in target_samples)
 
+    sample_id = 0
     for sample in snp_samples.keys():
-        for id in range(0, len(snp_samples_mt)):
-            sample_name = samples_names[target_samples[id]]
-            genes_combinations[sample_name].append(genes_mt[sample_name][id] + '_' + snp_gene + '_' + snp_name)
-            if snp_samples_mt[sample_name] == '0':
-                if snp_data[id] == '0|0':
-                    snp_samples[sample_name].append(1 - reference_frequencies[0])
-                elif snp_data[id] == '0|1' or snp_data[id] == '1|0':
-                    snp_samples[sample_name].append(1 - reference_frequencies[1])
-                elif snp_data[id] == '1|1':
-                    snp_samples[sample_name].append(1 - reference_frequencies[2])
-            elif snp_samples_mt[sample_name] == '1':
-                if snp_data[id] == '0|0':
-                    snp_samples[sample_name].append(1 - reference_frequencies[3])
-                elif snp_data[id] == '0|1' or snp_data[id] == '1|0':
-                    snp_samples[sample_name].append(1 - reference_frequencies[4])
-                elif snp_data[id] == '1|1':
-                    snp_samples[sample_name].append(1 - reference_frequencies[5])
+        for id in range(0, len(snp_samples_mt[sample])):
+            if sample_id == 0:
+                genes_combinations.append(genes_mt[sample][id] + '_' + snp_gene + '_' + snp_name)
+            if snp_samples_mt[sample][id] == '0':
+                if snp_data[sample_id] == '0|0':
+                    snp_samples[sample].append(1 - reference_frequencies[0])
+                elif snp_data[sample_id] == '0|1' or snp_data[sample_id] == '1|0':
+                    snp_samples[sample].append(1 - reference_frequencies[1])
+                elif snp_data[sample_id] == '1|1':
+                    snp_samples[sample].append(1 - reference_frequencies[2])
+            elif snp_samples_mt[sample][id] == '1':
+                if snp_data[sample_id] == '0|0':
+                    snp_samples[sample].append(1 - reference_frequencies[3])
+                elif snp_data[sample_id] == '0|1' or snp_data[sample_id] == '1|0':
+                    snp_samples[sample].append(1 - reference_frequencies[4])
+                elif snp_data[sample_id] == '1|1':
+                    snp_samples[sample].append(1 - reference_frequencies[5])
+        sample_id += 1
+    line_count += 1
 f.close()
 
 data_samples = [[] for key in snp_samples.keys()]
@@ -187,13 +207,16 @@ column_names = []
 is_train = []
 id = 0
 for key, value in snp_samples.items():
+
+    if id % 100 == 0:
+        print('Samples passed:', id)
     data_samples[id].extend(snp_samples[key])
     if key in reference_list:
         is_train.append(1)
     else:
         is_train.append(0)
     if id == 0:
-        column_names.extend(genes_combinations[key])
+        column_names.extend(genes_combinations)
 
     for target_pop in target_pops:
         if key in pop_dict[target_pop]:
@@ -201,7 +224,8 @@ for key, value in snp_samples.items():
     id += 1
 
 snp_samples = {}
-genes_combinations = {}
+snp_samples_mt = {}
+genes_combinations = []
 df = pd.DataFrame(data_samples, columns=column_names)
 data_samples = []
 df['species'] = data_classes
@@ -217,5 +241,10 @@ clf.fit(train[features], y)
 preds = list(clf.predict(test[features]))
 preds = [factor[1][i] for i in preds]
 
+feature_importances = pd.DataFrame(clf.feature_importances_,
+                                   index = train[features].columns,
+                                   columns=['importance']).sort_values('importance',ascending=False)
+
+print(feature_importances[:10])
 print(classification_report(test['species'], preds))
 print(accuracy_score(test['species'], preds, normalize=True))
