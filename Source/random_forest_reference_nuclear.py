@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
+from sklearn.model_selection import train_test_split
 
 data_path = '../Data/'
-data_file_name = 'data_snp_test_genes_short.txt'
+data_file_name = 'data_snp_test_genes.txt'
 
 pop_file_name = 's_pop.txt'
 pop_dict = {}
@@ -19,7 +20,7 @@ for line in f:
         pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
 f.close()
 
-target_pops = ['CHB', 'YRI']    # CHB - Han Chinese in Beijing, China; YRI - Yoruba in Ibadan, Nigeria
+target_pops = ['CHB', 'JPT']    # CHB - Han Chinese in Beijing, China; YRI - Yoruba in Ibadan, Nigeria
 
 reference_pop = 'CHB'   # CHB - Han Chinese in Beijing, China
 reference_size = 0.75
@@ -138,13 +139,13 @@ genes = []
 df = pd.DataFrame(data_samples, columns=column_names)
 data_samples = []
 df['species'] = data_classes
-df['is_train'] = np.random.uniform(0, 1, len(df)) <= .75
-train, test = df[df['is_train']==True], df[df['is_train']==False]
+train, test = train_test_split(df, test_size=0.25)
 print('Number of observations in the training data:', len(train))
 print('Number of observations in the test data:',len(test))
-features = df.columns[:-2]
+features = df.columns[:-1]
 factor = pd.factorize(train['species'])
 y = factor[0]
+
 clf = RandomForestClassifier()
 clf.fit(train[features], y)
 preds = list(clf.predict(test[features]))
@@ -156,4 +157,4 @@ feature_importances = pd.DataFrame(clf.feature_importances_,
 
 print(feature_importances[:10])
 print(classification_report(test['species'], preds))
-print(accuracy_score(test['species'], preds, normalize=True))
+print('Accuracy score:', accuracy_score(test['species'], preds, normalize=True))

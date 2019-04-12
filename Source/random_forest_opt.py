@@ -35,14 +35,14 @@ header = f.readline().replace('\n', '')
 header = header.split(' ')
 samples_names = header[15:]
 
-snp_samples = {}
-target_samples_mt = []
+target_samples_ids_mt = []
+target_samples_names = []
 snp_samples_mt = {}
 
 for sample_name in samples_names:
     if sample_name in reference_list:
-        target_samples_mt.append(samples_names.index(sample_name))
-        snp_samples[sample_name] = []
+        target_samples_ids_mt.append(samples_names.index(sample_name))
+        target_samples_names.append(sample_name)
         snp_samples_mt[sample_name] = []
 
 for line in f:
@@ -54,11 +54,11 @@ for line in f:
     snp_name = curr_snp_data[3]
     snp_data = curr_snp_data[15:]
 
-    snp_data = list(snp_data[i] for i in target_samples_mt)
+    snp_data = list(snp_data[i] for i in target_samples_ids_mt)
 
     if snp_chr == 'chrMT':
         for id in range(0, len(snp_data)):
-            sample_name = samples_names[target_samples_mt[id]]
+            sample_name = samples_names[target_samples_ids_mt[id]]
             snp_samples_mt[sample_name].append(snp_data[id])
 f.close()
 
@@ -87,7 +87,7 @@ for line in f:
     snp_data = list(snp_data[i] for i in target_samples)
 
     sample_id = 0
-    for sample in snp_samples.keys():
+    for sample in target_samples_names:
         for id in range(0, len(snp_samples_mt[sample])):
             if snp_samples_mt[sample][id] == '0':
                 if snp_data[sample_id] == '0|0':
@@ -109,6 +109,7 @@ for line in f:
 f.close()
 
 reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
+snp_samples_mt = None
 
 # Remaining group
 
@@ -117,19 +118,14 @@ header = f.readline().replace('\n', '')
 header = header.split(' ')
 samples_names = header[15:]
 
-snp_samples = {}
-target_samples_mt = []
-snp_samples_mt = {}
-genes_mt = {}
-genes_combinations = []
+target_samples_ids_mt = []
 
 for sample_name in samples_names:
     for target_pop in target_pops:
         if sample_name in pop_dict[target_pop]:
-            target_samples_mt.append(samples_names.index(sample_name))
-            snp_samples[sample_name] = []
-            snp_samples_mt[sample_name] = []
-            genes_mt[sample_name] = []
+            target_samples_ids_mt.append(samples_names.index(sample_name))
+
+df_ref = pd.DataFrame(index=range(0, len(target_samples_ids_mt)), dtype='str')
 
 line_count = 0
 for line in f:
@@ -144,11 +140,11 @@ for line in f:
     snp_name = curr_snp_data[3]
     snp_data = curr_snp_data[15:]
 
-    snp_data = list(snp_data[i] for i in target_samples_mt)
+    snp_data = list(snp_data[i] for i in target_samples_ids_mt)
 
     if snp_chr == 'chrMT':
         for id in range(0, len(snp_data)):
-            sample_name = samples_names[target_samples_mt[id]]
+            sample_name = samples_names[target_samples_ids_mt[id]]
             snp_samples_mt[sample_name].append(snp_data[id])
             genes_mt[sample_name].append(snp_gene + '_' + snp_pos)
     line_count += 1
