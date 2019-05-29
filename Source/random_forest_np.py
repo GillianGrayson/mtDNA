@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split
@@ -38,6 +39,8 @@ target_samples_ids_mt = []
 target_samples_names = []
 snp_samples_mt = {}
 
+number_mt_snps = 0
+
 for sample_name in samples_names:
     if sample_name in reference_list:
         target_samples_ids_mt.append(samples_names.index(sample_name))
@@ -45,6 +48,7 @@ for sample_name in samples_names:
         snp_samples_mt[sample_name] = []
 
 for line in f:
+    number_mt_snps += 1
     line = line.replace('\n', '')
     curr_snp_data = line.split(' ')
     snp_chr = curr_snp_data[0]
@@ -61,6 +65,8 @@ for line in f:
             snp_samples_mt[sample_name].append(snp_data[id])
 f.close()
 
+number_nuc_snps = 0
+
 f = open(data_path + data_file_name)
 header = f.readline().replace('\n', '')
 header = header.split(' ')
@@ -70,10 +76,13 @@ for sample_name in samples_names:
     if sample_name in reference_list and sample_name in snp_samples_mt:
         target_samples.append(samples_names.index(sample_name))
 
-line_count_mt = 0
+line_count = 0
 for line in f:
-    if line_count_mt % 100 == 0:
-        print('Frequencies calculated: ', line_count_mt)
+
+    number_nuc_snps += 1
+
+    if line_count % 100 == 0:
+        print('Frequencies calculated: ', line_count)
 
     line = line.replace('\n', '')
     curr_snp_data = line.split(' ')
@@ -103,7 +112,7 @@ for line in f:
                 elif snp_data[sample_id] == '1|1':
                     reference_frequencies[5] += 1
         sample_id += 1
-    line_count_mt += 1
+    line_count += 1
 
 f.close()
 
@@ -126,7 +135,7 @@ for sample_name in samples_names_mt:
             target_samples_names_mt.append(sample_name)
             target_samples_ids_mt.append(samples_names_mt.index(sample_name))
 
-df_ref_mt = []
+df_ref_mt = np.empty(shape=(len(target_samples_names_mt), number_mt_snps), dtype=str)
 names_mt = []
 
 line_count_mt = 0
@@ -150,13 +159,10 @@ for line in f_mt:
         if name_mt not in names_mt:
             names_mt.append(name_mt)
 
-        df_ref_mt.append(snp_data_mt)
+        df_ref_mt[:,line_count_mt] = snp_data_mt
 
     line_count_mt += 1
 f_mt.close()
-
-
-df_ref = pd.DataFrame()
 
 f_nuc = open(data_path + data_file_name)
 header_nuc = f_nuc.readline().replace('\n', '')
@@ -170,10 +176,13 @@ for sample_name in samples_names_nuc:
             target_samples_names_nuc.append(sample_name)
             target_samples_ids_nuc.append(samples_names_nuc.index(sample_name))
 
+df_ref = np.empty(shape=(len(target_samples_names_nuc), number_nuc_snps * number_mt_snps), dtype=float)
+names_combinations = []
+
 line_count_nuc = 0
 for line in f_nuc:
 
-    if line_count_nuc % 10 == 0:
+    if line_count_nuc % 50 == 0:
         print('Lines in nDNA file: ', line_count_nuc)
 
     line = line.replace('\n', '')
@@ -191,17 +200,18 @@ for line in f_nuc:
         name_mt = names_mt[mt_id]
 
         combination_name = name_mt + '_' + snp_gene_nuc + '_' + snp_name_nuc
+        names_combinations.append(combination_name)
         combination_data = []
 
         for id in range(0, len(snp_data_nuc)):
-            if df_ref_mt[mt_id][id] == '0':
+            if df_ref_mt[id][mt_id] == '0':
                 if snp_data_nuc[id] == '0|0':
                     combination_data.append(1 - reference_frequencies[0])
                 elif snp_data_nuc[id] == '0|1' or snp_data_nuc[id] == '1|0':
                     combination_data.append(1 - reference_frequencies[1])
                 elif snp_data_nuc[id] == '1|1':
                     combination_data.append(1 - reference_frequencies[2])
-            elif df_ref_mt[mt_id][id] == '1':
+            elif df_ref_mt[id][mt_id] == '1':
                 if snp_data_nuc[id] == '0|0':
                     combination_data.append(1 - reference_frequencies[3])
                 elif snp_data_nuc[id] == '0|1' or snp_data_nuc[id] == '1|0':
@@ -209,7 +219,7 @@ for line in f_nuc:
                 elif snp_data_nuc[id] == '1|1':
                     combination_data.append(1 - reference_frequencies[5])
 
-        df_ref[combination_name] = combination_data
+        df_ref[:, line_count_nuc] = combination_data
 
     line_count_nuc += 1
 
@@ -221,22 +231,20 @@ for item in target_samples_names_mt:
         if item in pop_dict[target_pop]:
             data_classes.append(target_pop)
 
-df_ref['species'] = data_classes
-train, test = train_test_split(df_ref, test_size=0.25)
+train, test, y_train, y_test = train_test_split(df_ref, data_classes, test_size=0.25)
 print('Number of observations in the training data:', len(train))
 print('Number of observations in the test data:', len(test))
-features = df_ref.columns[:-1]
-factor = pd.factorize(train['species'])
+factor = pd.factorize(y_train)
 y = factor[0]
 clf = RandomForestClassifier()
-clf.fit(train[features], y)
-preds = list(clf.predict(test[features]))
+clf.fit(train, y)
+preds = list(clf.predict(test))
 preds = [factor[1][i] for i in preds]
 
 feature_importances = pd.DataFrame(clf.feature_importances_,
-                                   index=train[features].columns,
+                                   index=names_combinations,
                                    columns=['importance']).sort_values('importance', ascending=False)
 
 print(feature_importances[:10])
-print(classification_report(test['species'], preds))
-print(accuracy_score(test['species'], preds, normalize=True))
+print(classification_report(y_test, preds))
+print(accuracy_score(y_test, preds, normalize=True))
