@@ -1,10 +1,10 @@
 import os
 
 data_path = '../Data/'
-data_chr_test_table_file_name = 'data_snp_test_genes_short.txt'
+data_chr_test_table_file_name = 'data_snp_test_genes_diet.txt'
 data_file = open(data_path + data_chr_test_table_file_name, 'w')
 
-data_gene_list_file_name = 'test_gene_list_short.txt'
+data_gene_list_file_name = 'test_gene_list_diet.txt'
 data_gene_file = open(data_path + data_gene_list_file_name)
 genes = [line.replace('\n', '') for line in data_gene_file]
 data_gene_file.close()

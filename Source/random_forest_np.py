@@ -5,7 +5,7 @@ from sklearn.metrics import classification_report, accuracy_score
 from sklearn.model_selection import train_test_split
 
 data_path = '../Data/'
-data_file_name = 'data_snp_test_genes_short.txt'
+data_file_name = 'data_snp_test_genes_diet.txt'
 data_file_name_mt = 'data_snp_mt.txt'
 
 pop_file_name = 's_pop.txt'
@@ -23,7 +23,7 @@ f.close()
 
 target_pops = ['CHB', 'YRI']  # CHB - Han Chinese in Beijing, China; YRI - Yoruba in Ibadan, Nigeria
 
-reference_pop = 'CHB'  # CHB - Han Chinese in Beijing, China
+reference_pop = 'YRI'  # YRI - Yoruba in Ibadan, Nigeria
 reference_size = 0.75
 reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
 reference_frequencies = [0, 0, 0, 0, 0, 0]
