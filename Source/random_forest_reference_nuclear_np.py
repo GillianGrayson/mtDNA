@@ -22,16 +22,16 @@ for line in f:
         pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
 f.close()
 
-target_pops = ['TSI', 'YRI']
+target_pops = ['ESN', 'YRI']
 
 reference_pop = 'YRI'  # YRI - Yoruba in Ibadan, Nigeria
 reference_size = 0.75
 reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
 reference_frequencies = [0, 0, 0]
 
-result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_cold_adaptation_output.txt', 'w')
+result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_thermogenesis_output.txt', 'w')
 
-data_gene_list_file_name = 'test_gene_list_cold_adaptation.txt'
+data_gene_list_file_name = 'test_gene_list_thermogenesis.txt'
 data_gene_file = open(data_path + data_gene_list_file_name)
 gene_list = [line.replace('\n', '') for line in data_gene_file]
 all_genes = []
@@ -51,8 +51,7 @@ for L in range(1, len(all_genes) + 1):
         result_file.write(';'.join(genes))
         result_file.write('\n')
 
-        data_table_file_name = '_'.join(target_pops) + '_current_data.txt'
-        data_file = open(data_path + data_table_file_name, 'w')
+        main_data = []
 
         header = ''
         for dir_name in os.listdir(data_path):
@@ -64,18 +63,16 @@ for L in range(1, len(all_genes) + 1):
                         for line in f:
                             if header == '':
                                 header = line
-                                data_file.write(header)
+                                main_data.append(header)
                             elif line == header:
                                 continue
                             else:
-                                data_file.write(line)
+                                main_data.append(line)
                         f.close()
-        data_file.close()
 
         # Reference group
 
-        f = open(data_path + data_table_file_name)
-        header = f.readline().replace('\n', '')
+        header = main_data[0].replace('\n', '')
         header = header.split(' ')
         samples_names = header[15:]
 
@@ -91,10 +88,10 @@ for L in range(1, len(all_genes) + 1):
                 target_samples_names.append(sample_name)
                 snp_samples_mt[sample_name] = []
 
-        for line in f:
+        for item in main_data[1:]:
             number_nuc_snps += 1
-            line = line.replace('\n', '')
-            curr_snp_data = line.split(' ')
+            item = item.replace('\n', '')
+            curr_snp_data = item.split(' ')
             snp_chr = curr_snp_data[0]
             snp_gene = curr_snp_data[1]
             snp_pos = curr_snp_data[2]
@@ -110,14 +107,12 @@ for L in range(1, len(all_genes) + 1):
                     reference_frequencies[1] += 1
                 elif snp_data[id] == '1|1':
                     reference_frequencies[2] += 1
-        f.close()
 
         reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
 
         # Remaining group
 
-        f_nuc = open(data_path + data_table_file_name)
-        header_nuc = f_nuc.readline().replace('\n', '')
+        header_nuc = main_data[0].replace('\n', '')
         header_nuc = header_nuc.split(' ')
         samples_names_nuc = header_nuc[15:]
 
@@ -134,12 +129,12 @@ for L in range(1, len(all_genes) + 1):
         names_nuc = []
 
         line_count_nuc = 0
-        for line in f_nuc:
+        for item in main_data[1:]:
             if line_count_nuc % 1000 == 0:
                 print('Lines in nuclear DNA file: ', line_count_nuc)
 
-            line = line.replace('\n', '')
-            curr_snp_data_nuc = line.split(' ')
+            item = item.replace('\n', '')
+            curr_snp_data_nuc = item.split(' ')
             snp_chr_nuc = curr_snp_data_nuc[0]
             snp_gene_nuc = curr_snp_data_nuc[1]
             snp_pos_nuc = curr_snp_data_nuc[2]
@@ -165,7 +160,6 @@ for L in range(1, len(all_genes) + 1):
             df_ref_nuc[:, line_count_nuc] = combination_data
 
             line_count_nuc += 1
-        f_nuc.close()
 
         data_classes = []
         for item in target_samples_names_nuc:
