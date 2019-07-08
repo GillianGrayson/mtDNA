@@ -55,55 +55,55 @@ for dir_name in os.listdir(data_path):
                 mt_genes.append(gene_file_name[:-4])
 data_gene_file.close()
 
-for L_mt in range(len(mt_genes), len(mt_genes) - 1, -1):
-    for mt_subset in itertools.combinations(mt_genes, L_mt):
-        curr_mt_genes = list(mt_subset)
+for L_nuc in range(1, len(nuc_genes) + 1):
+    for nuc_subset in itertools.combinations(nuc_genes, L_nuc):
+        curr_nuc_genes = list(nuc_subset)
 
-        mt_data = []
+        nuc_data = []
 
         header = ''
         for dir_name in os.listdir(data_path):
             if dir_name.startswith('chr'):
                 chr_path = data_path + dir_name + '/'
                 for gene_file_name in os.listdir(chr_path):
-                    if gene_file_name[:-4] in curr_mt_genes:
+                    if gene_file_name[:-4] in curr_nuc_genes:
                         f = open(chr_path + gene_file_name)
                         for line in f:
                             if header == '':
                                 header = line
-                                mt_data.append(header)
+                                nuc_data.append(header)
                             elif line == header:
                                 continue
                             else:
-                                mt_data.append(line)
+                                nuc_data.append(line)
                         f.close()
 
-        for L_nuc in range(1, len(nuc_genes) + 1):
-            for nuc_subset in itertools.combinations(nuc_genes, L_nuc):
-                curr_nuc_genes = list(nuc_subset)
+        for L_mt in range(1, len(mt_genes) + 1):
+            for mt_subset in itertools.combinations(mt_genes, L_mt):
+                curr_mt_genes = list(mt_subset)
 
                 print(curr_nuc_genes)
                 print(curr_mt_genes)
                 result_file.write(';'.join([';'.join(curr_nuc_genes), ';'.join(curr_mt_genes)]))
                 result_file.write('\n')
 
-                nuc_data = []
+                mt_data = []
 
                 header = ''
                 for dir_name in os.listdir(data_path):
                     if dir_name.startswith('chr'):
                         chr_path = data_path + dir_name + '/'
                         for gene_file_name in os.listdir(chr_path):
-                            if gene_file_name[:-4] in curr_nuc_genes:
+                            if gene_file_name[:-4] in curr_mt_genes:
                                 f = open(chr_path + gene_file_name)
                                 for line in f:
                                     if header == '':
                                         header = line
-                                        nuc_data.append(header)
+                                        mt_data.append(header)
                                     elif line == header:
                                         continue
                                     else:
-                                        nuc_data.append(line)
+                                        mt_data.append(line)
                                 f.close()
 
                 # Reference group
