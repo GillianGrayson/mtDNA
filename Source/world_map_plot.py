@@ -22,7 +22,7 @@ for i in range(0, data.shape[0]):
     if list(data.max_presicion_of_mt_genes)[i] == 'reference':
         curr_dict['metrics'] = 'reference'
     else:
-        curr_dict['metrics'] = str(list(data.max_presicion_of_nuc_diet_genes)[i]) + ' (' + str(list(data.number_of_nuc_diet_genes)[i]) + ')'
+        curr_dict['metrics'] = str(list(data.max_presicion_of_nuc_thermogenesis_genes)[i]) + ' (' + str(list(data.number_of_nuc_thermogenesis_genes)[i]) + ')'
     populations_info.append(curr_dict)
 
 color_map = cl.scales['8']['qual']['Set1'] + cl.scales['8']['qual']['Set2']
@@ -102,4 +102,4 @@ layout = go.Layout(
 
 figure_path = '../Result/figures/'
 fig = go.Figure(data=elems , layout=layout)
-save_figure(figure_path + 'nuc_diet', fig)
+save_figure(figure_path + 'nuc_thermogenesis', fig)

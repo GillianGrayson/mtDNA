@@ -3,8 +3,7 @@ import itertools
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_validate
 
 data_path = '../Data/'
 result_path = '../Result/'
@@ -29,7 +28,8 @@ reference_size = 0.75
 reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
 reference_frequencies = [0, 0, 0]
 
-result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_thermogenesis_output.txt', 'w')
+result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_result.txt', 'w')
+feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_features.txt', 'w')
 
 data_gene_list_file_name = 'test_gene_list_thermogenesis.txt'
 data_gene_file = open(data_path + data_gene_list_file_name)
@@ -50,6 +50,8 @@ for L in range(1, len(all_genes) + 1):
         print(genes)
         result_file.write(';'.join(genes))
         result_file.write('\n')
+        feature_file.write(';'.join(genes))
+        feature_file.write('\n')
 
         main_data = []
 
@@ -143,10 +145,6 @@ for L in range(1, len(all_genes) + 1):
 
             snp_data_nuc = list(snp_data_nuc[i] for i in target_samples_ids_nuc)
 
-            name_nuc = snp_gene_nuc + '_' + snp_name_nuc
-            if name_nuc not in names_nuc:
-                names_nuc.append(name_nuc)
-
             combination_data = []
 
             for id in range(0, len(snp_data_nuc)):
@@ -159,7 +157,14 @@ for L in range(1, len(all_genes) + 1):
 
             df_ref_nuc[:, line_count_nuc] = combination_data
 
+            if len(set(combination_data)) > 1:
+                name_nuc = snp_gene_nuc + '_' + snp_name_nuc
+                if name_nuc not in names_nuc:
+                    names_nuc.append(name_nuc)
+
             line_count_nuc += 1
+
+        df_ref_nuc = df_ref_nuc[:, ~np.all(df_ref_nuc[1:] == df_ref_nuc[:-1], axis=0)]
 
         data_classes = []
         for item in target_samples_names_nuc:
@@ -167,34 +172,39 @@ for L in range(1, len(all_genes) + 1):
                 if item in pop_dict[target_pop]:
                     data_classes.append(target_pop)
 
-        train, test, y_train, y_test = train_test_split(df_ref_nuc, data_classes, test_size=0.25)
-        print('Number of observations in the training data:', len(train))
-        print('Number of observations in the test data:', len(test))
-        result_file.write('Number of observations in the training data:' + str(len(train)))
-        result_file.write('\n')
-        result_file.write('Number of observations in the test data:' + str(len(test)))
-        result_file.write('\n')
-        factor = pd.factorize(y_train)
+        factor = pd.factorize(data_classes)
         y = factor[0]
-        clf = RandomForestClassifier()
-        clf.fit(train, y)
-        preds = list(clf.predict(test))
-        preds = [factor[1][i] for i in preds]
 
-        feature_importances = pd.DataFrame(clf.feature_importances_,
-                                           index=names_nuc,
-                                           columns=['importance']).sort_values('importance', ascending=False)
+        clf = RandomForestClassifier(n_estimators=10)
+        output = cross_validate(clf, df_ref_nuc, y, cv=5, scoring='accuracy', return_estimator=True)
+        accuracy = np.mean(output['test_score'])
 
-        print(feature_importances[:10])
-        print(classification_report(y_test, preds))
-        print(accuracy_score(y_test, preds, normalize=True))
+        print(accuracy)
 
-        for id in range(0, 10):
-            line = str(list(feature_importances.index.values)[id]) + '\t' + str(list(feature_importances.values)[id][0])
-            result_file.write(line)
-            result_file.write('\n')
-        result_file.write(classification_report(y_test, preds))
-        result_file.write(str(accuracy_score(y_test, preds, normalize=True)))
+        result_file.write(str(accuracy))
         result_file.write('\n')
+
+        features_dict = dict((key, []) for key in names_nuc)
+
+        for idx, estimator in enumerate(output['estimator']):
+            feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                               index=names_nuc,
+                                               columns=['importance']).sort_values('importance', ascending=False)
+
+            for id in range(0, len(list(feature_importances.index.values))):
+                features_dict[list(feature_importances.index.values)[id]].append(
+                    list(feature_importances.values)[id][0])
+
+        for key in features_dict.keys():
+            features_dict[key] = np.mean(features_dict[key])
+
+        features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+
+        for key, value in features_dict.items():
+            if value > 0.0:
+                line = str(key) + '\t' + str(value)
+                feature_file.write(line)
+                feature_file.write('\n')
 
 result_file.close()
+feature_file.close()
