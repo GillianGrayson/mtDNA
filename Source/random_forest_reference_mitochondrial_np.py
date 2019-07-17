@@ -21,15 +21,15 @@ for line in f:
         pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
 f.close()
 
-target_pops = ['CHB', 'JPT']
+target_pops = ['CDX', 'KHV']
 
-reference_pop = 'JPT'
+reference_pop = 'KHV'
 reference_size = 0.75
 reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
 reference_frequencies = [0, 0]
 
-result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_mitochondrial_result.txt', 'w')
-feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_mitochondrial_features.txt', 'w')
+result_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_mt_result.txt', 'w')
+feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_mt_features.txt', 'w')
 
 data_gene_list_file_name = 'mt_gene_list.txt'
 data_gene_file = open(data_path + data_gene_list_file_name)
@@ -191,12 +191,16 @@ for L in range(1, len(all_genes) + 1): #len(all_genes) + 1
             features_dict[key] = np.mean(features_dict[key])
 
         features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+        feature_file.write('Number of features: ' + str(len(features_dict.keys())))
+        feature_file.write('\n')
 
+        features_count = 0
         for key, value in features_dict.items():
-            if value > 0.0:
+            if value > 0.0 and features_count < 100:
                 line = str(key) + '\t' + str(value)
                 feature_file.write(line)
                 feature_file.write('\n')
+                features_count += 1
 
 result_file.close()
 feature_file.close()

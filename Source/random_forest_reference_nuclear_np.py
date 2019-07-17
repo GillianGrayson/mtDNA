@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
 data_path = '../Data/'
-result_path = '../Result/'
+result_path = '../Result/files/'
 
 pop_file_name = 's_pop.txt'
 pop_dict = {}
@@ -21,17 +21,17 @@ for line in f:
         pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
 f.close()
 
-target_pops = ['ESN', 'YRI']
+target_pops = ['KHV', 'CDX']
 
-reference_pop = 'YRI'  # YRI - Yoruba in Ibadan, Nigeria
+reference_pop = 'CDX'  # YRI - Yoruba in Ibadan, Nigeria
 reference_size = 0.75
 reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
 reference_frequencies = [0, 0, 0]
 
-result_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_result.txt', 'w')
-feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_reference_nuclear_features.txt', 'w')
+result_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_nuc_cold_adapt_result.txt', 'w')
+feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_nuc_cold_adapt_features.txt', 'w')
 
-data_gene_list_file_name = 'test_gene_list_thermogenesis.txt'
+data_gene_list_file_name = 'test_gene_list_cold_adaptation.txt'
 data_gene_file = open(data_path + data_gene_list_file_name)
 gene_list = [line.replace('\n', '') for line in data_gene_file]
 all_genes = []
@@ -199,12 +199,16 @@ for L in range(1, len(all_genes) + 1):
             features_dict[key] = np.mean(features_dict[key])
 
         features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+        feature_file.write('Number of features: ' + str(len(features_dict.keys())))
+        feature_file.write('\n')
 
+        features_count = 0
         for key, value in features_dict.items():
-            if value > 0.0:
+            if value > 0.0 and features_count < 100:
                 line = str(key) + '\t' + str(value)
                 feature_file.write(line)
                 feature_file.write('\n')
+                features_count += 1
 
 result_file.close()
 feature_file.close()
