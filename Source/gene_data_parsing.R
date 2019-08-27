@@ -1,0 +1,8 @@
+library(data.table)
+library(GenomicRanges)
+library(biomaRt)
+mart <- useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
+setwd("D:/Aaron/Bio/mhDNA/mhDNA/Data")
+genes <- fread("gene_list_thermogenesis.txt", header = FALSE, sep = "\t")
+gene.data <- getBM(attributes = c("hgnc_symbol", "chromosome_name", "start_position","end_position"), filters = c("hgnc_symbol"), values=genes, mart=mart)
+fwrite(gene.data,"gene_list_thermogenesis_locations.txt",sep="\t",row.names=FALSE, col.names = TRUE)

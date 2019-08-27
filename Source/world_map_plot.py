@@ -10,7 +10,7 @@ def save_figure(fn, fig):
     pio.write_image(fig, fn + '.pdf')
 
 data_path = '../Result/'
-data_file_name = 'population_summary.xlsx'
+data_file_name = 'summary.xlsx'
 data = pd.read_excel(data_path + data_file_name)
 
 populations_info = []
@@ -19,10 +19,10 @@ for i in range(0, data.shape[0]):
     curr_dict['long'] = [list(data.longitude)[i]]
     curr_dict['lat'] = [list(data.latitude)[i]]
     curr_dict['name'] = list(data.population_name)[i]
-    if list(data.max_presicion_of_mt_genes)[i] == 'reference':
+    if list(data.max_precision_of_nuc_therm_snps)[i] == 'reference':
         curr_dict['metrics'] = 'reference'
     else:
-        curr_dict['metrics'] = str(list(data.max_presicion_of_nuc_thermogenesis_genes)[i]) + ' (' + str(list(data.number_of_nuc_thermogenesis_genes)[i]) + ')'
+        curr_dict['metrics'] = str(list(data.max_precision_of_nuc_therm_snps)[i]) + ' (' + str(list(data.number_of_nuc_therm_snps)[i]) + ')'
     populations_info.append(curr_dict)
 
 color_map = cl.scales['8']['qual']['Set1'] + cl.scales['8']['qual']['Set2']
@@ -79,10 +79,10 @@ layout = go.Layout(
         text = ''
     ),
     legend=dict(
-        x=0.625,
+        x=0.55,
         y=0.49,
         font=dict(
-            size=7.5,
+            size=9,
         ),
     ),
     geo = go.layout.Geo(
@@ -90,11 +90,11 @@ layout = go.Layout(
         landcolor = 'rgb(243, 243, 243)',
         countrycolor = 'rgb(204, 204, 204)',
         lataxis = go.layout.geo.Lataxis(
-            range = [-50, 90],
+            range = [-20, 80],
             dtick = 10
         ),
         lonaxis = go.layout.geo.Lonaxis(
-            range = [-20, 240],
+            range = [80, 240],
             dtick = 10
         ),
     ),
@@ -102,4 +102,4 @@ layout = go.Layout(
 
 figure_path = '../Result/figures/'
 fig = go.Figure(data=elems , layout=layout)
-save_figure(figure_path + 'nuc_thermogenesis', fig)
+save_figure(figure_path + 'nuc_therm_KHV_ref', fig)
