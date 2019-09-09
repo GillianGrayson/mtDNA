@@ -30,7 +30,7 @@ def rf_mt_nuc(config_dict):
     reference_list = pop_dict[ref_pop][:int(len(pop_dict[ref_pop]) * reference_part)]
     reference_frequencies = [0, 0, 0, 0, 0, 0]
 
-    suffix = config_dict['result_file_suffix'][0] + '_comb_' + config_dict['combinations'][0]
+    suffix = config_dict['result_file_suffix'][0] + '_comb_' + '_'.join(config_dict['combinations'])
 
     result_file = open(result_path + '_'.join(target_pop) + '_' + suffix + '_result.txt', 'w')
     feature_file = open(result_path + '_'.join(target_pop) + '_' + suffix + '_features.txt', 'w')
@@ -83,7 +83,12 @@ def rf_mt_nuc(config_dict):
                                 nuc_data.append(line)
                         f.close()
 
-        for L_mt in range(1, len(mt_genes) + 1):
+        if len(config_dict['combinations']) == 1:
+            L_mt_fin = len(mt_genes) + 1
+        else:
+            L_mt_fin = int(config_dict['combinations'][1]) + 1
+
+        for L_mt in range(1, L_mt_fin):
             for mt_subset in itertools.combinations(mt_genes, L_mt):
                 curr_mt_genes = list(mt_subset)
 
