@@ -185,9 +185,10 @@ def rf_mt(config_dict):
                                                index=names_mt,
                                                columns=['importance']).sort_values('importance', ascending=False)
 
-            feature_importances_values = list(feature_importances.index.values)
-            for id in range(0, len(feature_importances_values)):
-                features_dict[feature_importances_values[id]].append(feature_importances_values[0])
+            features_names = list(feature_importances.index.values)
+            features_values = list(feature_importances.values)
+            for id in range(0, len(features_names)):
+                features_dict[features_names[id]].append(features_values[0])
 
         for key in features_dict.keys():
             features_dict[key] = np.mean(features_dict[key])
