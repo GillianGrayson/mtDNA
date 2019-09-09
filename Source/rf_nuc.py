@@ -5,45 +5,50 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
-data_path = '../Data/'
-result_path = '../Result/files/'
 
-pop_file_name = 's_pop.txt'
-pop_dict = {}
-f = open(data_path + pop_file_name)
-f.readline()
-for line in f:
-    line = line.replace('\n', '')
-    curr_pop_data = line.split('\t')
-    if curr_pop_data[1] in pop_dict:
-        pop_dict[curr_pop_data[1]].append(curr_pop_data[0])
-    else:
-        pop_dict[curr_pop_data[1]] = [curr_pop_data[0]]
-f.close()
+def rf_nuc(config_dict):
+    data_path = config_dict['data_path'][0]
+    result_path = config_dict['result_path'][0]
+    ref_pop = config_dict['reference_pop'][0]
+    target_pop = config_dict['target_pop']
+    target_pop.extend([ref_pop])
 
-target_pops = ['GBR', 'IBS']
+    pop_file_name = 's_pop.txt'
+    pop_dict = {}
+    for pop in target_pop:
+        pop_dict[pop] = []
+    f = open(data_path + pop_file_name)
+    f.readline()
+    for line in f:
+        line = line.replace('\n', '')
+        curr_pop_data = line.split('\t')
+        if curr_pop_data[1] in pop_dict:
+            pop_dict[curr_pop_data[1]].append(curr_pop_data[0])
+    f.close()
 
-reference_pop = 'GBR'
-reference_size = 0.75
-reference_list = pop_dict[reference_pop][:int(len(pop_dict[reference_pop]) * reference_size)]
-reference_frequencies = [0, 0, 0]
+    reference_part = float(config_dict['reference_part'][0])
+    reference_list = pop_dict[ref_pop][:int(len(pop_dict[ref_pop]) * reference_part)]
+    reference_frequencies = [0, 0, 0]
 
-result_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_nuc_cold_result.txt', 'w')
-feature_file = open(result_path + '_'.join(target_pops) + '_random_forest_ref_nuc_cold_features.txt', 'w')
+    suffix = config_dict['result_file_suffix'][0] + '_comb_' + config_dict['combinations'][0]
 
-data_gene_list_file_name = 'test_gene_list_cold_adaptation.txt'
-data_gene_file = open(data_path + data_gene_list_file_name)
-gene_list = [line.replace('\n', '') for line in data_gene_file]
-all_genes = []
-for dir_name in os.listdir(data_path):
-    if dir_name.startswith('chr'):
-        chr_path = data_path + dir_name + '/'
-        for gene_file_name in os.listdir(chr_path):
-            if gene_file_name[:-4] in gene_list:
-                all_genes.append(gene_file_name[:-4])
-data_gene_file.close()
+    result_file = open(result_path + '_'.join(target_pop) + '_' + suffix + '_result.txt', 'w')
+    feature_file = open(result_path + '_'.join(target_pop) + '_' + suffix + '_features.txt', 'w')
 
-for L in range(1, len(all_genes) + 1):
+    data_gene_list_file_name = config_dict['gene_list_name'][0]
+    data_gene_file = open(data_path + data_gene_list_file_name)
+    gene_list = [line.replace('\n', '') for line in data_gene_file]
+    all_genes = []
+    for dir_name in os.listdir(data_path):
+        if dir_name.startswith('chr'):
+            chr_path = data_path + dir_name + '/'
+            for gene_file_name in os.listdir(chr_path):
+                if gene_file_name[:-4] in gene_list:
+                    all_genes.append(gene_file_name[:-4])
+    data_gene_file.close()
+
+    L = int(config_dict['combinations'][0])
+
     for subset in itertools.combinations(all_genes, L):
         genes = list(subset)
 
@@ -94,10 +99,6 @@ for L in range(1, len(all_genes) + 1):
             number_nuc_snps += 1
             item = item.replace('\n', '')
             curr_snp_data = item.split(' ')
-            snp_chr = curr_snp_data[0]
-            snp_gene = curr_snp_data[1]
-            snp_pos = curr_snp_data[2]
-            snp_name = curr_snp_data[3]
             snp_data = curr_snp_data[15:]
 
             snp_data = list(snp_data[i] for i in target_samples_ids_nuc)
@@ -122,8 +123,8 @@ for L in range(1, len(all_genes) + 1):
         target_samples_names_nuc = []
 
         for sample_name in samples_names_nuc:
-            for target_pop in target_pops:
-                if sample_name in pop_dict[target_pop]:
+            for pop in target_pop:
+                if sample_name in pop_dict[pop]:
                     target_samples_names_nuc.append(sample_name)
                     target_samples_ids_nuc.append(samples_names_nuc.index(sample_name))
 
@@ -137,9 +138,7 @@ for L in range(1, len(all_genes) + 1):
 
             item = item.replace('\n', '')
             curr_snp_data_nuc = item.split(' ')
-            snp_chr_nuc = curr_snp_data_nuc[0]
             snp_gene_nuc = curr_snp_data_nuc[1]
-            snp_pos_nuc = curr_snp_data_nuc[2]
             snp_name_nuc = curr_snp_data_nuc[3]
             snp_data_nuc = curr_snp_data_nuc[15:]
 
@@ -168,9 +167,9 @@ for L in range(1, len(all_genes) + 1):
 
         data_classes = []
         for item in target_samples_names_nuc:
-            for target_pop in target_pops:
-                if item in pop_dict[target_pop]:
-                    data_classes.append(target_pop)
+            for pop in target_pop:
+                if item in pop_dict[pop]:
+                    data_classes.append(pop)
 
         factor = pd.factorize(data_classes)
         y = factor[0]
@@ -191,9 +190,9 @@ for L in range(1, len(all_genes) + 1):
                                                index=names_nuc,
                                                columns=['importance']).sort_values('importance', ascending=False)
 
-            for id in range(0, len(list(feature_importances.index.values))):
-                features_dict[list(feature_importances.index.values)[id]].append(
-                    list(feature_importances.values)[id][0])
+            feature_importances_values = list(feature_importances.index.values)
+            for id in range(0, len(feature_importances_values)):
+                features_dict[feature_importances_values[id]].append(feature_importances_values[0])
 
         for key in features_dict.keys():
             features_dict[key] = np.mean(features_dict[key])
@@ -210,5 +209,5 @@ for L in range(1, len(all_genes) + 1):
                 feature_file.write('\n')
                 features_count += 1
 
-result_file.close()
-feature_file.close()
+    result_file.close()
+    feature_file.close()

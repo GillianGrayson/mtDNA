@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 data_path = '../Data/'
-target_chromosome = 'chrMT'
+target_chromosome = 'chrX'
 result_path = data_path + target_chromosome + '/'
 count_path = data_path + '/snp_counts/'
 if not os.path.exists(count_path):
