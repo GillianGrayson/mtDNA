@@ -1,6 +1,6 @@
-from rf_mt import rf_mt
-from rf_nuc import rf_nuc
-from rf_mt_nuc import rf_mt_nuc
+from mtDNA.rf_mt import rf_mt
+from mtDNA.rf_nuc import rf_nuc
+from mtDNA.rf_mt_nuc import rf_mt_nuc
 
 config_file_name = 'config.txt'
 f = open(config_file_name)
