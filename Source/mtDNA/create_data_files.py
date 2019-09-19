@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pickle
 
-data_path = '../../Data/genes/'
+data_path = '../../Data/genes/pkl/'
 data_path_txt = '../../Data/genes/txt/'
 data_path_npz = '../../Data/genes/npz/'
 
@@ -55,7 +55,10 @@ for file_name in os.listdir(data_path_txt):
         gene = curr_data[1]
         pos = curr_data[2]
         snp = curr_data[3]
-        gene_snp_dict[gene][snp] = line_id
+        if chr == 'MT':
+            gene_snp_dict[gene][pos] = line_id
+        else:
+            gene_snp_dict[gene][snp] = line_id
         if gene not in gene_chr_dict:
             gene_chr_dict[gene] = chr
         subject_id = 0
@@ -80,7 +83,7 @@ for file_name in os.listdir(data_path_txt):
     np.savez_compressed(data_path_npz + gene, data=data)
 
 pop_file_name = 's_pop.txt'
-f = open(data_path[:-6] + pop_file_name)
+f = open(data_path[:-10] + pop_file_name)
 f.readline()
 for line in f:
     line = line.replace('\n', '')

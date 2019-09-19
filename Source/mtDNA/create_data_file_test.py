@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 
-data_path = '../../Data/genes/'
+data_path = '../../Data/genes/pkl/'
 data_path_npz = '../../Data/genes/npz/'
 gene = 'MT-ND1'
 

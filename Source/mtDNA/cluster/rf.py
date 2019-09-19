@@ -91,8 +91,9 @@ def random_forest(k_mt, k_nuc):
               'target(' + unit_config.params_dict['target_pop'] + ')/' +
               unit_config.params_dict['k_mt'] + '_' + unit_config.params_dict['k_nuc'] + '/' +
               'accuracy.txt', 'w') as f:
-        for item in results.accuracy:
-            f.write("%s\n" % item)
+        if len(results.accuracy) > 0:
+            for item in results.accuracy:
+                f.write("%s\n" % item)
 
     if unit_config.params_dict['experiment_type'] == 'mt':
         with open(result_path + '/' +
@@ -101,8 +102,9 @@ def random_forest(k_mt, k_nuc):
                   'target(' + unit_config.params_dict['target_pop'] + ')/' +
                   unit_config.params_dict['k_mt'] + '_' + unit_config.params_dict['k_nuc'] + '/' +
                   'accuracy_mt_genes.txt', 'w') as f:
-            for item in results.accuracy_mt_genes:
-                f.write('\t'.join(item) + '\n')
+            if len(results.accuracy_mt_genes) > 0:
+                for item in results.accuracy_mt_genes:
+                    f.write('\t'.join(item) + '\n')
     elif unit_config.params_dict['experiment_type'] == 'nuc':
         with open(result_path + '/' +
                   unit_config.params_dict['experiment_type'] + '/' +
@@ -110,8 +112,9 @@ def random_forest(k_mt, k_nuc):
                   'target(' + unit_config.params_dict['target_pop'] + ')/' +
                   unit_config.params_dict['k_mt'] + '_' + unit_config.params_dict['k_nuc'] + '/' +
                   'accuracy_nuc_genes.txt', 'w') as f:
-            for item in results.accuracy_nuc_genes:
-                f.write('\t'.join(item) + '\n')
+            if len(results.accuracy_nuc_genes) > 0:
+                for item in results.accuracy_nuc_genes:
+                    f.write('\t'.join(item) + '\n')
     else:
         with open(result_path + '/' +
                   unit_config.params_dict['experiment_type'] + '/' +
@@ -119,13 +122,15 @@ def random_forest(k_mt, k_nuc):
                   'target(' + unit_config.params_dict['target_pop'] + ')/' +
                   unit_config.params_dict['k_mt'] + '_' + unit_config.params_dict['k_nuc'] + '/' +
                   'accuracy_mt_genes.txt', 'w') as f:
-            for item in results.accuracy_mt_genes:
-                f.write('\t'.join(item) + '\n')
+            if len(results.accuracy_mt_genes) > 0:
+                for item in results.accuracy_mt_genes:
+                    f.write('\t'.join(item) + '\n')
         with open(result_path + '/' +
                   unit_config.params_dict['experiment_type'] + '/' +
                   'ref(' + unit_config.params_dict['reference_pop'] + ')_' +
                   'target(' + unit_config.params_dict['target_pop'] + ')/' +
                   unit_config.params_dict['k_mt'] + '_' + unit_config.params_dict['k_nuc'] + '/' +
                   'accuracy_nuc_genes.txt', 'w') as f:
-            for item in results.accuracy_nuc_genes:
-                f.write('\t'.join(item) + '\n')
+            if len(results.accuracy_nuc_genes) > 0:
+                for item in results.accuracy_nuc_genes:
+                    f.write('\t'.join(item) + '\n')
