@@ -289,15 +289,16 @@ def task_mt_nuc(config, results):
     L_nuc = int(config.params_dict['k_nuc'])
 
     for subset_mt in itertools.combinations(mt_genes, L_mt):
+        genes_mt = list(subset_mt)
+        genes_names_mt = [config.params_dict['genes_list'][0][i] for i in genes_mt]
+        genes_ids_mt = []
+        for gene_id in range(0, len(genes_mt)):
+            genes_ids_mt.append(config.data_position_dict[genes_names_mt[gene_id]])
+
         for subset_nuc in itertools.combinations(nuc_genes, L_nuc):
-            genes_mt = list(subset_mt)
             genes_nuc = list(subset_nuc)
-            genes_names_mt = [config.params_dict['genes_list'][0][i] for i in genes_mt]
             genes_names_nuc = [config.params_dict['genes_list'][1][i] for i in genes_nuc]
-            genes_ids_mt = []
             genes_ids_nuc = []
-            for gene_id in range(0, len(genes_mt)):
-                genes_ids_mt.append(config.data_position_dict[genes_names_mt[gene_id]])
             for gene_id in range(0, len(genes_nuc)):
                 genes_ids_nuc.append(config.data_position_dict[genes_names_nuc[gene_id]])
 
@@ -308,17 +309,19 @@ def task_mt_nuc(config, results):
             persons_mt = config.person_index_dict[0]
             persons_nuc = config.person_index_dict[1]
 
+            target_samples_ids_mt = []
             target_samples_ids_nuc = []
-            target_samples_names_nuc = []
+            target_samples_names = []
 
-            for sample_name in persons:
-                if sample_name in reference_list:
-                    target_samples_ids_nuc.append(persons[sample_name])
-                    target_samples_names_nuc.append(sample_name)
+            for sample_name in persons_mt:
+                if sample_name in reference_list and sample_name in persons_nuc:
+                    target_samples_ids_mt.append(persons_mt[sample_name])
+                    target_samples_ids_nuc.append(persons_nuc[sample_name])
+                    target_samples_names.append(sample_name)
 
-            number_nuc_snps = 0
+            number_snps = 0
 
-            for gene_id in genes_ids:
+            for gene_id in genes_ids_mt:
                 for row in config.data[gene_id]:
                     snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
                     for id in range(0, len(snp_data_nuc)):
