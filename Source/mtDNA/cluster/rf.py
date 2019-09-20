@@ -93,8 +93,8 @@ def random_forest(k_mt, k_nuc):
                              unit_config.params_dict['experiment_type'] + '/' + \
                              'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
                              'target(' + unit_config.params_dict['target_pop'] + ')/' + \
-                             str(unit_config.params_dict['k_mt']) + '_' + \
-                             str(unit_config.params_dict['k_nuc']) + '/'
+                             'mt(' + str(unit_config.params_dict['k_mt']) + ')_' + \
+                             'nuc(' + str(unit_config.params_dict['k_nuc']) + ')/'
 
     try:
         os.makedirs(experiment_result_path)
@@ -103,6 +103,8 @@ def random_forest(k_mt, k_nuc):
             raise
 
     suffix = config_dict['result_file_suffix']
+    if len(suffix) > 0:
+        suffix += '_'
 
     if len(results.accuracy) > 0:
         with open(experiment_result_path + suffix + 'accuracy.txt', 'w') as f:

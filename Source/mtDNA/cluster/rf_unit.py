@@ -1,6 +1,7 @@
 import itertools
 import pandas as pd
 import numpy as np
+import random
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
@@ -17,7 +18,7 @@ def task_mt(config, results):
     reference_pop = config.params_dict['reference_pop']
     target_pop = config.params_dict['target_pop']
     reference_size = int(len(config.pop_person_dict[reference_pop]) * reference_part)
-    reference_list = config.pop_person_dict[reference_pop][:reference_size]
+    reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0]
 
     all_genes = config.params_dict['genes_ids_list'][0]
@@ -148,7 +149,7 @@ def task_nuc(config, results):
     reference_pop = config.params_dict['reference_pop']
     target_pop = config.params_dict['target_pop']
     reference_size = int(len(config.pop_person_dict[reference_pop]) * reference_part)
-    reference_list = config.pop_person_dict[reference_pop][:reference_size]
+    reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0, 0]
 
     all_genes = config.params_dict['genes_ids_list'][0]
@@ -283,7 +284,7 @@ def task_mt_nuc(config, results):
     reference_pop = config.params_dict['reference_pop']
     target_pop = config.params_dict['target_pop']
     reference_size = int(len(config.pop_person_dict[reference_pop]) * reference_part)
-    reference_list = config.pop_person_dict[reference_pop][:reference_size]
+    reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0, 0, 0, 0, 0]
 
     mt_genes = config.params_dict['genes_ids_list'][0]

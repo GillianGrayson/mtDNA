@@ -1,16 +1,16 @@
 from Source.mtDNA.cluster.rf import random_forest
 
 data_path = '../../../Data/'
-experiment_type = 'mt'
-reference_pop = 'CHS'
-target_pop = 'CDX'
+experiment_type = 'nuc'
+reference_pop = 'IBS'
+target_pop = 'FIN'
 reference_part = 0.75
-result_file_suffix = 'mt'
-target_accuracy = 0.75
+result_file_suffix = 'cold'
+target_accuracy = 0.68
 num_features = 0
-gene_files = ['mt_gene_list.txt']
-k_mt_max = 3
-k_nuc_max = 1
+gene_files = ['test_gene_list_cold_adaptation.txt']
+k_mt_max = 1
+k_nuc_max = 2
 
 config_file_name = 'config.txt'
 with open(config_file_name, "w") as f:
