@@ -319,69 +319,100 @@ def task_mt_nuc(config, results):
                     target_samples_ids_nuc.append(persons_nuc[sample_name])
                     target_samples_names.append(sample_name)
 
-            number_snps = 0
+            number_snps_cobinations = 0
 
-            for gene_id in genes_ids_mt:
-                for row in config.data[gene_id]:
-                    snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
-                    for id in range(0, len(snp_data_nuc)):
-                        if snp_data_nuc[id] == 0:
-                            reference_frequencies[0] += 1
-                        elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
-                            reference_frequencies[1] += 1
-                        elif snp_data_nuc[id] == 3:
-                            reference_frequencies[2] += 1
-                    number_nuc_snps += 1
+            for gene_id_mt in genes_ids_mt:
+                for gene_id_nuc in genes_ids_nuc:
+                    for row_mt in config.data[gene_id_mt]:
+                        snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
+                        for row_nuc in config.data[gene_id_nuc]:
+                            snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
+                            for id in range(0, len(snp_data_mt)):
+                                if snp_data_mt[id] == 0:
+                                    if snp_data_nuc[id] == 0:
+                                        reference_frequencies[0] += 1
+                                    elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
+                                        reference_frequencies[1] += 1
+                                    elif snp_data_nuc[id] == 3:
+                                        reference_frequencies[2] += 1
+                                if snp_data_mt[id] == 1:
+                                    if snp_data_nuc[id] == 0:
+                                        reference_frequencies[3] += 1
+                                    elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
+                                        reference_frequencies[4] += 1
+                                    elif snp_data_nuc[id] == 3:
+                                        reference_frequencies[5] += 1
+                            number_snps_cobinations += 1
 
             reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
 
             # Remaining group
 
+            target_samples_ids_mt = []
             target_samples_ids_nuc = []
-            target_samples_names_nuc = []
+            target_samples_names = []
 
-            for sample_name in persons:
-                if sample_name in config.pop_person_dict[target_pop] \
-                         or sample_name in config.pop_person_dict[reference_pop]:
-                    target_samples_ids_nuc.append(persons[sample_name])
-                    target_samples_names_nuc.append(sample_name)
+            for sample_name in persons_mt:
+                if sample_name in persons_nuc:
+                    if sample_name in config.pop_person_dict[target_pop] \
+                             or sample_name in config.pop_person_dict[reference_pop]:
+                        target_samples_ids_mt.append(persons_mt[sample_name])
+                        target_samples_ids_nuc.append(persons_nuc[sample_name])
+                        target_samples_names.append(sample_name)
 
-            df_ref_nuc = np.empty(shape=(len(target_samples_names_nuc), number_nuc_snps), dtype=float)
-            names_nuc = []
+            df_ref = np.empty(shape=(len(target_samples_names), number_snps_cobinations), dtype=float)
 
-            line_count_nuc = 0
-            for gene_id in genes_ids:
-                print('gene #' + str(gene_id) + ' processing')
-                row_id = 0
-                for row in config.data[gene_id]:
-                    snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
+            names = []
+            line_count = 0
 
-                    combination_data = []
+            for gene_id_mt in genes_ids_mt:
+                print('gene #' + str(gene_id_mt) + ' processing')
+                row_id_mt = 0
+                for gene_id_nuc in genes_ids_nuc:
+                    print('gene #' + str(gene_id_nuc) + ' processing')
+                    row_id_nuc = 0
+                    for row_mt in config.data[gene_id_mt]:
+                        snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
+                        for row_nuc in config.data[gene_id_nuc]:
+                            snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
+                            combination_data = []
+                            for id in range(0, len(snp_data_mt)):
+                                if snp_data_mt[id] == 0:
+                                    if snp_data_nuc[id] == 0:
+                                        combination_data.append(1 - reference_frequencies[0])
+                                    elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
+                                        combination_data.append(1 - reference_frequencies[1])
+                                    elif snp_data_nuc[id] == 3:
+                                        combination_data.append(1 - reference_frequencies[2])
+                                if snp_data_mt[id] == 1:
+                                    if snp_data_nuc[id] == 0:
+                                        combination_data.append(1 - reference_frequencies[3])
+                                    elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
+                                        combination_data.append(1 - reference_frequencies[4])
+                                    elif snp_data_nuc[id] == 3:
+                                        combination_data.append(1 - reference_frequencies[5])
 
-                    for id in range(0, len(snp_data_nuc)):
-                        if snp_data_nuc[id] == 0:
-                            combination_data.append(1 - reference_frequencies[0])
-                        elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
-                            combination_data.append(1 - reference_frequencies[1])
-                        elif snp_data_nuc[id] == 3:
-                            combination_data.append(1 - reference_frequencies[2])
+                            df_ref[:, line_count] = combination_data
+                            if len(set(combination_data)) > 1:
+                                gene_mt = config.params_dict['genes_list'][0][gene_id_mt]
+                                snp_pos_mt = \
+                                [name for name, index in config.gene_snp_dict[gene_mt].items() if index == row_id_mt][0]
+                                gene_nuc = config.params_dict['genes_list'][1][gene_id_nuc]
+                                snp_pos_nuc = \
+                                    [name for name, index in config.gene_snp_dict[gene_nuc].items() if
+                                     index == row_id_nuc][0]
+                                name = gene_mt + '_' + snp_pos_mt + '_' + gene_nuc + '_' + snp_pos_nuc
+                                if name not in names:
+                                    names.append(name)
 
-                    df_ref_nuc[:, line_count_nuc] = combination_data
+                            line_count += 1
+                            row_id_mt += 1
+                            row_id_nuc += 1
 
-                    if len(set(combination_data)) > 1:
-                        gene_nuc = config.params_dict['genes_list'][0][gene_id]
-                        snp_pos_nuc = [name for name, index in config.gene_snp_dict[gene_nuc].items() if index == row_id][0]
-                        name_nuc = gene_nuc + '_' + snp_pos_nuc
-                        if name_nuc not in names_nuc:
-                            names_nuc.append(name_nuc)
-
-                    line_count_nuc += 1
-                    row_id += 1
-
-            df_ref_nuc = df_ref_nuc[:, ~np.all(df_ref_nuc[1:] == df_ref_nuc[:-1], axis=0)]
+            df_ref = df_ref[:, ~np.all(df_ref[1:] == df_ref[:-1], axis=0)]
 
             data_classes = []
-            for item in target_samples_names_nuc:
+            for item in target_samples_names:
                 if item in config.pop_person_dict[target_pop]:
                     data_classes.append(target_pop)
                 elif item in config.pop_person_dict[reference_pop]:
@@ -391,20 +422,21 @@ def task_mt_nuc(config, results):
             y = factor[0]
 
             clf = RandomForestClassifier(n_estimators=10)
-            output = cross_validate(clf, df_ref_nuc, y, cv=5, scoring='accuracy', return_estimator=True)
+            output = cross_validate(clf, df_ref, y, cv=5, scoring='accuracy', return_estimator=True)
             accuracy = np.mean(output['test_score'])
 
             if accuracy >= float(config.params_dict['target_accuracy']):
                 results.accuracy.append(accuracy)
-                results.accuracy_nuc_genes.append(genes)
+                results.accuracy_mt_genes.append(genes_mt)
+                results.accuracy_nuc_genes.append(genes_nuc)
 
             if int(config.params_dict['num_features']) > 0:
 
-                features_dict = dict((key, []) for key in names_nuc)
+                features_dict = dict((key, []) for key in names)
 
                 for idx, estimator in enumerate(output['estimator']):
                     feature_importances = pd.DataFrame(estimator.feature_importances_,
-                                                       index=names_nuc,
+                                                       index=names,
                                                        columns=['importance']).sort_values('importance', ascending=False)
 
                     features_names = list(feature_importances.index.values)
