@@ -25,11 +25,8 @@ def task_mt(config, results):
     L = int(config.params_dict['k_mt'])
 
     for subset in itertools.combinations(all_genes, L):
-        genes = list(subset)
-        genes_names = [config.params_dict['genes_list'][0][i] for i in genes]
-        genes_ids = []
-        for gene_id in range(0, len(genes)):
-            genes_ids.append(config.data_position_dict[genes_names[gene_id]])
+        genes_ids = list(subset)
+        genes_names = [config.params_dict['genes_list'][0][i] for i in genes_ids]
 
         print(';'.join(genes_names))
 
@@ -48,7 +45,8 @@ def task_mt(config, results):
         number_mt_snps = 0
 
         for gene_id in genes_ids:
-            for row in config.data[gene_id]:
+            gene_index = config.data_position_dict[genes_names[gene_id]]
+            for row in config.data[gene_index]:
                 snp_data_mt = list(row[i] for i in target_samples_ids_mt)
                 for id in range(0, len(snp_data_mt)):
                     if snp_data_mt[id] == 0:
@@ -75,9 +73,10 @@ def task_mt(config, results):
 
         line_count_mt = 0
         for gene_id in genes_ids:
+            gene_index = config.data_position_dict[genes_names[gene_id]]
             print('gene #' + str(gene_id) + ' processing')
             row_id = 0
-            for row in config.data[gene_id]:
+            for row in config.data[gene_index]:
                 snp_data_mt = list(row[i] for i in target_samples_ids_mt)
 
                 combination_data = []
@@ -118,7 +117,7 @@ def task_mt(config, results):
 
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
-            results.accuracy_mt_genes.append(genes)
+            results.accuracy_mt_genes.append(genes_ids)
 
         if int(config.params_dict['num_features']) > 0:
 
@@ -154,11 +153,8 @@ def task_nuc(config, results):
     L = int(config.params_dict['k_nuc'])
 
     for subset in itertools.combinations(all_genes, L):
-        genes = list(subset)
-        genes_names = [config.params_dict['genes_list'][0][i] for i in genes]
-        genes_ids = []
-        for gene_id in range(0, len(genes)):
-            genes_ids.append(config.data_position_dict[genes_names[gene_id]])
+        genes_ids = list(subset)
+        genes_names = [config.params_dict['genes_list'][0][i] for i in genes_ids]
 
         print(';'.join(genes_names))
 
@@ -177,7 +173,8 @@ def task_nuc(config, results):
         number_nuc_snps = 0
 
         for gene_id in genes_ids:
-            for row in config.data[gene_id]:
+            gene_index = config.data_position_dict[genes_names[gene_id]]
+            for row in config.data[gene_index]:
                 snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
                 for id in range(0, len(snp_data_nuc)):
                     if snp_data_nuc[id] == 0:
@@ -206,9 +203,10 @@ def task_nuc(config, results):
 
         line_count_nuc = 0
         for gene_id in genes_ids:
+            gene_index = config.data_position_dict[genes_names[gene_id]]
             print('gene #' + str(gene_id) + ' processing')
             row_id = 0
-            for row in config.data[gene_id]:
+            for row in config.data[gene_index]:
                 snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
 
                 combination_data = []
@@ -251,7 +249,7 @@ def task_nuc(config, results):
 
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
-            results.accuracy_nuc_genes.append(genes)
+            results.accuracy_nuc_genes.append(genes_ids)
 
         if int(config.params_dict['num_features']) > 0:
 
@@ -289,18 +287,12 @@ def task_mt_nuc(config, results):
     L_nuc = int(config.params_dict['k_nuc'])
 
     for subset_mt in itertools.combinations(mt_genes, L_mt):
-        genes_mt = list(subset_mt)
-        genes_names_mt = [config.params_dict['genes_list'][0][i] for i in genes_mt]
-        genes_ids_mt = []
-        for gene_id in range(0, len(genes_mt)):
-            genes_ids_mt.append(config.data_position_dict[genes_names_mt[gene_id]])
+        genes_ids_mt = list(subset_mt)
+        genes_names_mt = [config.params_dict['genes_list'][0][i] for i in genes_ids_mt]
 
         for subset_nuc in itertools.combinations(nuc_genes, L_nuc):
-            genes_nuc = list(subset_nuc)
-            genes_names_nuc = [config.params_dict['genes_list'][1][i] for i in genes_nuc]
-            genes_ids_nuc = []
-            for gene_id in range(0, len(genes_nuc)):
-                genes_ids_nuc.append(config.data_position_dict[genes_names_nuc[gene_id]])
+            genes_ids_nuc = list(subset_nuc)
+            genes_names_nuc = [config.params_dict['genes_list'][1][i] for i in genes_ids_nuc]
 
             print(';'.join(genes_names_mt) + ';' + ';'.join(genes_names_nuc))
 
@@ -322,10 +314,12 @@ def task_mt_nuc(config, results):
             number_snps_cobinations = 0
 
             for gene_id_mt in genes_ids_mt:
+                gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
                 for gene_id_nuc in genes_ids_nuc:
-                    for row_mt in config.data[gene_id_mt]:
+                    gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
+                    for row_mt in config.data[gene_mt_index]:
                         snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
-                        for row_nuc in config.data[gene_id_nuc]:
+                        for row_nuc in config.data[gene_nuc_index]:
                             snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
                             for id in range(0, len(snp_data_mt)):
                                 if snp_data_mt[id] == 0:
@@ -335,7 +329,7 @@ def task_mt_nuc(config, results):
                                         reference_frequencies[1] += 1
                                     elif snp_data_nuc[id] == 3:
                                         reference_frequencies[2] += 1
-                                if snp_data_mt[id] == 1:
+                                elif snp_data_mt[id] == 1:
                                     if snp_data_nuc[id] == 0:
                                         reference_frequencies[3] += 1
                                     elif snp_data_nuc[id] == 1 or snp_data_nuc[id] == 2:
@@ -366,14 +360,16 @@ def task_mt_nuc(config, results):
             line_count = 0
 
             for gene_id_mt in genes_ids_mt:
+                gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
                 print('gene #' + str(gene_id_mt) + ' processing')
                 row_id_mt = 0
                 for gene_id_nuc in genes_ids_nuc:
+                    gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
                     print('gene #' + str(gene_id_nuc) + ' processing')
                     row_id_nuc = 0
-                    for row_mt in config.data[gene_id_mt]:
+                    for row_mt in config.data[gene_mt_index]:
                         snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
-                        for row_nuc in config.data[gene_id_nuc]:
+                        for row_nuc in config.data[gene_nuc_index]:
                             snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
                             combination_data = []
                             for id in range(0, len(snp_data_mt)):
@@ -427,8 +423,8 @@ def task_mt_nuc(config, results):
 
             if accuracy >= float(config.params_dict['target_accuracy']):
                 results.accuracy.append(accuracy)
-                results.accuracy_mt_genes.append(genes_mt)
-                results.accuracy_nuc_genes.append(genes_nuc)
+                results.accuracy_mt_genes.append(genes_ids_mt)
+                results.accuracy_nuc_genes.append(genes_ids_nuc)
 
             if int(config.params_dict['num_features']) > 0:
 

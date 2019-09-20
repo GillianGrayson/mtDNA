@@ -52,12 +52,14 @@ def random_forest(k_mt, k_nuc):
 
     unit_config = Config()
 
+    gene_id = 0
     for gene_list in genes:
         for item_id in range(0, len(gene_list)):
             item = gene_list[item_id]
             data_npz = np.load(data_path_npz + item + '.npz')
             unit_config.data.append(data_npz['data'])
-            unit_config.data_position_dict[item] = item_id
+            unit_config.data_position_dict[item] = gene_id
+            gene_id += 1
 
     unit_config.params_dict = config_dict
     unit_config.params_dict['k_mt'] = k_mt
@@ -75,9 +77,9 @@ def random_forest(k_mt, k_nuc):
     else:
         unit_config.person_index_dict = []
         with open(data_path_pkl + 'person_index_mt_dict.pickle', 'rb') as handle:
-            unit_config.person_index_dict[0] = pickle.load(handle)
+            unit_config.person_index_dict.append(pickle.load(handle))
         with open(data_path_pkl + 'person_index_nuc_dict.pickle', 'rb') as handle:
-            unit_config.person_index_dict[1] = pickle.load(handle)
+            unit_config.person_index_dict.append(pickle.load(handle))
 
     with open(data_path_pkl + 'pop_person_dict.pickle', 'rb') as handle:
         unit_config.pop_person_dict = pickle.load(handle)
