@@ -44,7 +44,7 @@ def task_mt(config, results):
 
         number_mt_snps = 0
 
-        for gene_id in genes_ids:
+        for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
                 snp_data_mt = list(row[i] for i in target_samples_ids_mt)
@@ -72,7 +72,7 @@ def task_mt(config, results):
         names_mt = []
 
         line_count_mt = 0
-        for gene_id in genes_ids:
+        for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             print('gene #' + str(gene_id) + ' processing')
             row_id = 0
@@ -90,7 +90,7 @@ def task_mt(config, results):
                 df_ref_mt[:, line_count_mt] = combination_data
 
                 if len(set(combination_data)) > 1:
-                    gene_mt = config.params_dict['genes_list'][0][gene_id]
+                    gene_mt = config.params_dict['genes_list'][0][genes_ids[gene_id]]
                     snp_pos_mt = [name for name, index in config.gene_snp_dict[gene_mt].items() if index == row_id][0]
                     name_mt = gene_mt + '_' + snp_pos_mt
                     if name_mt not in names_mt:
@@ -115,29 +115,32 @@ def task_mt(config, results):
         output = cross_validate(clf, df_ref_mt, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
+        features_dict = dict((key, []) for key in names_mt)
+
+        num_features = 0
+
+        for idx, estimator in enumerate(output['estimator']):
+            feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                               index=names_mt,
+                                               columns=['importance']).sort_values('importance', ascending=False)
+
+            features_names = list(feature_importances.index.values)
+            features_values = list(feature_importances.values)
+            for id in range(0, len(features_names)):
+                features_dict[features_names[id]].append(features_values[id][0])
+
+        for key in features_dict.keys():
+            features_dict[key] = np.mean(features_dict[key])
+            if features_dict[key] > 0.001:
+                num_features += 1
+
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
-            results.accuracy_mt_genes.append(genes_ids)
+            results.num_features.append(num_features)
+            results.mt_genes.append(genes_ids)
 
         if int(config.params_dict['num_features']) > 0:
-
-            features_dict = dict((key, []) for key in names_mt)
-
-            for idx, estimator in enumerate(output['estimator']):
-                feature_importances = pd.DataFrame(estimator.feature_importances_,
-                                                   index=names_mt,
-                                                   columns=['importance']).sort_values('importance', ascending=False)
-
-                features_names = list(feature_importances.index.values)
-                features_values = list(feature_importances.values)
-                for id in range(0, len(features_names)):
-                    features_dict[features_names[id]].append(features_values[0])
-
-            for key in features_dict.keys():
-                features_dict[key] = np.mean(features_dict[key])
-
             features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
-
             results.features = features_dict
 
 def task_nuc(config, results):
@@ -172,7 +175,7 @@ def task_nuc(config, results):
 
         number_nuc_snps = 0
 
-        for gene_id in genes_ids:
+        for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
                 snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
@@ -202,7 +205,7 @@ def task_nuc(config, results):
         names_nuc = []
 
         line_count_nuc = 0
-        for gene_id in genes_ids:
+        for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             print('gene #' + str(gene_id) + ' processing')
             row_id = 0
@@ -222,7 +225,7 @@ def task_nuc(config, results):
                 df_ref_nuc[:, line_count_nuc] = combination_data
 
                 if len(set(combination_data)) > 1:
-                    gene_nuc = config.params_dict['genes_list'][0][gene_id]
+                    gene_nuc = config.params_dict['genes_list'][0][genes_ids[gene_id]]
                     snp_pos_nuc = [name for name, index in config.gene_snp_dict[gene_nuc].items() if index == row_id][0]
                     name_nuc = gene_nuc + '_' + snp_pos_nuc
                     if name_nuc not in names_nuc:
@@ -247,29 +250,32 @@ def task_nuc(config, results):
         output = cross_validate(clf, df_ref_nuc, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
+        features_dict = dict((key, []) for key in names_nuc)
+
+        num_features = 0
+
+        for idx, estimator in enumerate(output['estimator']):
+            feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                                index=names_nuc,
+                                                columns=['importance']).sort_values('importance', ascending=False)
+
+            features_names = list(feature_importances.index.values)
+            features_values = list(feature_importances.values)
+            for id in range(0, len(features_names)):
+                features_dict[features_names[id]].append(features_values[id][0])
+
+        for key in features_dict.keys():
+            features_dict[key] = np.mean(features_dict[key])
+            if features_dict[key] > 0:
+                num_features += 1
+
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
-            results.accuracy_nuc_genes.append(genes_ids)
+            results.num_features.append(num_features)
+            results.nuc_genes.append(genes_ids)
 
         if int(config.params_dict['num_features']) > 0:
-
-            features_dict = dict((key, []) for key in names_nuc)
-
-            for idx, estimator in enumerate(output['estimator']):
-                feature_importances = pd.DataFrame(estimator.feature_importances_,
-                                                   index=names_nuc,
-                                                   columns=['importance']).sort_values('importance', ascending=False)
-
-                features_names = list(feature_importances.index.values)
-                features_values = list(feature_importances.values)
-                for id in range(0, len(features_names)):
-                    features_dict[features_names[id]].append(features_values[0])
-
-            for key in features_dict.keys():
-                features_dict[key] = np.mean(features_dict[key])
-
             features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
-
             results.features = features_dict
 
 def task_mt_nuc(config, results):
@@ -313,9 +319,9 @@ def task_mt_nuc(config, results):
 
             number_snps_cobinations = 0
 
-            for gene_id_mt in genes_ids_mt:
+            for gene_id_mt in range(0, len(genes_ids_mt)):
                 gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
-                for gene_id_nuc in genes_ids_nuc:
+                for gene_id_nuc in range(0, len(genes_ids_nuc)):
                     gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
                     for row_mt in config.data[gene_mt_index]:
                         snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
@@ -359,10 +365,10 @@ def task_mt_nuc(config, results):
             names = []
             line_count = 0
 
-            for gene_id_mt in genes_ids_mt:
+            for gene_id_mt in range(0, len(genes_ids_mt)):
                 gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
                 print('gene #' + str(gene_id_mt) + ' processing')
-                for gene_id_nuc in genes_ids_nuc:
+                for gene_id_nuc in range(0, len(genes_ids_nuc)):
                     gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
                     print('gene #' + str(gene_id_nuc) + ' processing')
                     row_id_mt = 0
@@ -390,10 +396,10 @@ def task_mt_nuc(config, results):
 
                             df_ref[:, line_count] = combination_data
                             if len(set(combination_data)) > 1:
-                                gene_mt = config.params_dict['genes_list'][0][gene_id_mt]
+                                gene_mt = config.params_dict['genes_list'][0][genes_ids_mt[gene_id_mt]]
                                 snp_pos_mt = \
                                 [name for name, index in config.gene_snp_dict[gene_mt].items() if index == row_id_mt][0]
-                                gene_nuc = config.params_dict['genes_list'][1][gene_id_nuc]
+                                gene_nuc = config.params_dict['genes_list'][1][genes_ids_nuc[gene_id_nuc]]
                                 snp_pos_nuc = \
                                     [name for name, index in config.gene_snp_dict[gene_nuc].items() if
                                      index == row_id_nuc][0]
@@ -421,28 +427,31 @@ def task_mt_nuc(config, results):
             output = cross_validate(clf, df_ref, y, cv=5, scoring='accuracy', return_estimator=True)
             accuracy = np.mean(output['test_score'])
 
+            features_dict = dict((key, []) for key in names)
+
+            num_features = 0
+
+            for idx, estimator in enumerate(output['estimator']):
+                feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                                   index=names,
+                                                   columns=['importance']).sort_values('importance', ascending=False)
+
+                features_names = list(feature_importances.index.values)
+                features_values = list(feature_importances.values)
+                for id in range(0, len(features_names)):
+                    features_dict[features_names[id]].append(features_values[id][0])
+
+            for key in features_dict.keys():
+                features_dict[key] = np.mean(features_dict[key])
+                if features_dict[key] > 0:
+                    num_features += 1
+
             if accuracy >= float(config.params_dict['target_accuracy']):
                 results.accuracy.append(accuracy)
-                results.accuracy_mt_genes.append(genes_ids_mt)
-                results.accuracy_nuc_genes.append(genes_ids_nuc)
+                results.num_features.append(num_features)
+                results.mt_genes.append(genes_ids_mt)
+                results.nuc_genes.append(genes_ids_nuc)
 
             if int(config.params_dict['num_features']) > 0:
-
-                features_dict = dict((key, []) for key in names)
-
-                for idx, estimator in enumerate(output['estimator']):
-                    feature_importances = pd.DataFrame(estimator.feature_importances_,
-                                                       index=names,
-                                                       columns=['importance']).sort_values('importance', ascending=False)
-
-                    features_names = list(feature_importances.index.values)
-                    features_values = list(feature_importances.values)
-                    for id in range(0, len(features_names)):
-                        features_dict[features_names[id]].append(features_values[0])
-
-                for key in features_dict.keys():
-                    features_dict[key] = np.mean(features_dict[key])
-
                 features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
-
                 results.features = features_dict
