@@ -16,6 +16,7 @@ result_file_suffix = ''
 target_accuracy = 0.68
 num_features = 0
 gene_files = ['mt_gene_list.txt']
+create_tree = 0
 k_mt_max = 1
 k_nuc_max = 1
 
@@ -43,6 +44,7 @@ for k_mt in range(1, k_mt_max + 1):
         file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
         file_config.write('num_features\t' + str(num_features) + '\n')
         file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
+        file_config.write('create_tree\t' + str(create_tree) + '\n')
         file_config.write('k_mt\t' + str(k_mt) + '\n')
         file_config.write('k_nuc\t' + str(k_nuc) + '\n')
 

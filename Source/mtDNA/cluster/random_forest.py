@@ -83,23 +83,27 @@ def random_forest(config_dict):
     results = Result()
     unit_task(unit_config, results)
 
-    experiment_result_path_with_k = result_path + \
-                             unit_config.params_dict['experiment_type'] + '/' + \
-                             'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
-                             'target(' + unit_config.params_dict['target_pop'] + ')/' + \
-                             'mt(' + str(unit_config.params_dict['k_mt']) + ')_' + \
-                             'nuc(' + str(unit_config.params_dict['k_nuc']) + ')/'
+    if int(config_dict['create_tree']) == 1:
+        experiment_result_path_with_k = result_path + \
+                                 unit_config.params_dict['experiment_type'] + '/' + \
+                                 'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
+                                 'target(' + unit_config.params_dict['target_pop'] + ')/' + \
+                                 'mt(' + str(unit_config.params_dict['k_mt']) + ')_' + \
+                                 'nuc(' + str(unit_config.params_dict['k_nuc']) + ')/'
 
-    experiment_result_path = result_path + \
-                             unit_config.params_dict['experiment_type'] + '/' + \
-                             'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
-                             'target(' + unit_config.params_dict['target_pop'] + ')/'
+        experiment_result_path = result_path + \
+                                 unit_config.params_dict['experiment_type'] + '/' + \
+                                 'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
+                                 'target(' + unit_config.params_dict['target_pop'] + ')/'
 
-    try:
-        os.makedirs(experiment_result_path_with_k)
-    except OSError as e:
-        if e.errno != errno.EEXIST:
-            raise
+        try:
+            os.makedirs(experiment_result_path_with_k)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+    else:
+        experiment_result_path_with_k = ''
+        experiment_result_path = ''
 
     suffix = config_dict['result_file_suffix']
     if len(suffix) > 0:
