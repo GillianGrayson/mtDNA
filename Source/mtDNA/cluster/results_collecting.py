@@ -2,6 +2,8 @@ import os
 from Source.mtDNA.cluster.rf import random_forest
 
 data_path = '../../../Data/'
+data_path_npz = '../../../Data/genes/npz/'
+data_path_pkl = '../../../Data/genes/pkl/'
 experiment_type = 'nuc'
 reference_pop = 'IBS'
 target_pop = 'FIN'
@@ -86,58 +88,73 @@ else:
 
 if experiment_type == 'mt':
     for mt_genes_set in top_genes_mt:
-        config_file_name = 'config.txt'
-        with open(config_file_name, "w") as f:
-            f.write('experiment_type\t' + experiment_type + '\n')
-            f.write('reference_pop\t' + reference_pop + '\n')
-            f.write('target_pop\t' + target_pop + '\n')
-            f.write('reference_part\t' + str(reference_part) + '\n')
-            f.write('result_file_suffix\t' + result_file_suffix + '\n')
-            f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-            f.write('num_features\t' + str(num_features) + '\n')
-            f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-            f.write('mt_genes_set\t' + ', '.join(mt_genes_set) + '\n')
         k_mt_max = len(mt_genes_set)
         k_nuc_max = 1
         for k_mt in range(k_mt_max, k_mt_max + 1):
             for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                random_forest(k_mt, k_nuc)
+                config_file_name = 'config.txt'
+                with open(config_file_name, "w") as f:
+                    f.write('data_path\t' + data_path + '\n')
+                    f.write('data_path_npz\t' + data_path_npz + '\n')
+                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
+                    f.write('experiment_type\t' + experiment_type + '\n')
+                    f.write('reference_pop\t' + reference_pop + '\n')
+                    f.write('target_pop\t' + target_pop + '\n')
+                    f.write('reference_part\t' + str(reference_part) + '\n')
+                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
+                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
+                    f.write('num_features\t' + str(num_features) + '\n')
+                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
+                    f.write('mt_genes_set\t' + ', '.join(mt_genes_set) + '\n')
+                    f.write('k_mt\t' + str(k_mt) + '\n')
+                    f.write('k_nuc\t' + str(k_nuc) + '\n')
+                random_forest()
 
 elif experiment_type == 'nuc':
     for nuc_genes_set in top_genes_nuc:
-        config_file_name = 'config.txt'
-        with open(config_file_name, "w") as f:
-            f.write('experiment_type\t' + experiment_type + '\n')
-            f.write('reference_pop\t' + reference_pop + '\n')
-            f.write('target_pop\t' + target_pop + '\n')
-            f.write('reference_part\t' + str(reference_part) + '\n')
-            f.write('result_file_suffix\t' + result_file_suffix + '\n')
-            f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-            f.write('num_features\t' + str(num_features) + '\n')
-            f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-            f.write('nuc_genes_set\t' + ', '.join(nuc_genes_set) + '\n')
         k_mt_max = 1
         k_nuc_max = len(nuc_genes_set)
         for k_mt in range(k_mt_max, k_mt_max + 1):
             for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                random_forest(k_mt, k_nuc)
+                config_file_name = 'config.txt'
+                with open(config_file_name, "w") as f:
+                    f.write('data_path\t' + data_path + '\n')
+                    f.write('data_path_npz\t' + data_path_npz + '\n')
+                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
+                    f.write('experiment_type\t' + experiment_type + '\n')
+                    f.write('reference_pop\t' + reference_pop + '\n')
+                    f.write('target_pop\t' + target_pop + '\n')
+                    f.write('reference_part\t' + str(reference_part) + '\n')
+                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
+                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
+                    f.write('num_features\t' + str(num_features) + '\n')
+                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
+                    f.write('nuc_genes_set\t' + ', '.join(nuc_genes_set) + '\n')
+                    f.write('k_mt\t' + str(k_mt) + '\n')
+                    f.write('k_nuc\t' + str(k_nuc) + '\n')
+                random_forest()
 
 else:
     for gene_set_id in range(0, len(top_genes_mt)):
-        config_file_name = 'config.txt'
-        with open(config_file_name, "w") as f:
-            f.write('experiment_type\t' + experiment_type + '\n')
-            f.write('reference_pop\t' + reference_pop + '\n')
-            f.write('target_pop\t' + target_pop + '\n')
-            f.write('reference_part\t' + str(reference_part) + '\n')
-            f.write('result_file_suffix\t' + result_file_suffix + '\n')
-            f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-            f.write('num_features\t' + str(num_features) + '\n')
-            f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-            f.write('mt_genes_set\t' + ', '.join(top_genes_mt[gene_set_id]) + '\n')
-            f.write('nuc_genes_set\t' + ', '.join(top_genes_nuc[gene_set_id]) + '\n')
         k_mt_max = len(top_genes_mt[gene_set_id])
         k_nuc_max = len(top_genes_nuc[gene_set_id])
         for k_mt in range(k_mt_max, k_mt_max + 1):
             for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                random_forest(k_mt, k_nuc)
+                config_file_name = 'config.txt'
+                with open(config_file_name, "w") as f:
+                    f.write('data_path\t' + data_path + '\n')
+                    f.write('data_path_npz\t' + data_path_npz + '\n')
+                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
+                    f.write('experiment_type\t' + experiment_type + '\n')
+                    f.write('reference_pop\t' + reference_pop + '\n')
+                    f.write('target_pop\t' + target_pop + '\n')
+                    f.write('reference_part\t' + str(reference_part) + '\n')
+                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
+                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
+                    f.write('num_features\t' + str(num_features) + '\n')
+                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
+                    f.write('mt_genes_set\t' + ', '.join(top_genes_mt[gene_set_id]) + '\n')
+                    f.write('nuc_genes_set\t' + ', '.join(top_genes_nuc[gene_set_id]) + '\n')
+                    f.write('k_mt\t' + str(k_mt) + '\n')
+                    f.write('k_nuc\t' + str(k_nuc) + '\n')
+                random_forest()

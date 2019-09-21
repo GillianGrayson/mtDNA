@@ -21,19 +21,9 @@ class Result:
         self.features = {}
 
 
-def random_forest():
-    config_dict = {}
-    f = open('config.txt')
-    for line in f:
-        line = line.replace('\n', '')
-        items = line.split('\t')
-        if items[0] == 'gene_files' or items[0] == 'mt_genes_set' or items[0] == 'nuc_genes_set':
-            config_dict[items[0]] = items[1].split(', ')
-        else:
-            config_dict[items[0]] = items[1]
-    f.close()
+def random_forest(config_dict):
 
-    result_path = '../../../Result/files/'
+    result_path = ''
 
     genes = []
     genes_ids = []
@@ -172,3 +162,16 @@ def random_forest():
                         f.write(line)
                         f.write('\n')
                         features_count += 1
+
+
+config_dict = {}
+f = open('config.txt')
+for line in f:
+    line = line.replace('\n', '')
+    items = line.split('\t')
+    if items[0] == 'gene_files' or items[0] == 'mt_genes_set' or items[0] == 'nuc_genes_set':
+        config_dict[items[0]] = items[1].split(', ')
+    else:
+        config_dict[items[0]] = items[1]
+f.close()
+random_forest(config_dict)
