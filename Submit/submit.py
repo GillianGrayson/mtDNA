@@ -22,12 +22,12 @@ k_nuc_max = 1
 
 for k_mt in range(1, k_mt_max + 1):
     for k_nuc in range(1, k_nuc_max + 1):
-
         print('k_mt: ' + str(k_mt))
         print('k_nuc: ' + str(k_nuc))
 
         root = '/data/biophys/denysov/yusipov/mtDNA/output'
-        local_path = '/' + experiment_type  + '/ref(' + reference_pop + ')_target(' + target_pop + ')/' + 'mt(' + str(k_mt) + ')_nuc(' + str(k_nuc) + ')'
+        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + 'mt_' + str(
+            k_mt) + '_nuc_' + str(k_nuc)
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -50,9 +50,9 @@ for k_mt in range(1, k_mt_max + 1):
 
         file_config.close()
 
-        # if medium == 0:
-        #     os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
-        # elif medium == 1:
-        #     os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)
-        
+        if medium == 0:
+            os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
+        elif medium == 1:
+            os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)
+
         print('Hello')
