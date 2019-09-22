@@ -207,7 +207,6 @@ def task_nuc(config, results):
         line_count_nuc = 0
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
-            print('gene #' + str(gene_id) + ' processing')
             row_id = 0
             for row in config.data[gene_index]:
                 snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
@@ -367,10 +366,8 @@ def task_mt_nuc(config, results):
 
             for gene_id_mt in range(0, len(genes_ids_mt)):
                 gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
-                print('gene #' + str(gene_id_mt) + ' processing')
                 for gene_id_nuc in range(0, len(genes_ids_nuc)):
                     gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
-                    print('gene #' + str(gene_id_nuc) + ' processing')
                     row_id_mt = 0
                     for row_mt in config.data[gene_mt_index]:
                         snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
