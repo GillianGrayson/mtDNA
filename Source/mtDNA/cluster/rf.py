@@ -124,6 +124,7 @@ def random_forest():
             with open(experiment_result_path_with_k + suffix + 'accuracy.txt', 'w') as f:
                 for item in results.accuracy:
                     f.write("%s\n" % item)
+            print('Accuracy file is written\n')
 
             with open(experiment_result_path_with_k + suffix + 'num_features.txt', 'w') as f:
                 for item in results.num_features:

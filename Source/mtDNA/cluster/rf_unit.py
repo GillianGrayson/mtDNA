@@ -75,7 +75,6 @@ def task_mt(config, results):
         line_count_mt = 0
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
-            print('gene #' + str(gene_id) + ' processing')
             row_id = 0
             for row in config.data[gene_index]:
                 snp_data_mt = list(row[i] for i in target_samples_ids_mt)
