@@ -1,8 +1,10 @@
 from Source.mtDNA.cluster.rf import random_forest
+from scipy.special import binom
 import itertools
 import json
 import hashlib
 import pathlib
+import os
 
 data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
@@ -16,10 +18,24 @@ target_accuracy = 0.55
 num_features = 0
 gene_files = ['mt_gene_list.txt']
 create_tree = 0
-k_mt_max = 13
+k_mt_max = 1
 k_nuc_max = 1
-num_cluster_tasks = 100
-num_atomic_tasks = 100
+num_cluster_tasks = 1
+num_atomic_tasks = 10
+num_running_tasks = 0
+
+mt_num = 0
+nuc_num = 0
+
+for k_mt in range(1, k_mt_max + 1):
+    mt_num += binom(k_mt_max, k_mt)
+for k_nuc in range(1, k_nuc_max + 1):
+    nuc_num += binom(k_nuc_max, k_nuc)
+
+num_combinations = mt_num * nuc_num
+print('Number of cluster tasks: ' + str(num_cluster_tasks))
+print('Number of atomic tasks: ' + str(num_atomic_tasks))
+print('Number of combinations: ' + str(int(num_combinations)))
 
 for file_id in range(0, len(gene_files)):
     data_gene_file = open(data_path + gene_files[file_id])
@@ -73,29 +89,41 @@ for task_id in range(0, num_cluster_tasks):
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
-    file_mt = open(fn_path + '/config_mt_genes.txt', 'w')
-    for genes_task in genes_mt_task:
-        file_mt.write('\t'.join([str(item) for item in genes_task]) + '\n')
-    file_mt.close()
+    is_task_done = False
 
-    file_nuc = open(fn_path + '/config_nuc_genes.txt', 'w')
-    for genes_task in genes_nuc_task:
-        file_nuc.write('\t'.join([str(item) for item in genes_task]) + '\n')
-    file_nuc.close()
+    for filename in os.listdir(fn_path):
+        if 'accuracy' in filename:
+            is_task_done = True
 
-    file_config = open(fn_path + '/config.txt', 'w')
-    file_config.write('data_path\t' + data_path + '\n')
-    file_config.write('data_path_npz\t' + data_path_npz + '\n')
-    file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
-    file_config.write('experiment_type\t' + experiment_type + '\n')
-    file_config.write('reference_pop\t' + reference_pop + '\n')
-    file_config.write('target_pop\t' + target_pop + '\n')
-    file_config.write('reference_part\t' + str(reference_part) + '\n')
-    file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
-    file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
-    file_config.write('num_features\t' + str(num_features) + '\n')
-    file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
-    file_config.write('create_tree\t' + str(create_tree) + '\n')
-    file_config.close()
+    if not is_task_done:
 
-    random_forest(fn_path)
+        file_mt = open(fn_path + '/config_mt_genes.txt', 'w')
+        for genes_task in genes_mt_task:
+            file_mt.write('\t'.join([str(item) for item in genes_task]) + '\n')
+        file_mt.close()
+
+        file_nuc = open(fn_path + '/config_nuc_genes.txt', 'w')
+        for genes_task in genes_nuc_task:
+            file_nuc.write('\t'.join([str(item) for item in genes_task]) + '\n')
+        file_nuc.close()
+
+        file_config = open(fn_path + '/config.txt', 'w')
+        file_config.write('data_path\t' + data_path + '\n')
+        file_config.write('data_path_npz\t' + data_path_npz + '\n')
+        file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
+        file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('reference_pop\t' + reference_pop + '\n')
+        file_config.write('target_pop\t' + target_pop + '\n')
+        file_config.write('reference_part\t' + str(reference_part) + '\n')
+        file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
+        file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
+        file_config.write('num_features\t' + str(num_features) + '\n')
+        file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
+        file_config.write('create_tree\t' + str(create_tree) + '\n')
+        file_config.close()
+
+        random_forest(fn_path)
+
+        num_running_tasks += 1
+
+print('Number of running tasks: ' + str(num_running_tasks))

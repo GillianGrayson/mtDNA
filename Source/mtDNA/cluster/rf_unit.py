@@ -21,12 +21,9 @@ def task_mt(config, results):
     reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0]
 
-    all_genes = config.params_dict['genes_ids_list'][0]
+    for task in config.params_dict['config_mt_genes']:
 
-    L = int(config.params_dict['k_mt'])
-
-    for subset in itertools.combinations(all_genes, L):
-        genes_ids = list(subset)
+        genes_ids = list(task)
         genes_names = [config.params_dict['genes_list'][0][i] for i in genes_ids]
 
         print(';'.join(genes_names))
@@ -151,12 +148,9 @@ def task_nuc(config, results):
     reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0, 0]
 
-    all_genes = config.params_dict['genes_ids_list'][0]
+    for task in config.params_dict['config_nuc_genes']:
 
-    L = int(config.params_dict['k_nuc'])
-
-    for subset in itertools.combinations(all_genes, L):
-        genes_ids = list(subset)
+        genes_ids = list(task)
         genes_names = [config.params_dict['genes_list'][0][i] for i in genes_ids]
 
         print(';'.join(genes_names))
@@ -285,18 +279,12 @@ def task_mt_nuc(config, results):
     reference_list = random.sample(config.pop_person_dict[reference_pop], reference_size)
     reference_frequencies = [0, 0, 0, 0, 0, 0]
 
-    mt_genes = config.params_dict['genes_ids_list'][0]
-    nuc_genes = config.params_dict['genes_ids_list'][1]
-
-    L_mt = int(config.params_dict['k_mt'])
-    L_nuc = int(config.params_dict['k_nuc'])
-
-    for subset_mt in itertools.combinations(mt_genes, L_mt):
-        genes_ids_mt = list(subset_mt)
+    for task_mt in config.params_dict['config_mt_genes']:
+        genes_ids_mt = list(task_mt)
         genes_names_mt = [config.params_dict['genes_list'][0][i] for i in genes_ids_mt]
 
-        for subset_nuc in itertools.combinations(nuc_genes, L_nuc):
-            genes_ids_nuc = list(subset_nuc)
+        for task_nuc in config.params_dict['config_nuc_genes']:
+            genes_ids_nuc = list(task_nuc)
             genes_names_nuc = [config.params_dict['genes_list'][1][i] for i in genes_ids_nuc]
 
             print(';'.join(genes_names_mt) + ';' + ';'.join(genes_names_nuc))
