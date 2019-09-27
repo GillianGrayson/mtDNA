@@ -6,7 +6,7 @@ import hashlib
 from scipy.special import binom
 import sklearn
 
-medium = 0
+medium = 1
 
 data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'

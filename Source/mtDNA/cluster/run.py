@@ -20,7 +20,7 @@ gene_files = ['mt_gene_list.txt']
 create_tree = 0
 k_mt_max = 1
 k_nuc_max = 1
-num_cluster_tasks = 1
+num_cluster_tasks = 3
 num_atomic_tasks = 10
 num_running_tasks = 0
 
@@ -125,5 +125,7 @@ for task_id in range(0, num_cluster_tasks):
         random_forest(fn_path)
 
         num_running_tasks += 1
+        if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
+            break
 
 print('Number of running tasks: ' + str(num_running_tasks))

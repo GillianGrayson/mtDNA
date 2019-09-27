@@ -40,16 +40,7 @@ def random_forest(config_dict):
             genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file) if
                           i in genes_set_feature[file_id]])
         else:
-            if file_id == 0:
-                if config_dict['experiment_type'] == 'mt' or config_dict['experiment_type'] == 'mt-nuc':
-                    genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file) if
-                                  i in config_dict['config_mt_genes_set']])
-                elif config_dict['experiment_type'] == 'nuc':
-                    genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file) if
-                                  i in config_dict['config_nuc_genes_set']])
-            else:
-                genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file) if
-                              i in config_dict['config_nuc_genes_set']])
+            genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file)])
         genes_ids.append([])
         for gene_id in range(0, len(genes[file_id])):
             genes_ids[file_id].append(gene_id)
@@ -94,58 +85,52 @@ def random_forest(config_dict):
     unit_task(unit_config, results)
 
     if int(config_dict['create_tree']) == 1:
-        experiment_result_path_with_k = result_path + \
+        experiment_result_path = result_path + \
                                  unit_config.params_dict['experiment_type'] + '/' + \
                                  'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
                                  'target(' + unit_config.params_dict['target_pop'] + ')/' + \
                                  'mt(' + str(unit_config.params_dict['k_mt']) + ')_' + \
                                  'nuc(' + str(unit_config.params_dict['k_nuc']) + ')/'
 
-        experiment_result_path = result_path + \
-                                 unit_config.params_dict['experiment_type'] + '/' + \
-                                 'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
-                                 'target(' + unit_config.params_dict['target_pop'] + ')/'
-
         try:
-            os.makedirs(experiment_result_path_with_k)
+            os.makedirs(experiment_result_path)
         except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
     else:
-        experiment_result_path_with_k = ''
-        experiment_result_path = ''
+        experiment_result_path = result_path
 
     suffix = config_dict['result_file_suffix']
     if len(suffix) > 0:
         suffix = '_' + suffix
 
     if int(unit_config.params_dict['num_features']) == 0:
-        with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+        with open(experiment_result_path + str(config_dict['target_accuracy']) +
                   '_accuracy' + suffix + '.txt', 'w') as f:
             for item in results.accuracy:
                 f.write("%s\n" % item)
 
-        with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+        with open(experiment_result_path + str(config_dict['target_accuracy']) +
                   '_num_features' + suffix + '.txt', 'w') as f:
             for item in results.num_features:
                 f.write("%s\n" % item)
 
         if unit_config.params_dict['experiment_type'] == 'mt':
-            with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+            with open(experiment_result_path + str(config_dict['target_accuracy']) +
                       '_genes_mt' + suffix + '.txt', 'w') as f:
                 for item in results.mt_genes:
                     f.write("%s\n" % '\t'.join(list(map(str, item))))
         elif unit_config.params_dict['experiment_type'] == 'nuc':
-            with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+            with open(experiment_result_path + str(config_dict['target_accuracy']) +
                       '_genes_nuc' + suffix + '.txt', 'w') as f:
                 for item in results.nuc_genes:
                     f.write("%s\n" % '\t'.join(list(map(str, item))))
         else:
-            with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+            with open(experiment_result_path + str(config_dict['target_accuracy']) +
                       '_genes_mt' + suffix + '.txt', 'w') as f:
                 for item in results.mt_genes:
                     f.write("%s\n" % '\t'.join(list(map(str, item))))
-            with open(experiment_result_path_with_k + str(config_dict['target_accuracy']) +
+            with open(experiment_result_path + str(config_dict['target_accuracy']) +
                       '_genes_nuc' + suffix + '.txt', 'w') as f:
                 for item in results.nuc_genes:
                     f.write("%s\n" % '\t'.join(list(map(str, item))))
