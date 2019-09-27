@@ -91,13 +91,9 @@ for task_id in range(0, num_cluster_tasks):
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
-    is_task_done = False
+    fn_test = str(target_accuracy) + '_accuracy.txt'
 
-    for filename in os.listdir(fn_path):
-        if 'accuracy' in filename:
-            is_task_done = True
-
-    if not is_task_done:
+    if not os.path.isfile(fn_test):
 
         file_mt = open(fn_path + '/config_mt_genes.txt', 'w')
         for genes_task in genes_mt_task:
