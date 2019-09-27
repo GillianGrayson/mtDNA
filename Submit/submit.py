@@ -22,7 +22,7 @@ gene_files = ['mt_gene_list.txt']
 create_tree = 0
 k_mt_max = 1
 k_nuc_max = 1
-num_cluster_tasks = 10
+num_cluster_tasks = 2
 num_atomic_tasks = 10
 num_running_tasks = 0
 

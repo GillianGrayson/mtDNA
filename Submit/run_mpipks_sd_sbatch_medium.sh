@@ -10,6 +10,8 @@ mkdir -p $scratch
 mkdir -p $1
 cd $scratch
 cp $1/config.txt .
+cp $1/config_mt_genes.txt .
+cp $1/config_nuc_genes.txt .
 
 cat config.txt
 
