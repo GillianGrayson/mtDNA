@@ -9,18 +9,18 @@ import os
 data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
-experiment_type = 'mt'
+experiment_type = 'mt-nuc'
 reference_pop = 'IBS'
 target_pop = 'FIN'
 reference_part = 0.75
 result_file_suffix = ''
-target_accuracy = 0.8
+target_accuracy = 0.6
 num_features = 0
-gene_files = ['mt_gene_list.txt']
+gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
 k_mt_max = 1
 k_nuc_max = 1
-num_cluster_tasks = 3
+num_cluster_tasks = 6
 num_atomic_tasks = 10
 num_running_tasks = 0
 
