@@ -1,18 +1,24 @@
 import os
 from Source.mtDNA.cluster.rf import random_forest
 
-data_path = '../../../Data/'
-data_path_npz = '../../../Data/genes/npz/'
-data_path_pkl = '../../../Data/genes/pkl/'
-experiment_type = 'nuc'
+data_path = 'D:/Aaron/Bio/mtDNA/Data/'
+data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
+data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
+experiment_type = 'mt-nuc'
 reference_pop = 'IBS'
 target_pop = 'FIN'
 reference_part = 0.75
-result_file_suffix = 'cold'
-target_accuracy = 0.68
-num_features = 50
-gene_files = ['test_gene_list_cold_adaptation.txt']
-top_results_num = 5
+result_file_suffix = ''
+target_accuracy = 0.6
+num_features = 0
+gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
+create_tree = 0
+k_mt_max = 1
+k_nuc_max = 1
+num_cluster_tasks = 6
+num_atomic_tasks = 10
+num_running_tasks = 0
+num_top_results = 5
 
 result_path = '../../../Result/files/'
 experiment_result_path = result_path + experiment_type + '/' + \
@@ -25,7 +31,7 @@ top_genes_mt = []
 top_genes_nuc = []
 
 min_accuracy_value = 0.0
-min_accuracy_index = top_results_num
+min_accuracy_index = num_top_results
 
 dirnames = [x[0] for x in os.walk(experiment_result_path)][1:]
 
@@ -36,7 +42,7 @@ for dirname in dirnames:
             line_num = 0
             for line in f:
                 item = line.replace('\n', '')
-                if len(top_accuracy) < top_results_num:
+                if len(top_accuracy) < num_top_results:
                     top_accuracy.append(float(item))
                     min_accuracy_value = min(top_accuracy)
                     min_accuracy_index = top_accuracy.index(min_accuracy_value)
