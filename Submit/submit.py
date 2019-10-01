@@ -12,8 +12,8 @@ data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
 experiment_type = 'mt-nuc'
-reference_pop = 'FIN'
-target_pop = 'GBR'
+reference_pop = 'GBR'
+target_pop = 'FIN'
 reference_part = 0.75
 result_file_suffix = 'short'
 target_accuracy = 0.6
@@ -73,14 +73,17 @@ for k_mt in range(1, k_mt_max + 1):
                     combinations[0].append(list(subset_mt))
                     combinations[1].append(list(subset_nuc))
 
+if len(result_file_suffix) > 0:
+    result_file_suffix = '_' + result_file_suffix
+
 for task_id in range(0, num_cluster_tasks):
 
     if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks :]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks :]
+        genes_mt_task = combinations[0][task_id * num_atomic_tasks:]
+        genes_nuc_task = combinations[1][task_id * num_atomic_tasks:]
     else:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks : (task_id + 1) * num_atomic_tasks]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks : (task_id + 1) * num_atomic_tasks]
+        genes_mt_task = combinations[0][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
+        genes_nuc_task = combinations[1][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
 
     json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
@@ -91,9 +94,9 @@ for task_id in range(0, num_cluster_tasks):
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
-    fn_test = str(target_accuracy) + '_accuracy.txt'
+    fn_test = str(target_accuracy) + '_accuracy' + result_file_suffix + '.txt'
 
-    if not os.path.isfile(fn_test):
+    if not os.path.isfile(fn_path + fn_test):
 
         file_mt = open(fn_path + '/config_mt_genes.txt', 'w')
         for genes_task in genes_mt_task:
