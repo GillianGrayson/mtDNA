@@ -1,5 +1,9 @@
-import os
 from Source.mtDNA.cluster.rf import random_forest
+import itertools
+import json
+import hashlib
+import pathlib
+import os
 
 data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
@@ -94,73 +98,95 @@ else:
 
 if experiment_type == 'mt':
     for mt_genes_set in top_genes_mt:
-        k_mt_max = len(mt_genes_set)
-        k_nuc_max = 1
-        for k_mt in range(k_mt_max, k_mt_max + 1):
-            for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                config_file_name = 'config.txt'
-                with open(config_file_name, "w") as f:
-                    f.write('data_path\t' + data_path + '\n')
-                    f.write('data_path_npz\t' + data_path_npz + '\n')
-                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
-                    f.write('experiment_type\t' + experiment_type + '\n')
-                    f.write('reference_pop\t' + reference_pop + '\n')
-                    f.write('target_pop\t' + target_pop + '\n')
-                    f.write('reference_part\t' + str(reference_part) + '\n')
-                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
-                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-                    f.write('num_features\t' + str(num_features) + '\n')
-                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-                    f.write('mt_genes_set\t' + ', '.join(mt_genes_set) + '\n')
-                    f.write('k_mt\t' + str(k_mt) + '\n')
-                    f.write('k_nuc\t' + str(k_nuc) + '\n')
-                random_forest()
+        genes_mt_task = mt_genes_set
+        genes_nuc_task = []
+        json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
+
+        hash = hashlib.md5(json_list).hexdigest()
+
+        root = 'D:/Aaron/Bio/mtDNA/Result/files'
+        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+        fn_path = root + local_path
+        pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
+
+        file_config = open(fn_path + '/config.txt', 'w')
+        file_config.write('data_path\t' + data_path + '\n')
+        file_config.write('data_path_npz\t' + data_path_npz + '\n')
+        file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
+        file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('reference_pop\t' + reference_pop + '\n')
+        file_config.write('target_pop\t' + target_pop + '\n')
+        file_config.write('reference_part\t' + str(reference_part) + '\n')
+        file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
+        file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
+        file_config.write('num_features\t' + str(num_features) + '\n')
+        file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
+        file_config.write('create_tree\t' + str(create_tree) + '\n')
+        file_config.close()
+
+        random_forest(fn_path)
 
 elif experiment_type == 'nuc':
     for nuc_genes_set in top_genes_nuc:
-        k_mt_max = 1
-        k_nuc_max = len(nuc_genes_set)
-        for k_mt in range(k_mt_max, k_mt_max + 1):
-            for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                config_file_name = 'config.txt'
-                with open(config_file_name, "w") as f:
-                    f.write('data_path\t' + data_path + '\n')
-                    f.write('data_path_npz\t' + data_path_npz + '\n')
-                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
-                    f.write('experiment_type\t' + experiment_type + '\n')
-                    f.write('reference_pop\t' + reference_pop + '\n')
-                    f.write('target_pop\t' + target_pop + '\n')
-                    f.write('reference_part\t' + str(reference_part) + '\n')
-                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
-                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-                    f.write('num_features\t' + str(num_features) + '\n')
-                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-                    f.write('nuc_genes_set\t' + ', '.join(nuc_genes_set) + '\n')
-                    f.write('k_mt\t' + str(k_mt) + '\n')
-                    f.write('k_nuc\t' + str(k_nuc) + '\n')
-                random_forest()
+        genes_mt_task = []
+        genes_nuc_task = nuc_genes_set
+        json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
+
+        hash = hashlib.md5(json_list).hexdigest()
+
+        root = 'D:/Aaron/Bio/mtDNA/Result/files'
+        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+        fn_path = root + local_path
+        pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
+
+        file_config = open(fn_path + '/config.txt', 'w')
+        file_config.write('data_path\t' + data_path + '\n')
+        file_config.write('data_path_npz\t' + data_path_npz + '\n')
+        file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
+        file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('reference_pop\t' + reference_pop + '\n')
+        file_config.write('target_pop\t' + target_pop + '\n')
+        file_config.write('reference_part\t' + str(reference_part) + '\n')
+        file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
+        file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
+        file_config.write('num_features\t' + str(num_features) + '\n')
+        file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
+        file_config.write('create_tree\t' + str(create_tree) + '\n')
+        file_config.close()
+
+        random_forest(fn_path)
 
 else:
-    for gene_set_id in range(0, len(top_genes_mt)):
-        k_mt_max = len(top_genes_mt[gene_set_id])
-        k_nuc_max = len(top_genes_nuc[gene_set_id])
-        for k_mt in range(k_mt_max, k_mt_max + 1):
-            for k_nuc in range(k_nuc_max, k_nuc_max + 1):
-                config_file_name = 'config.txt'
-                with open(config_file_name, "w") as f:
-                    f.write('data_path\t' + data_path + '\n')
-                    f.write('data_path_npz\t' + data_path_npz + '\n')
-                    f.write('data_path_pkl\t' + data_path_pkl + '\n')
-                    f.write('experiment_type\t' + experiment_type + '\n')
-                    f.write('reference_pop\t' + reference_pop + '\n')
-                    f.write('target_pop\t' + target_pop + '\n')
-                    f.write('reference_part\t' + str(reference_part) + '\n')
-                    f.write('result_file_suffix\t' + result_file_suffix + '\n')
-                    f.write('target_accuracy\t' + str(target_accuracy) + '\n')
-                    f.write('num_features\t' + str(num_features) + '\n')
-                    f.write('gene_files\t' + ', '.join(gene_files) + '\n')
-                    f.write('mt_genes_set\t' + ', '.join(top_genes_mt[gene_set_id]) + '\n')
-                    f.write('nuc_genes_set\t' + ', '.join(top_genes_nuc[gene_set_id]) + '\n')
-                    f.write('k_mt\t' + str(k_mt) + '\n')
-                    f.write('k_nuc\t' + str(k_nuc) + '\n')
-                random_forest()
+    combinations = [[], []]
+    for subset_mt in top_genes_mt:
+        for subset_nuc in top_genes_nuc:
+            combinations[0].append(list(subset_mt))
+            combinations[1].append(list(subset_nuc))
+    for gene_set in combinations:
+        genes_mt_task = gene_set[0]
+        genes_nuc_task = gene_set[1]
+        json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
+
+        hash = hashlib.md5(json_list).hexdigest()
+
+        root = 'D:/Aaron/Bio/mtDNA/Result/files'
+        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+        fn_path = root + local_path
+        pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
+
+        file_config = open(fn_path + '/config.txt', 'w')
+        file_config.write('data_path\t' + data_path + '\n')
+        file_config.write('data_path_npz\t' + data_path_npz + '\n')
+        file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
+        file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('reference_pop\t' + reference_pop + '\n')
+        file_config.write('target_pop\t' + target_pop + '\n')
+        file_config.write('reference_part\t' + str(reference_part) + '\n')
+        file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
+        file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
+        file_config.write('num_features\t' + str(num_features) + '\n')
+        file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
+        file_config.write('create_tree\t' + str(create_tree) + '\n')
+        file_config.close()
+
+        random_forest(fn_path)
