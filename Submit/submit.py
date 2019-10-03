@@ -13,7 +13,7 @@ data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
 experiment_type = 'mt-nuc'
 reference_pop = 'GBR'
-target_pop = 'FIN'
+target_pop = 'TSI'
 reference_part = 0.75
 result_file_suffix = 'short'
 target_accuracy = 0.6
@@ -21,9 +21,9 @@ num_features = 0
 gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
 k_mt_max = 13
-k_nuc_max = 1
-num_cluster_tasks = 82
-num_atomic_tasks = 100
+k_nuc_max = 2
+num_cluster_tasks = 983
+num_atomic_tasks = 25
 num_running_tasks = 0
 
 mt_num = 0
@@ -90,7 +90,7 @@ for task_id in range(0, num_cluster_tasks):
     hash = hashlib.md5(json_list).hexdigest()
 
     root = '/data/biophys/denysov/yusipov/mtDNA/output'
-    local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+    local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + 'nat_' + str(num_atomic_tasks) + '/' + hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
