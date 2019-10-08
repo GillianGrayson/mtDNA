@@ -27,20 +27,10 @@ def random_forest(config_dict):
 
     genes = []
     genes_ids = []
-    genes_set_feature = []
-
-    if 'mt_genes_set_feature' in config_dict:
-        genes_set_feature.append([int(i) for i in config_dict['mt_genes_set_feature']])
-    if 'nuc_genes_set_feature' in config_dict:
-        genes_set_feature.append([int(i) for i in config_dict['nuc_genes_set_feature']])
 
     for file_id in range(0, len(config_dict['gene_files'])):
         data_gene_file = open(config_dict['data_path'] + config_dict['gene_files'][file_id])
-        if len(genes_set_feature) > 0:
-            genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file) if
-                          i in genes_set_feature[file_id]])
-        else:
-            genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file)])
+        genes.append([line.replace('\n', '') for i, line in enumerate(data_gene_file)])
         genes_ids.append([])
         for gene_id in range(0, len(genes[file_id])):
             genes_ids[file_id].append(gene_id)
@@ -87,11 +77,8 @@ def random_forest(config_dict):
     if int(config_dict['create_tree']) == 1:
         experiment_result_path = result_path + \
                                  unit_config.params_dict['experiment_type'] + '/' + \
-                                 'ref(' + unit_config.params_dict['reference_pop'] + ')_' + \
-                                 'target(' + unit_config.params_dict['target_pop'] + ')/' + \
-                                 'mt(' + str(unit_config.params_dict['k_mt']) + ')_' + \
-                                 'nuc(' + str(unit_config.params_dict['k_nuc']) + ')/'
-
+                                 'ref_' + unit_config.params_dict['reference_pop'] + '_' + \
+                                 'target_' + unit_config.params_dict['target_pop'] + '/'
         try:
             os.makedirs(experiment_result_path)
         except OSError as e:
@@ -101,44 +88,43 @@ def random_forest(config_dict):
         experiment_result_path = result_path
 
     suffix = config_dict['result_file_suffix']
-    if len(suffix) > 0:
-        suffix = '_' + suffix
 
-    if int(unit_config.params_dict['num_features']) == 0:
+    with open(experiment_result_path + str(config_dict['target_accuracy']) +
+              '_accuracy' + suffix + '.txt', 'w') as f:
+        for item in results.accuracy:
+            f.write("%s\n" % item)
+
+    with open(experiment_result_path + str(config_dict['target_accuracy']) +
+              '_num_features' + suffix + '.txt', 'w') as f:
+        for item in results.num_features:
+            f.write("%s\n" % item)
+
+    if unit_config.params_dict['experiment_type'] == 'mt':
         with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                  '_accuracy' + suffix + '.txt', 'w') as f:
-            for item in results.accuracy:
-                f.write("%s\n" % item)
-
+                  '_genes_mt' + suffix + '.txt', 'w') as f:
+            for item in results.mt_genes:
+                f.write("%s\n" % '\t'.join(list(map(str, item))))
+    elif unit_config.params_dict['experiment_type'] == 'nuc':
         with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                  '_num_features' + suffix + '.txt', 'w') as f:
-            for item in results.num_features:
-                f.write("%s\n" % item)
-
-        if unit_config.params_dict['experiment_type'] == 'mt':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_genes_mt' + suffix + '.txt', 'w') as f:
-                for item in results.mt_genes:
-                    f.write("%s\n" % '\t'.join(list(map(str, item))))
-        elif unit_config.params_dict['experiment_type'] == 'nuc':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_genes_nuc' + suffix + '.txt', 'w') as f:
-                for item in results.nuc_genes:
-                    f.write("%s\n" % '\t'.join(list(map(str, item))))
-        else:
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_genes_mt' + suffix + '.txt', 'w') as f:
-                for item in results.mt_genes:
-                    f.write("%s\n" % '\t'.join(list(map(str, item))))
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_genes_nuc' + suffix + '.txt', 'w') as f:
-                for item in results.nuc_genes:
-                    f.write("%s\n" % '\t'.join(list(map(str, item))))
+                  '_genes_nuc' + suffix + '.txt', 'w') as f:
+            for item in results.nuc_genes:
+                f.write("%s\n" % '\t'.join(list(map(str, item))))
     else:
+        with open(experiment_result_path + str(config_dict['target_accuracy']) +
+                  '_genes_mt' + suffix + '.txt', 'w') as f:
+            for item in results.mt_genes:
+                f.write("%s\n" % '\t'.join(list(map(str, item))))
+        with open(experiment_result_path + str(config_dict['target_accuracy']) +
+                  '_genes_nuc' + suffix + '.txt', 'w') as f:
+            for item in results.nuc_genes:
+                f.write("%s\n" % '\t'.join(list(map(str, item))))
+
+    if int(unit_config.params_dict['num_features']) > 0:
+
         if unit_config.params_dict['experiment_type'] == 'mt':
             with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_mt(' + '_'.join(config_dict['mt_genes_set_feature']) + ')' +
-                      suffix + '.txt', 'w') as f:
+                      '_top_features_mt_' + '_'.join(
+                list(map(str, config_dict['config_mt_genes'][0]))) + suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -148,8 +134,8 @@ def random_forest(config_dict):
                         features_count += 1
         elif unit_config.params_dict['experiment_type'] == 'nuc':
             with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_nuc(' + '_'.join(config_dict['nuc_genes_set_feature']) + ')' +
-                      suffix + '.txt', 'w') as f:
+                      '_top_features_nuc_' + '_'.join(
+                list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -159,9 +145,9 @@ def random_forest(config_dict):
                         features_count += 1
         else:
             with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_mt(' + '_'.join(config_dict['mt_genes_set_feature']) +
-                      ')_nuc(' + '_'.join(config_dict['nuc_genes_set_feature']) + ')' +
-                      suffix + '.txt', 'w') as f:
+                      '_top_features_mt_' + '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) +
+                      '_nuc_' + '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt',
+                      'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -184,8 +170,6 @@ f.close()
 
 config_dict['config_mt_genes'] = []
 config_dict['config_nuc_genes'] = []
-config_dict['config_mt_genes_set'] = []
-config_dict['config_nuc_genes_set'] = []
 
 f = open('config_mt_genes.txt')
 for line in f:
@@ -202,8 +186,5 @@ for line in f:
         items = line.split('\t')
         config_dict['config_nuc_genes'].append([int(item) for item in items])
 f.close()
-config_dict['config_mt_genes_set'] = list(
-    set([item for sublist in config_dict['config_mt_genes'] for item in sublist]))
-config_dict['config_nuc_genes_set'] = list(
-    set([item for sublist in config_dict['config_nuc_genes'] for item in sublist]))
+
 random_forest(config_dict)

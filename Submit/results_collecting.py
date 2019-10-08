@@ -1,31 +1,26 @@
-from Source.mtDNA.cluster.rf import random_forest
-import json
-import hashlib
 import pathlib
 import os
+import json
+import hashlib
 
-data_path = 'D:/Aaron/Bio/mtDNA/Data/'
-data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
-data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
-experiment_type = 'nuc'
-reference_pop = 'IBS'
-target_pop = 'FIN'
+medium = 1
+
+data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
+data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
+data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
+experiment_type = 'mt-nuc'
+reference_pop = 'GBR'
+target_pop = 'TSI'
 reference_part = 0.75
 result_file_suffix = 'short'
 target_accuracy = 0.6
 num_features = 100
-gene_files = ['test_gene_list_short.txt']
+gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
-k_mt_max = 1
-k_nuc_max = 1
-num_cluster_tasks = 1
-num_atomic_tasks = 10
-num_running_tasks = 0
 num_top_results = 5
 
-result_path = 'D:/Aaron/Bio/mtDNA/Result/cluster/'
-experiment_result_path = result_path + experiment_type + '/' + \
-                         'ref_' + reference_pop + '_' + 'target_' + target_pop + '/'
+result_path = '/data/biophys/denysov/yusipov/mtDNA/output'
+experiment_result_path = result_path + '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/'
 
 top_accuracy = []
 top_indices = []
@@ -140,7 +135,10 @@ if experiment_type == 'mt':
             file_config.write('create_tree\t' + str(create_tree) + '\n')
             file_config.close()
 
-            random_forest(fn_path)
+            if medium == 0:
+                os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
+            elif medium == 1:
+                os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)
 
 elif experiment_type == 'nuc':
     for nuc_genes_set in top_genes_nuc:
@@ -184,7 +182,10 @@ elif experiment_type == 'nuc':
             file_config.write('create_tree\t' + str(create_tree) + '\n')
             file_config.close()
 
-            random_forest(fn_path)
+            if medium == 0:
+                os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
+            elif medium == 1:
+                os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)
 
 else:
     combinations = [[], []]
@@ -232,4 +233,7 @@ else:
             file_config.write('create_tree\t' + str(create_tree) + '\n')
             file_config.close()
 
-            random_forest(fn_path)
+            if medium == 0:
+                os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
+            elif medium == 1:
+                os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)

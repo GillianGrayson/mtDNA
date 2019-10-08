@@ -1,7 +1,7 @@
 from scipy.special import binom
 
 k_mt_max = 13
-k_nuc_max = 1
+k_nuc_max = 2
 
 mt_num = 0
 nuc_num = 0

@@ -71,6 +71,9 @@ for k_mt in range(1, k_mt_max + 1):
                     combinations[0].append(list(subset_mt))
                     combinations[1].append(list(subset_nuc))
 
+if len(result_file_suffix) > 0:
+    result_file_suffix = '_' + result_file_suffix
+
 for task_id in range(0, num_cluster_tasks):
 
     if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
