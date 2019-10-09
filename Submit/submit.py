@@ -20,8 +20,10 @@ target_accuracy = 0.6
 num_features = 0
 gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
+k_mt_min = 1
+k_nuc_min = 2
 k_mt_max = 13
-k_nuc_max = 2
+k_nuc_max = 3
 num_cluster_tasks = 983
 num_atomic_tasks = 25
 num_running_tasks = 0
@@ -29,9 +31,9 @@ num_running_tasks = 0
 mt_num = 0
 nuc_num = 0
 
-for k_mt in range(1, k_mt_max + 1):
+for k_mt in range(k_mt_min, k_mt_max + 1):
     mt_num += binom(k_mt_max, k_mt)
-for k_nuc in range(1, k_nuc_max + 1):
+for k_nuc in range(k_nuc_min, k_nuc_max + 1):
     nuc_num += binom(k_nuc_max, k_nuc)
 
 num_combinations = mt_num * nuc_num
@@ -56,8 +58,8 @@ for file_id in range(0, len(gene_files)):
 
 combinations = [[], []]
 
-for k_mt in range(1, k_mt_max + 1):
-    for k_nuc in range(1, k_nuc_max + 1):
+for k_mt in range(k_mt_min, k_mt_max + 1):
+    for k_nuc in range(k_nuc_min, k_nuc_max + 1):
         print('k_mt: ' + str(k_mt))
         print('k_nuc: ' + str(k_nuc))
 
