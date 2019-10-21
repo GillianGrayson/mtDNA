@@ -3,6 +3,7 @@ import numpy as np
 import random
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
+import time
 
 def unit_task(config, results):
     if config.params_dict['experiment_type'] == 'mt':
@@ -41,6 +42,9 @@ def task_mt(config, results):
 
         number_mt_snps = 0
 
+        if int(config.params_dict['run_timer']) == 1:
+            start_ref = time.process_time()
+
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
@@ -53,6 +57,9 @@ def task_mt(config, results):
                 number_mt_snps += 1
 
         reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
+
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for frequencies calculating: ' + str(time.process_time() - start_ref))
 
         # Remaining group
 
@@ -69,11 +76,17 @@ def task_mt(config, results):
         names_mt = []
 
         line_count_mt = 0
+
+        if int(config.params_dict['run_timer']) == 1:
+            start_df = time.process_time()
+
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             row_id = 0
             for row in config.data[gene_index]:
                 snp_data_mt = list(row[i] for i in target_samples_ids_mt)
+                if len(set(snp_data_mt)) == 1:
+                    continue
 
                 combination_data = []
 
@@ -95,7 +108,10 @@ def task_mt(config, results):
                 line_count_mt += 1
                 row_id += 1
 
-        df_ref_mt = df_ref_mt[:, ~np.all(df_ref_mt[1:] == df_ref_mt[:-1], axis=0)]
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for data frame creating: ' + str(time.process_time() - start_df))
+
+        df_ref_mt = df_ref_mt[:, : len(names_mt)]
 
         data_classes = []
         for item in target_samples_names_mt:
@@ -110,6 +126,9 @@ def task_mt(config, results):
         clf = RandomForestClassifier(n_estimators=10)
         output = cross_validate(clf, df_ref_mt, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
+        if int(config.params_dict['run_timer']) == 1:
+            score_time = output['score_time']
+            print('Cross validation time: ' + ', '.join([str(item) for item in score_time]))
 
         features_dict = dict((key, []) for key in names_mt)
 
@@ -168,6 +187,9 @@ def task_nuc(config, results):
 
         number_nuc_snps = 0
 
+        if int(config.params_dict['run_timer']) == 1:
+            start_ref = time.process_time()
+
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
@@ -182,6 +204,9 @@ def task_nuc(config, results):
                 number_nuc_snps += 1
 
         reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
+
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for frequencies calculating: ' + str(time.process_time() - start_ref))
 
         # Remaining group
 
@@ -198,11 +223,17 @@ def task_nuc(config, results):
         names_nuc = []
 
         line_count_nuc = 0
+
+        if int(config.params_dict['run_timer']) == 1:
+            start_df = time.process_time()
+
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             row_id = 0
             for row in config.data[gene_index]:
                 snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
+                if len(set(snp_data_nuc)) == 1:
+                    continue
 
                 combination_data = []
 
@@ -226,7 +257,10 @@ def task_nuc(config, results):
                 line_count_nuc += 1
                 row_id += 1
 
-        df_ref_nuc = df_ref_nuc[:, ~np.all(df_ref_nuc[1:] == df_ref_nuc[:-1], axis=0)]
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for data frame creating: ' + str(time.process_time() - start_df))
+
+        df_ref_nuc = df_ref_nuc[:, : len(names_nuc)]
 
         data_classes = []
         for item in target_samples_names_nuc:
@@ -241,6 +275,10 @@ def task_nuc(config, results):
         clf = RandomForestClassifier(n_estimators=10)
         output = cross_validate(clf, df_ref_nuc, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
+
+        if int(config.params_dict['run_timer']) == 1:
+            score_time = output['score_time']
+            print('Cross validation time: ' + ', '.join([str(item) for item in score_time]))
 
         features_dict = dict((key, []) for key in names_nuc)
 
@@ -302,7 +340,10 @@ def task_mt_nuc(config, results):
                 target_samples_ids_nuc.append(persons_nuc[sample_name])
                 target_samples_names.append(sample_name)
 
-        number_snps_cobinations = 0
+        number_snps_combinations = 0
+
+        if int(config.params_dict['run_timer']) == 1:
+            start_ref = time.process_time()
 
         for gene_id_mt in range(0, len(genes_ids_mt)):
             gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
@@ -327,9 +368,12 @@ def task_mt_nuc(config, results):
                                     reference_frequencies[4] += 1
                                 elif snp_data_nuc[id] == 3:
                                     reference_frequencies[5] += 1
-                        number_snps_cobinations += 1
+                        number_snps_combinations += 1
 
         reference_frequencies = [freq / sum(reference_frequencies) for freq in reference_frequencies]
+
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for frequencies calculating: ' + str(time.process_time() - start_ref))
 
         # Remaining group
 
@@ -345,10 +389,13 @@ def task_mt_nuc(config, results):
                     target_samples_ids_nuc.append(persons_nuc[sample_name])
                     target_samples_names.append(sample_name)
 
-        df_ref = np.empty(shape=(len(target_samples_names), number_snps_cobinations), dtype=float)
+        df_ref = np.empty(shape=(len(target_samples_names), number_snps_combinations), dtype=float)
 
         names = []
         line_count = 0
+
+        if int(config.params_dict['run_timer']) == 1:
+            start_df = time.process_time()
 
         for gene_id_mt in range(0, len(genes_ids_mt)):
             gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
@@ -360,6 +407,8 @@ def task_mt_nuc(config, results):
                     row_id_nuc = 0
                     for row_nuc in config.data[gene_nuc_index]:
                         snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
+                        if len(set(snp_data_mt)) == 1 and len(set(snp_data_nuc)) == 1:
+                            continue
                         combination_data = []
                         for id in range(0, len(snp_data_mt)):
                             if snp_data_mt[id] == 0:
@@ -394,7 +443,14 @@ def task_mt_nuc(config, results):
                         row_id_nuc += 1
                     row_id_mt += 1
 
-        df_ref = df_ref[:, ~np.all(df_ref[1:] == df_ref[:-1], axis=0)]
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for data frame creating: ' + str(time.process_time() - start_df))
+            print(df_ref.shape)
+
+        df_ref = df_ref[:, : len(names)]
+
+        if int(config.params_dict['run_timer']) == 1:
+            print(df_ref.shape)
 
         data_classes = []
         for item in target_samples_names:
@@ -409,6 +465,10 @@ def task_mt_nuc(config, results):
         clf = RandomForestClassifier(n_estimators=10)
         output = cross_validate(clf, df_ref, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
+
+        if int(config.params_dict['run_timer']) == 1:
+            score_time = output['score_time']
+            print('Cross validation time: ' + ', '.join([str(item) for item in score_time]))
 
         features_dict = dict((key, []) for key in names)
 

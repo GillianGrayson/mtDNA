@@ -17,6 +17,7 @@ target_accuracy = 0.6
 num_features = 100
 gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
+run_timer = 0
 num_top_results = 5
 
 result_path = '/data/biophys/denysov/yusipov/mtDNA/output'
@@ -133,6 +134,7 @@ if experiment_type == 'mt':
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             if medium == 0:
@@ -180,6 +182,7 @@ elif experiment_type == 'nuc':
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             if medium == 0:
@@ -231,6 +234,7 @@ else:
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             if medium == 0:

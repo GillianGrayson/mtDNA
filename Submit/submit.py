@@ -20,6 +20,7 @@ target_accuracy = 0.6
 num_features = 0
 gene_files = ['mt_gene_list.txt', 'test_gene_list_short.txt']
 create_tree = 0
+run_timer = 0
 k_mt_min = 1
 k_nuc_min = 2
 k_mt_max = 13
@@ -124,6 +125,7 @@ for task_id in range(0, num_cluster_tasks):
         file_config.write('num_features\t' + str(num_features) + '\n')
         file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
         file_config.write('create_tree\t' + str(create_tree) + '\n')
+        file_config.write('run_timer\t' + str(run_timer) + '\n')
 
         file_config.close()
 

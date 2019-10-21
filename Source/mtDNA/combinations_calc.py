@@ -1,9 +1,9 @@
 from scipy.special import binom
 
 k_mt_min = 1
-k_nuc_min = 2
+k_nuc_min = 1
 k_mt_max = 13
-k_nuc_max = 3
+k_nuc_max = 1
 
 mt_num = 0
 nuc_num = 0

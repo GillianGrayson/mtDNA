@@ -162,7 +162,7 @@ f = open('config.txt')
 for line in f:
     line = line.replace('\n', '')
     items = line.split('\t')
-    if items[0] == 'gene_files' or items[0] == 'mt_genes_set_feature' or items[0] == 'nuc_genes_set_feature':
+    if items[0] == 'gene_files':
         config_dict[items[0]] = items[1].split(', ')
     else:
         config_dict[items[0]] = items[1]
