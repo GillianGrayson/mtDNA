@@ -9,6 +9,7 @@ data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
 experiment_type = 'mt-nuc'
+random_forest_type = 1
 reference_pop = 'GBR'
 target_pop = 'TSI'
 reference_part = 0.75
@@ -21,7 +22,8 @@ run_timer = 0
 num_top_results = 5
 
 result_path = '/data/biophys/denysov/yusipov/mtDNA/output'
-experiment_result_path = result_path + '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/'
+experiment_result_path = result_path + '/' + experiment_type + '/rf_type_' + str(
+    random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/'
 
 top_accuracy = []
 top_indices = []
@@ -103,7 +105,8 @@ if experiment_type == 'mt':
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -126,6 +129,7 @@ if experiment_type == 'mt':
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')
@@ -151,7 +155,8 @@ elif experiment_type == 'nuc':
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -174,6 +179,7 @@ elif experiment_type == 'nuc':
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')
@@ -203,7 +209,8 @@ else:
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -226,6 +233,7 @@ else:
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')

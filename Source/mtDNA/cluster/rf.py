@@ -1,4 +1,4 @@
-from mtDNA.cluster.rf_unit import unit_task
+from mtDNA.cluster.rf_unit_local import unit_task
 import numpy as np
 import pickle
 import os, errno

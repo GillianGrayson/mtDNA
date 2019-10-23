@@ -12,6 +12,7 @@ data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
 experiment_type = 'mt-nuc'
+random_forest_type = 1
 reference_pop = 'GBR'
 target_pop = 'TSI'
 reference_part = 0.75
@@ -93,7 +94,8 @@ for task_id in range(0, num_cluster_tasks):
     hash = hashlib.md5(json_list).hexdigest()
 
     root = '/data/biophys/denysov/yusipov/mtDNA/output'
-    local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + 'nat_' + str(num_atomic_tasks) + '/' + hash + '/'
+    local_path = '/' + experiment_type + '/rf_type_' + str(
+        random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + 'nat_' + str(num_atomic_tasks) + '/' + hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -117,6 +119,7 @@ for task_id in range(0, num_cluster_tasks):
         file_config.write('data_path_npz\t' + data_path_npz + '\n')
         file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
         file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
         file_config.write('reference_pop\t' + reference_pop + '\n')
         file_config.write('target_pop\t' + target_pop + '\n')
         file_config.write('reference_part\t' + str(reference_part) + '\n')

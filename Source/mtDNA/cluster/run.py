@@ -10,8 +10,9 @@ data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
 experiment_type = 'mt-nuc'
-reference_pop = 'IBS'
-target_pop = 'FIN'
+random_forest_type = 1
+reference_pop = 'FIN'
+target_pop = 'IBS'
 reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.6
@@ -19,10 +20,10 @@ num_features = 0
 gene_files = ['mt_gene_list.txt', 'test_nuc.txt']
 create_tree = 0
 run_timer = 1
-k_mt_min = 4
-k_nuc_min = 2
-k_mt_max = 4
-k_nuc_max = 2
+k_mt_min = 13
+k_nuc_min = 1
+k_mt_max = 13
+k_nuc_max = 1
 num_cluster_tasks = 1
 num_atomic_tasks = 1
 num_running_tasks = 0
@@ -80,18 +81,19 @@ if len(result_file_suffix) > 0:
 for task_id in range(0, num_cluster_tasks):
 
     if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks :]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks :]
+        genes_mt_task = combinations[0][task_id * num_atomic_tasks:]
+        genes_nuc_task = combinations[1][task_id * num_atomic_tasks:]
     else:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks : (task_id + 1) * num_atomic_tasks]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks : (task_id + 1) * num_atomic_tasks]
+        genes_mt_task = combinations[0][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
+        genes_nuc_task = combinations[1][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
 
     json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
     hash = hashlib.md5(json_list).hexdigest()
 
     root = 'D:/Aaron/Bio/mtDNA/Result/files'
-    local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+    local_path = '/' + experiment_type + '/rf_type_' + str(
+        random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -114,6 +116,7 @@ for task_id in range(0, num_cluster_tasks):
         file_config.write('data_path_npz\t' + data_path_npz + '\n')
         file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
         file_config.write('experiment_type\t' + experiment_type + '\n')
+        file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
         file_config.write('reference_pop\t' + reference_pop + '\n')
         file_config.write('target_pop\t' + target_pop + '\n')
         file_config.write('reference_part\t' + str(reference_part) + '\n')
