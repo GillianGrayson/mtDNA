@@ -20,6 +20,8 @@ def task_mt(config, results):
 def task_nuc(config, results):
     if int(config.params_dict['random_forest_type']) == 0:
         rf_type_0_nuc(config, results)
+    elif int(config.params_dict['random_forest_type']) == 1:
+        rf_type_1_nuc(config, results)
 
 def task_mt_nuc(config, results):
     if int(config.params_dict['random_forest_type']) == 0:
