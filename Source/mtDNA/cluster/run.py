@@ -10,22 +10,22 @@ data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
 experiment_type = 'mt-nuc'
-random_forest_type = 1
+random_forest_type = 2
 reference_pop = 'FIN'
 target_pop = 'IBS'
 reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.6
 num_features = 0
-gene_files = ['mt_gene_list.txt', 'test_nuc.txt']
+gene_files = ['test_mt.txt', 'test_nuc.txt']
 create_tree = 0
 run_timer = 1
-k_mt_min = 13
+k_mt_min = 1
 k_nuc_min = 1
-k_mt_max = 13
+k_mt_max = 1
 k_nuc_max = 1
 num_cluster_tasks = 1
-num_atomic_tasks = 1
+num_atomic_tasks = 10
 num_running_tasks = 0
 
 mt_num = 0
@@ -89,11 +89,11 @@ for task_id in range(0, num_cluster_tasks):
 
     json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
-    hash = hashlib.md5(json_list).hexdigest()
+    curr_hash = hashlib.md5(json_list).hexdigest()
 
     root = 'D:/Aaron/Bio/mtDNA/Result/files'
-    local_path = '/' + experiment_type + '/rf_type_' + str(
-        random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + hash + '/'
+    local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
+                 '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 

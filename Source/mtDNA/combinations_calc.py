@@ -2,8 +2,8 @@ from scipy.special import binom
 
 k_mt_min = 1
 k_nuc_min = 1
-k_mt_max = 1
-k_nuc_max = 4
+k_mt_max = 7
+k_nuc_max = 1
 
 mt_num = 0
 nuc_num = 0
