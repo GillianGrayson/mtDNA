@@ -60,36 +60,36 @@ for dirname in dirnames:
             f.close()
 
 if experiment_type == 'mt':
-    for id in range(0, len(top_dirs)):
-        for file in os.listdir(top_dirs[id]):
+    for dir_id in range(0, len(top_dirs)):
+        for file in os.listdir(top_dirs[dir_id]):
             if 'genes_mt' in file:
-                f = open(top_dirs[id] + '/' + file)
+                f = open(top_dirs[dir_id] + '/' + file)
                 for i, line in enumerate(f):
-                    if i == top_indices[id]:
+                    if i == top_indices[dir_id]:
                         top_genes_mt.append(line.replace('\n', '').split('\t'))
                 f.close()
 elif experiment_type == 'nuc':
-    for id in range(0, len(top_dirs)):
-        for file in os.listdir(top_dirs[id]):
+    for dir_id in range(0, len(top_dirs)):
+        for file in os.listdir(top_dirs[dir_id]):
             if 'genes_nuc' in file:
-                f = open(top_dirs[id] + '/' + file)
+                f = open(top_dirs[dir_id] + '/' + file)
                 for i, line in enumerate(f):
-                    if i == top_indices[id]:
+                    if i == top_indices[dir_id]:
                         top_genes_nuc.append(line.replace('\n', '').split('\t'))
                 f.close()
 else:
-    for id in range(0, len(top_dirs)):
-        for file in os.listdir(top_dirs[id]):
+    for dir_id in range(0, len(top_dirs)):
+        for file in os.listdir(top_dirs[dir_id]):
             if 'genes_nuc' in file:
-                f = open(top_dirs[id] + '/' + file)
+                f = open(top_dirs[dir_id] + '/' + file)
                 for i, line in enumerate(f):
-                    if i == top_indices[id]:
+                    if i == top_indices[dir_id]:
                         top_genes_nuc.append(line.replace('\n', '').split('\t'))
                 f.close()
             if 'genes_mt' in file:
-                f = open(top_dirs[id] + '/' + file)
+                f = open(top_dirs[dir_id] + '/' + file)
                 for i, line in enumerate(f):
-                    if i == top_indices[id]:
+                    if i == top_indices[dir_id]:
                         top_genes_mt.append(line.replace('\n', '').split('\t'))
                 f.close()
 
@@ -102,11 +102,11 @@ if experiment_type == 'mt':
         genes_nuc_task = [[]]
         json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
-        hash = hashlib.md5(json_list).hexdigest()
+        curr_hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
         local_path = '/' + experiment_type + '/rf_type_' + str(
-            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + curr_hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -152,11 +152,11 @@ elif experiment_type == 'nuc':
         genes_nuc_task = [nuc_genes_set]
         json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
-        hash = hashlib.md5(json_list).hexdigest()
+        curr_hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
         local_path = '/' + experiment_type + '/rf_type_' + str(
-            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + curr_hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -206,11 +206,11 @@ else:
         genes_nuc_task = [combinations[1][gene_set_id]]
         json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
-        hash = hashlib.md5(json_list).hexdigest()
+        curr_hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
         local_path = '/' + experiment_type + '/rf_type_' + str(
-            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + curr_hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 

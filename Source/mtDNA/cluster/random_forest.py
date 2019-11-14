@@ -1,7 +1,9 @@
 from rf_unit import unit_task
 import numpy as np
 import pickle
-import os, errno
+import os
+import errno
+
 
 class Config:
     def __init__(self):
@@ -11,6 +13,7 @@ class Config:
         self.person_index_dict = {}
         self.data_position_dict = {}
         self.pop_person_dict = {}
+
 
 class Result:
     def __init__(self):
@@ -122,9 +125,8 @@ def random_forest(config_dict):
     if int(unit_config.params_dict['num_features']) > 0:
 
         if unit_config.params_dict['experiment_type'] == 'mt':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_mt_' + '_'.join(
-                list(map(str, config_dict['config_mt_genes'][0]))) + suffix + '.txt', 'w') as f:
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_' +
+                      '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) + suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -133,9 +135,8 @@ def random_forest(config_dict):
                         f.write('\n')
                         features_count += 1
         elif unit_config.params_dict['experiment_type'] == 'nuc':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_nuc_' + '_'.join(
-                list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc_' +
+                      '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -144,10 +145,9 @@ def random_forest(config_dict):
                         f.write('\n')
                         features_count += 1
         else:
-            with open(experiment_result_path + str(config_dict['target_accuracy']) +
-                      '_top_features_mt_' + '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) +
-                      '_nuc_' + '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt',
-                      'w') as f:
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_' +
+                      '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) + '_nuc_' +
+                      '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):

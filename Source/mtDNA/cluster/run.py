@@ -17,13 +17,13 @@ reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.6
 num_features = 0
-gene_files = ['test_mt.txt', 'test_nuc.txt']
+gene_files = ['test_mt.txt', 'test_gene_list_short.txt']
 create_tree = 0
 run_timer = 1
-k_mt_min = 1
-k_nuc_min = 1
-k_mt_max = 1
-k_nuc_max = 1
+k_mt_min = 2
+k_nuc_min = 4
+k_mt_max = 2
+k_nuc_max = 4
 num_cluster_tasks = 1
 num_atomic_tasks = 10
 num_running_tasks = 0
@@ -41,6 +41,8 @@ print('Number of cluster tasks: ' + str(num_cluster_tasks))
 print('Number of atomic tasks: ' + str(num_atomic_tasks))
 print('Number of combinations: ' + str(int(num_combinations)))
 
+genes_mt = []
+genes_nuc = []
 for file_id in range(0, len(gene_files)):
     data_gene_file = open(data_path + gene_files[file_id])
     if file_id == 0:

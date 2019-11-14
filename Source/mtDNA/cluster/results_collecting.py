@@ -8,6 +8,7 @@ data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
 experiment_type = 'nuc'
+random_forest_type = 1
 reference_pop = 'IBS'
 target_pop = 'FIN'
 reference_part = 0.75
@@ -16,6 +17,7 @@ target_accuracy = 0.6
 num_features = 100
 gene_files = ['test_gene_list_short.txt']
 create_tree = 0
+run_timer = 0
 k_mt_max = 1
 k_nuc_max = 1
 num_cluster_tasks = 1
@@ -107,7 +109,8 @@ if experiment_type == 'mt':
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -130,6 +133,7 @@ if experiment_type == 'mt':
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')
@@ -138,6 +142,7 @@ if experiment_type == 'mt':
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             random_forest(fn_path)
@@ -151,7 +156,8 @@ elif experiment_type == 'nuc':
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -174,6 +180,7 @@ elif experiment_type == 'nuc':
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')
@@ -182,6 +189,7 @@ elif experiment_type == 'nuc':
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             random_forest(fn_path)
@@ -199,7 +207,8 @@ else:
         hash = hashlib.md5(json_list).hexdigest()
 
         root = result_path
-        local_path = '/' + experiment_type + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
+        local_path = '/' + experiment_type + '/rf_type_' + str(
+            random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/top/' + hash + '/'
         fn_path = root + local_path
         pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -222,6 +231,7 @@ else:
             file_config.write('data_path_npz\t' + data_path_npz + '\n')
             file_config.write('data_path_pkl\t' + data_path_pkl + '\n')
             file_config.write('experiment_type\t' + experiment_type + '\n')
+            file_config.write('random_forest_type\t' + str(random_forest_type) + '\n')
             file_config.write('reference_pop\t' + reference_pop + '\n')
             file_config.write('target_pop\t' + target_pop + '\n')
             file_config.write('reference_part\t' + str(reference_part) + '\n')
@@ -230,6 +240,7 @@ else:
             file_config.write('num_features\t' + str(num_features) + '\n')
             file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
             file_config.write('create_tree\t' + str(create_tree) + '\n')
+            file_config.write('run_timer\t' + str(run_timer) + '\n')
             file_config.close()
 
             random_forest(fn_path)

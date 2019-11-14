@@ -43,6 +43,8 @@ print('Number of cluster tasks: ' + str(num_cluster_tasks))
 print('Number of atomic tasks: ' + str(num_atomic_tasks))
 print('Number of combinations: ' + str(int(num_combinations)))
 
+genes_mt = []
+genes_nuc = []
 for file_id in range(0, len(gene_files)):
     data_gene_file = open(data_path + gene_files[file_id])
     if file_id == 0:
@@ -91,11 +93,12 @@ for task_id in range(0, num_cluster_tasks):
 
     json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
 
-    hash = hashlib.md5(json_list).hexdigest()
+    curr_hash = hashlib.md5(json_list).hexdigest()
 
     root = '/data/biophys/denysov/yusipov/mtDNA/output'
-    local_path = '/' + experiment_type + '/rf_type_' + str(
-        random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + 'nat_' + str(num_atomic_tasks) + '/' + hash + '/'
+    local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
+                 '/ref_' + reference_pop + '_target_' + target_pop + '/' + \
+                 'nat_' + str(num_atomic_tasks) + '/' + curr_hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
