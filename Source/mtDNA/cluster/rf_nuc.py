@@ -427,7 +427,7 @@ def rf_type_2_nuc(config, results):
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
             results.num_features.append(num_features)
-            results.mt_genes.append(genes_ids)
+            results.nuc_genes.append(genes_ids)
 
         if int(config.params_dict['num_features']) > 0:
             features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
