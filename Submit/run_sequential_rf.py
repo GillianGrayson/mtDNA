@@ -24,8 +24,6 @@ num_atomic_tasks = 50
 num_running_tasks = 0
 
 result_path = '/data/biophys/denysov/yusipov/mtDNA/output/'
-experiment_result_path = result_path + experiment_type + '/' + \
-                         'ref_' + reference_pop + '_' + 'target_' + target_pop + '/'
 
 genes_mt = []
 genes_mt_names = []
@@ -89,10 +87,10 @@ combinations = [[], []]
 if experiment_type == 'mt':
     top_features = [genes_mt_names.index(top_features[i]) for i in range(0, len(top_features))]
     combinations[0] = [top_features[:i] for i in range(1, len(top_features))]
-    combinations[1].append([genes_nuc])
+    combinations[1].append(genes_nuc)
 elif experiment_type == 'nuc':
     top_features = [genes_nuc_names.index(top_features[i]) for i in range(0, len(top_features))]
-    combinations[0].append([genes_mt])
+    combinations[0].append(genes_mt)
     combinations[1] = [top_features[:i] for i in range(1, len(top_features))]
 else:
     mt_genes = []
