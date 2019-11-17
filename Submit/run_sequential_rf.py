@@ -8,19 +8,19 @@ medium = 1
 data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
-experiment_type = 'mt-nuc'
+experiment_type = 'mt'
 random_forest_type = 2
-reference_pop = 'FIN'
-target_pop = 'IBS'
+reference_pop = 'GBR'
+target_pop = 'FIN'
 reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.6
 num_features = 0
-gene_files = ['test_mt.txt', 'test_nuc.txt']
+gene_files = ['mt_gene_list.txt']
 create_tree = 0
 run_timer = 0
-num_cluster_tasks = 1
-num_atomic_tasks = 100
+num_cluster_tasks = 1000
+num_atomic_tasks = 50
 num_running_tasks = 0
 
 result_path = '/data/biophys/denysov/yusipov/mtDNA/output/'
@@ -122,7 +122,7 @@ for task_id in range(0, num_cluster_tasks):
 
     curr_hash = hashlib.md5(json_list).hexdigest()
 
-    root = 'D:/Aaron/Bio/mtDNA/Result/files'
+    root = '/data/biophys/denysov/yusipov/mtDNA/output/'
     local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
                  '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
     fn_path = root + local_path
