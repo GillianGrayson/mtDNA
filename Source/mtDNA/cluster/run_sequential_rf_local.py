@@ -1,6 +1,4 @@
-from Source.mtDNA.cluster.rf import random_forest
-from scipy.special import binom
-import itertools
+from Source.mtDNA.cluster.random_forest_local import random_forest
 import json
 import hashlib
 import pathlib
@@ -17,68 +15,98 @@ reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.6
 num_features = 0
-gene_files = ['test_mt.txt', 'test_gene_list_short.txt']
+gene_files = ['test_mt.txt', 'test_nuc.txt']
 create_tree = 0
-run_timer = 1
-k_mt_min = 2
-k_nuc_min = 4
-k_mt_max = 2
-k_nuc_max = 4
+run_timer = 0
 num_cluster_tasks = 1
-num_atomic_tasks = 10
+num_atomic_tasks = 100
 num_running_tasks = 0
 
-mt_num = 0
-nuc_num = 0
-
-for k_mt in range(k_mt_min, k_mt_max + 1):
-    mt_num += binom(k_mt_max, k_mt)
-for k_nuc in range(k_nuc_min, k_nuc_max + 1):
-    nuc_num += binom(k_nuc_max, k_nuc)
-
-num_combinations = mt_num * nuc_num
-print('Number of cluster tasks: ' + str(num_cluster_tasks))
-print('Number of atomic tasks: ' + str(num_atomic_tasks))
-print('Number of combinations: ' + str(int(num_combinations)))
+result_path = 'D:/Aaron/Bio/mtDNA/Result/files/'
+experiment_result_path = result_path + experiment_type + '/' + \
+                         'ref_' + reference_pop + '_' + 'target_' + target_pop + '/'
 
 genes_mt = []
+genes_mt_names = []
 genes_nuc = []
+genes_nuc_names = []
 for file_id in range(0, len(gene_files)):
     data_gene_file = open(data_path + gene_files[file_id])
     if file_id == 0:
         if experiment_type == 'mt':
-            genes_mt = [i for i, line in enumerate(data_gene_file)]
-            genes_nuc = [[]]
+            for i, line in enumerate(data_gene_file):
+                genes_mt.append(i)
+                genes_mt_names.append(line.rstrip())
+            genes_nuc = []
         elif experiment_type == 'nuc':
-            genes_mt = [[]]
-            genes_nuc = [i for i, line in enumerate(data_gene_file)]
+            genes_mt = []
+            for i, line in enumerate(data_gene_file):
+                genes_nuc.append(i)
+                genes_nuc_names.append(line.rstrip())
         elif experiment_type == 'mt-nuc':
-            genes_mt = [i for i, line in enumerate(data_gene_file)]
+            for i, line in enumerate(data_gene_file):
+                genes_mt.append(i)
+                genes_mt_names.append(line.rstrip())
     else:
-        genes_nuc = [i for i, line in enumerate(data_gene_file)]
+        for i, line in enumerate(data_gene_file):
+            genes_nuc.append(i)
+            genes_nuc_names.append(line.rstrip())
     data_gene_file.close()
-
-combinations = [[], []]
-
-for k_mt in range(k_mt_min, k_mt_max + 1):
-    for k_nuc in range(k_nuc_min, k_nuc_max + 1):
-        print('k_mt: ' + str(k_mt))
-        print('k_nuc: ' + str(k_nuc))
-
-        for subset_mt in itertools.combinations(genes_mt, k_mt):
-            for subset_nuc in itertools.combinations(genes_nuc, k_nuc):
-                if experiment_type == 'mt':
-                    combinations[0].append(list(subset_mt))
-                    combinations[1].append(list(subset_nuc)[0])
-                elif experiment_type == 'nuc':
-                    combinations[0].append(list(subset_mt)[0])
-                    combinations[1].append(list(subset_nuc))
-                else:
-                    combinations[0].append(list(subset_mt))
-                    combinations[1].append(list(subset_nuc))
 
 if len(result_file_suffix) > 0:
     result_file_suffix = '_' + result_file_suffix
+
+json_list = json.dumps([[genes_mt], [genes_nuc]]).encode('utf-8')
+
+curr_hash = hashlib.md5(json_list).hexdigest()
+
+root = result_path
+local_path = '/' + experiment_type + '/rf_type_' + str(
+    random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
+fn_path = root + local_path
+pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
+
+experiment_type_suffix = 'top_features_'
+if experiment_type == 'mt':
+    experiment_type_suffix += 'mt_' + '_'.join(list(map(str, genes_mt))) + result_file_suffix
+elif experiment_type == 'nuc':
+    experiment_type_suffix += 'nuc_' + '_'.join(list(map(str, genes_nuc))) + result_file_suffix
+elif experiment_type == 'mt-nuc':
+    experiment_type_suffix += 'mt_' + '_'.join(list(map(str, genes_mt))) + \
+                              '_nuc_' + '_'.join(list(map(str, genes_nuc))) + result_file_suffix
+
+fn_features = str(target_accuracy) + '_' + experiment_type_suffix + result_file_suffix + '.txt'
+top_features = []
+
+features_file = open(fn_path + fn_features)
+for line in features_file:
+    top_features.append(line.split('\t')[0])
+features_file.close()
+
+combinations = [[], []]
+if experiment_type == 'mt':
+    top_features = [genes_mt_names.index(top_features[i]) for i in range(0, len(top_features))]
+    combinations[0] = [top_features[:i] for i in range(1, len(top_features))]
+    combinations[1].append([genes_nuc])
+elif experiment_type == 'nuc':
+    top_features = [genes_nuc_names.index(top_features[i]) for i in range(0, len(top_features))]
+    combinations[0].append([genes_mt])
+    combinations[1] = [top_features[:i] for i in range(1, len(top_features))]
+else:
+    mt_genes = []
+    nuc_genes = []
+    for i in range(0, len(top_features)):
+        curr_features = top_features[i].split('_')
+        if len(curr_features) == 2:
+            curr_mt_gene = genes_mt_names.index(curr_features[0])
+            curr_nuc_gene = genes_nuc_names.index(curr_features[1])
+        else:
+            curr_mt_gene = genes_mt_names.index(curr_features[0] + '_' + curr_features[1])
+            curr_nuc_gene = genes_nuc_names.index(curr_features[2])
+        mt_genes.append(curr_mt_gene)
+        nuc_genes.append(curr_nuc_gene)
+        combinations[0].append(sorted(set(mt_genes[:i+1]), key=mt_genes[:i+1].index))
+        combinations[1].append(sorted(set(nuc_genes[:i+1]), key=nuc_genes[:i+1].index))
 
 for task_id in range(0, num_cluster_tasks):
 

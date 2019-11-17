@@ -1,4 +1,4 @@
-from Source.mtDNA.cluster.rf import random_forest
+from Source.mtDNA.cluster.random_forest_local import random_forest
 import json
 import hashlib
 import pathlib
