@@ -62,8 +62,9 @@ json_list = json.dumps([[genes_mt], [genes_nuc]]).encode('utf-8')
 curr_hash = hashlib.md5(json_list).hexdigest()
 
 root = result_path
-local_path = '/' + experiment_type + '/rf_type_' + str(
-    random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
+local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
+             '/ref_' + reference_pop + '_target_' + target_pop + '/' + \
+             'nat_' + str(num_atomic_tasks) + '/' + curr_hash + '/'
 fn_path = root + local_path
 pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
@@ -124,7 +125,8 @@ for task_id in range(0, num_cluster_tasks):
 
     root = '/data/biophys/denysov/yusipov/mtDNA/output/'
     local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
-                 '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
+                 '/ref_' + reference_pop + '_target_' + target_pop + '/' + \
+                 'nat_' + str(num_atomic_tasks) + '/' + curr_hash + '/'
     fn_path = root + local_path
     pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
