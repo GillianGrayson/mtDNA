@@ -8,15 +8,15 @@ medium = 1
 data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
 data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
 data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
-experiment_type = 'mt'
+experiment_type = 'nuc'
 random_forest_type = 2
 reference_pop = 'GBR'
 target_pop = 'FIN'
 reference_part = 0.75
-result_file_suffix = ''
+result_file_suffix = 'diet'
 target_accuracy = 0.6
 num_features = 0
-gene_files = ['mt_gene_list.txt']
+gene_files = ['test_gene_list_diet.txt']
 create_tree = 0
 run_timer = 0
 num_cluster_tasks = 1000
@@ -75,7 +75,7 @@ elif experiment_type == 'mt-nuc':
     experiment_type_suffix += 'mt_' + '_'.join(list(map(str, genes_mt))) + \
                               '_nuc_' + '_'.join(list(map(str, genes_nuc))) + result_file_suffix
 
-fn_features = str(target_accuracy) + '_' + experiment_type_suffix + result_file_suffix + '.txt'
+fn_features = str(target_accuracy) + '_' + experiment_type_suffix + '.txt'
 top_features = []
 
 features_file = open(fn_path + fn_features)
