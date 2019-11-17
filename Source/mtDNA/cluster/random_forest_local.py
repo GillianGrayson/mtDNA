@@ -152,8 +152,8 @@ def random_forest(config_path):
     if int(unit_config.params_dict['num_features']) > 0:
 
         if unit_config.params_dict['experiment_type'] == 'mt':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_' +
-                      '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) + suffix + '.txt', 'w') as f:
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt' +
+                      suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -163,7 +163,7 @@ def random_forest(config_path):
                         features_count += 1
         elif unit_config.params_dict['experiment_type'] == 'nuc':
             with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc_' +
-                      '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
+                      suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
@@ -172,9 +172,8 @@ def random_forest(config_path):
                         f.write('\n')
                         features_count += 1
         else:
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_' +
-                      '_'.join(list(map(str, config_dict['config_mt_genes'][0]))) + '_nuc_' +
-                      '_'.join(list(map(str, config_dict['config_nuc_genes'][0]))) + suffix + '.txt', 'w') as f:
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_nuc' +
+                      suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():
                     if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
