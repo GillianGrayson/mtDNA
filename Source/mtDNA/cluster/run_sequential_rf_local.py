@@ -66,14 +66,7 @@ local_path = '/' + experiment_type + '/rf_type_' + str(
 fn_path = root + local_path
 pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
-experiment_type_suffix = 'top_features_'
-if experiment_type == 'mt':
-    experiment_type_suffix += 'mt_' + '_'.join(list(map(str, genes_mt))) + result_file_suffix
-elif experiment_type == 'nuc':
-    experiment_type_suffix += 'nuc_' + '_'.join(list(map(str, genes_nuc))) + result_file_suffix
-elif experiment_type == 'mt-nuc':
-    experiment_type_suffix += 'mt_' + '_'.join(list(map(str, genes_mt))) + \
-                              '_nuc_' + '_'.join(list(map(str, genes_nuc))) + result_file_suffix
+experiment_type_suffix = 'top_features_' + experiment_type
 
 fn_features = str(target_accuracy) + '_' + experiment_type_suffix + result_file_suffix + '.txt'
 top_features = []
