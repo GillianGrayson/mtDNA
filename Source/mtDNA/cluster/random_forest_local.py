@@ -162,7 +162,7 @@ def random_forest(config_path):
                         f.write('\n')
                         features_count += 1
         elif unit_config.params_dict['experiment_type'] == 'nuc':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc_' +
+            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc' +
                       suffix + '.txt', 'w') as f:
                 features_count = 0
                 for key, value in results.features.items():

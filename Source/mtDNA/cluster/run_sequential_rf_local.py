@@ -7,19 +7,19 @@ import os
 data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
-experiment_type = 'mt-nuc'
+experiment_type = 'nuc'
 random_forest_type = 2
 reference_pop = 'FIN'
 target_pop = 'IBS'
 reference_part = 0.75
-result_file_suffix = ''
-target_accuracy = 0.6
+result_file_suffix = 'diet'
+target_accuracy = 0.55
 num_features = 0
-gene_files = ['test_mt.txt', 'test_nuc.txt']
+gene_files = ['test_gene_list_diet.txt']
 create_tree = 0
 run_timer = 0
-num_cluster_tasks = 1
-num_atomic_tasks = 100
+num_cluster_tasks = 10
+num_atomic_tasks = 1
 num_running_tasks = 0
 
 result_path = 'D:/Aaron/Bio/mtDNA/Result/files/'
@@ -80,10 +80,10 @@ combinations = [[], []]
 if experiment_type == 'mt':
     top_features = [genes_mt_names.index(top_features[i]) for i in range(0, len(top_features))]
     combinations[0] = [top_features[:i] for i in range(1, len(top_features))]
-    combinations[1].append([genes_nuc])
+    combinations[1] = [[] for i in range(1, len(top_features))]
 elif experiment_type == 'nuc':
     top_features = [genes_nuc_names.index(top_features[i]) for i in range(0, len(top_features))]
-    combinations[0].append([genes_mt])
+    combinations[0] = [[] for i in range(1, len(top_features))]
     combinations[1] = [top_features[:i] for i in range(1, len(top_features))]
 else:
     mt_genes = []
