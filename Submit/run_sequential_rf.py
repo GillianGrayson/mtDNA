@@ -66,7 +66,10 @@ local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
 fn_path = root + local_path
 pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
 
-experiment_type_suffix = 'top_features_' + experiment_type
+if experiment_type == 'mt' or experiment_type == 'nuc':
+    experiment_type_suffix = 'top_features_' + experiment_type
+else:
+    experiment_type_suffix = 'top_features_mt_nuc'
 
 fn_features = str(target_accuracy) + '_' + experiment_type_suffix + result_file_suffix + '.txt'
 top_features = []
