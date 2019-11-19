@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
 data_path = 'D:/Aaron/Bio/tibet/Data/'
+result_path = 'D:/Aaron/Bio/tibet/Result/'
 
 raw_data = []
 data_classes = []
@@ -42,7 +43,13 @@ y = factor[0]
 clf = RandomForestClassifier(n_estimators=500)
 output = cross_validate(clf, df_main, y, cv=10, scoring='accuracy', return_estimator=True)
 accuracy = np.mean(output['test_score'])
-print('Classification Accuracy: ' + str(accuracy))
+print('8-class Classification Accuracy: ' + str(accuracy))
+
+result_file_name = 'classification.txt'
+if not os.path.exists(result_path):
+    os.makedirs(result_path)
+f = open(result_path + result_file_name, 'w')
+f.write('8-class Classification Accuracy: ' + str(accuracy) + '\n')
 
 for subset in itertools.combinations(raw_data, 2):
     test_data = subset
@@ -70,3 +77,6 @@ for subset in itertools.combinations(raw_data, 2):
     accuracy = np.mean(output['test_score'])
     print(data_classes[raw_data.index(test_data[0])] + ' vs ' +  data_classes[raw_data.index(test_data[1])] +
           ' Binary Classification Accuracy: ' + str(accuracy))
+    f.write(data_classes[raw_data.index(test_data[0])] + ' vs ' +  data_classes[raw_data.index(test_data[1])] +
+          ' Binary Classification Accuracy: ' + str(accuracy) + '\n')
+f.close()
