@@ -8,7 +8,7 @@ data_path = 'D:/Aaron/Bio/mtDNA/Data/'
 data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
 data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
 experiment_type = 'nuc'
-random_forest_type = 2
+random_forest_type = 3
 reference_pop = 'FIN'
 target_pop = 'IBS'
 reference_part = 0.75
@@ -18,13 +18,11 @@ num_features = 0
 gene_files = ['test_gene_list_diet.txt']
 create_tree = 0
 run_timer = 0
-num_cluster_tasks = 10
+num_cluster_tasks = 1
 num_atomic_tasks = 1
 num_running_tasks = 0
 
 result_path = 'D:/Aaron/Bio/mtDNA/Result/files/'
-experiment_result_path = result_path + experiment_type + '/' + \
-                         'ref_' + reference_pop + '_' + 'target_' + target_pop + '/'
 
 genes_mt = []
 genes_mt_names = []
@@ -56,61 +54,9 @@ for file_id in range(0, len(gene_files)):
 if len(result_file_suffix) > 0:
     result_file_suffix = '_' + result_file_suffix
 
-json_list = json.dumps([[genes_mt], [genes_nuc]]).encode('utf-8')
-
-curr_hash = hashlib.md5(json_list).hexdigest()
-
-root = result_path
-local_path = '/' + experiment_type + '/rf_type_' + str(
-    random_forest_type) + '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
-fn_path = root + local_path
-pathlib.Path(fn_path).mkdir(parents=True, exist_ok=True)
-
-experiment_type_suffix = 'top_features_' + experiment_type
-
-fn_features = str(target_accuracy) + '_' + experiment_type_suffix + result_file_suffix + '.txt'
-top_features = []
-
-features_file = open(fn_path + fn_features)
-for line in features_file:
-    top_features.append(line.split('\t')[0])
-features_file.close()
-
-combinations = [[], []]
-if experiment_type == 'mt':
-    top_features = [genes_mt_names.index(top_features[i]) for i in range(0, len(top_features))]
-    combinations[0] = [top_features[:i] for i in range(1, len(top_features))]
-    combinations[1] = [[] for i in range(1, len(top_features))]
-elif experiment_type == 'nuc':
-    top_features = [genes_nuc_names.index(top_features[i]) for i in range(0, len(top_features))]
-    combinations[0] = [[] for i in range(1, len(top_features))]
-    combinations[1] = [top_features[:i] for i in range(1, len(top_features))]
-else:
-    mt_genes = []
-    nuc_genes = []
-    for i in range(0, len(top_features)):
-        curr_features = top_features[i].split('_')
-        if len(curr_features) == 2:
-            curr_mt_gene = genes_mt_names.index(curr_features[0])
-            curr_nuc_gene = genes_nuc_names.index(curr_features[1])
-        else:
-            curr_mt_gene = genes_mt_names.index(curr_features[0] + '_' + curr_features[1])
-            curr_nuc_gene = genes_nuc_names.index(curr_features[2])
-        mt_genes.append(curr_mt_gene)
-        nuc_genes.append(curr_nuc_gene)
-        combinations[0].append(sorted(set(mt_genes[:i+1]), key=mt_genes[:i+1].index))
-        combinations[1].append(sorted(set(nuc_genes[:i+1]), key=nuc_genes[:i+1].index))
-
 for task_id in range(0, num_cluster_tasks):
 
-    if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks:]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks:]
-    else:
-        genes_mt_task = combinations[0][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
-        genes_nuc_task = combinations[1][task_id * num_atomic_tasks: (task_id + 1) * num_atomic_tasks]
-
-    json_list = json.dumps([genes_mt_task, genes_nuc_task]).encode('utf-8')
+    json_list = json.dumps([genes_mt, genes_nuc]).encode('utf-8')
 
     curr_hash = hashlib.md5(json_list).hexdigest()
 
@@ -125,13 +71,11 @@ for task_id in range(0, num_cluster_tasks):
     if not os.path.isfile(fn_test):
 
         file_mt = open(fn_path + '/config_mt_genes.txt', 'w')
-        for genes_task in genes_mt_task:
-            file_mt.write('\t'.join([str(item) for item in genes_task]) + '\n')
+        file_mt.write('\t'.join([str(item) for item in genes_mt]) + '\n')
         file_mt.close()
 
         file_nuc = open(fn_path + '/config_nuc_genes.txt', 'w')
-        for genes_task in genes_nuc_task:
-            file_nuc.write('\t'.join([str(item) for item in genes_task]) + '\n')
+        file_nuc.write('\t'.join([str(item) for item in genes_nuc]) + '\n')
         file_nuc.close()
 
         file_config = open(fn_path + '/config.txt', 'w')
@@ -154,7 +98,5 @@ for task_id in range(0, num_cluster_tasks):
         random_forest(fn_path)
 
         num_running_tasks += 1
-        if len(combinations[0]) < (task_id + 1) * num_atomic_tasks:
-            break
 
 print('Number of running tasks: ' + str(num_running_tasks))

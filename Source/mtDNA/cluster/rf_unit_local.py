@@ -1,4 +1,4 @@
-from mtDNA.cluster.rf_mt import rf_type_0_mt, rf_type_1_mt, rf_type_2_mt
+from mtDNA.cluster.rf_mt import rf_type_0_mt, rf_type_1_mt, rf_type_2_mt, rf_type_3_mt
 from mtDNA.cluster.rf_nuc import rf_type_0_nuc, rf_type_1_nuc, rf_type_2_nuc
 from mtDNA.cluster.rf_mt_nuc import rf_type_0_mt_nuc, rf_type_1_mt_nuc, rf_type_2_mt_nuc
 
@@ -19,6 +19,8 @@ def task_mt(config, results):
         rf_type_1_mt(config, results)
     elif int(config.params_dict['random_forest_type']) == 2:
         rf_type_2_mt(config, results)
+    elif int(config.params_dict['random_forest_type']) == 3:
+        rf_type_3_mt(config, results)
 
 
 def task_nuc(config, results):
