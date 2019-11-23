@@ -58,6 +58,7 @@ save_dict(top_regions, file_suffix)
 plot_hist(top_regions, '8_class_regions', result_path)
 
 features_intersection = positions
+features_intersection_acc = positions
 
 for subset in itertools.combinations(raw_data, 2):
     test_data = subset
@@ -79,6 +80,8 @@ for subset in itertools.combinations(raw_data, 2):
     top_regions = create_regions_stat(list(top_features.keys()), regions)
 
     features_intersection = list(set(features_intersection).intersection(list(set(top_features.keys()))))
+    if accuracy > 0.8:
+        features_intersection_acc = list(set(features_intersection_acc).intersection(list(set(top_features.keys()))))
 
     file_suffix = result_path + data_classes[raw_data.index(test_data[0])] + '_' + \
                   data_classes[raw_data.index(test_data[1])] + '_top_features.txt'
@@ -95,7 +98,15 @@ f.close()
 file_suffix = result_path + 'binary_common_features.txt'
 save_list(features_intersection, file_suffix)
 
+file_suffix = result_path + 'binary_common_features_top_accuracy.txt'
+save_list(features_intersection_acc, file_suffix)
+
 regions_intersection = create_regions_stat(features_intersection, regions)
 file_suffix = result_path + 'binary_common_regions.txt'
 save_dict(regions_intersection, file_suffix)
-plot_hist(top_regions, 'binary_common_regions', result_path)
+plot_hist(regions_intersection, 'binary_common_regions', result_path)
+
+regions_intersection_acc = create_regions_stat(features_intersection_acc, regions)
+file_suffix = result_path + 'binary_common_regions_top_accuracy.txt'
+save_dict(regions_intersection_acc, file_suffix)
+plot_hist(regions_intersection_acc, 'binary_common_regions_top_accuracy', result_path)
