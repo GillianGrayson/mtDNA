@@ -105,7 +105,7 @@ def random_forest(config_path):
     unit_task(unit_config, results)
 
     if int(config_dict['create_tree']) == 1:
-        result_path = 'D:/Aaron/Bio/mtDNA/Result/files/'
+        result_path = 'C:/Users/User/YandexDisk/mtDNA/Result/files/'
         experiment_result_path = result_path + unit_config.params_dict['experiment_type'] + '/' + \
             'ref_' + unit_config.params_dict['reference_pop'] + '_' + \
             'target_' + unit_config.params_dict['target_pop'] + '/'

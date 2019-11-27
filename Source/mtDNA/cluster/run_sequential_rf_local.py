@@ -3,26 +3,26 @@ import json
 import hashlib
 import pathlib
 import os
+import time
 
-data_path = 'D:/Aaron/Bio/mtDNA/Data/'
-data_path_npz = 'D:/Aaron/Bio/mtDNA/Data/genes/npz/'
-data_path_pkl = 'D:/Aaron/Bio/mtDNA/Data/genes/pkl/'
-experiment_type = 'nuc'
+
+data_path = 'C:/Users/User/YandexDisk/mtDNA/Data/'
+data_path_npz = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/npz/'
+data_path_pkl = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/pkl/'
+experiment_type = 'mt'
 random_forest_type = 3
 reference_pop = 'FIN'
 target_pop = 'IBS'
 reference_part = 0.75
-result_file_suffix = 'diet'
+result_file_suffix = ''
 target_accuracy = 0.55
 num_features = 0
-gene_files = ['test_gene_list_diet.txt']
+gene_files = ['mt_gene_list.txt']
 create_tree = 0
-run_timer = 0
+run_timer = 1
 num_cluster_tasks = 1
 num_atomic_tasks = 1
 num_running_tasks = 0
-
-result_path = 'D:/Aaron/Bio/mtDNA/Result/files/'
 
 genes_mt = []
 genes_mt_names = []
@@ -60,7 +60,7 @@ for task_id in range(0, num_cluster_tasks):
 
     curr_hash = hashlib.md5(json_list).hexdigest()
 
-    root = 'D:/Aaron/Bio/mtDNA/Result/files'
+    root = 'C:/Users/User/YandexDisk/mtDNA/Result/files'
     local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
                  '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
     fn_path = root + local_path
@@ -95,7 +95,13 @@ for task_id in range(0, num_cluster_tasks):
         file_config.write('run_timer\t' + str(run_timer) + '\n')
         file_config.close()
 
+        if run_timer == 1:
+            start = time.process_time()
+
         random_forest(fn_path)
+
+        if run_timer == 1:
+            print('Experiment time: ' + str(time.process_time() - start))
 
         num_running_tasks += 1
 
