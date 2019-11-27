@@ -517,7 +517,7 @@ def rf_type_3_mt(config, results):
         gene_col_dict[gene_mt] = gene_id
 
     if int(config.params_dict['run_timer']) == 1:
-        print('Time for data frame creating: ' + str(time.process_time() - start_df))
+        print('Time for common data frame creating: ' + str(time.process_time() - start_df))
 
     df_ref_mt = df_ref_mt[:, : len(names_mt)]
 
@@ -542,7 +542,6 @@ def rf_type_3_mt(config, results):
     accuracy = np.mean(output['test_score'])
     if int(config.params_dict['run_timer']) == 1:
         print('Total time for random forest ' + str(time.process_time() - start_rf))
-        print('Mean accuracy: ' + str(accuracy))
 
     features_dict = dict((key, []) for key in names_mt)
 
@@ -574,6 +573,8 @@ def rf_type_3_mt(config, results):
     features_top = list(features_dict.keys())
 
     for num_features in range(1, len(features_top)):
+        if num_features % 10 == 0:
+            print('Sequential random forest #' + str(num_features))
 
         curr_features = features_top[0:num_features]
         curr_features_ids = [gene_col_dict[feature] for feature in curr_features]
@@ -582,9 +583,6 @@ def rf_type_3_mt(config, results):
         clf = RandomForestClassifier(n_estimators=100)
         output = cross_validate(clf, curr_df, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
-        if int(config.params_dict['run_timer']) == 1:
-            print('Total time for random forest ' + str(time.process_time() - start_rf))
-            print('Mean accuracy: ' + str(accuracy))
 
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
