@@ -758,6 +758,22 @@ def rf_type_3_mt_nuc(config, results):
         output = cross_validate(clf, curr_df, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
+        curr_mt_genes_ids = []
+        curr_nuc_genes_ids = []
+
+        for item in curr_features:
+            if item.startswith('MT_ND'):
+                item_list = item.split('_')
+                item_list = [item_list[0] + '_' + item_list[1], item_list[2]]
+            else:
+                item_list = item.split('_')
+            mt_index = genes_names_mt.index(item_list[0])
+            nuc_index = genes_names_nuc.index(item_list[0])
+
+            curr_mt_genes_ids.append(genes_ids_mt[mt_index])
+            curr_nuc_genes_ids.append(genes_ids_nuc[nuc_index])
+
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
-            results.nuc_genes.append(curr_features_ids)
+            results.mt_genes.append(curr_mt_genes_ids)
+            results.nuc_genes.append(curr_nuc_genes_ids)

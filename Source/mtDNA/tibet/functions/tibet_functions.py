@@ -77,7 +77,7 @@ def run_random_forest(df, classes, positions):
     factor = pd.factorize(classes)
     y = factor[0]
     clf = RandomForestClassifier(n_estimators=500)
-    output = cross_validate(clf, df, y, cv=10, scoring='accuracy', return_estimator=True)
+    output = cross_validate(clf, df, y, cv=5, scoring='accuracy', return_estimator=True)
     accuracy = np.mean(output['test_score'])
     features_dict = dict((key, []) for key in positions)
     for idx, estimator in enumerate(output['estimator']):
