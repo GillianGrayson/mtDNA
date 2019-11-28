@@ -551,7 +551,7 @@ def rf_type_3_nuc(config, results):
     config.main_df = df_ref_nuc
     config.main_df_classes = y
 
-    clf = RandomForestClassifier(n_estimators=100)
+    clf = RandomForestClassifier(n_estimators=500)
     output = cross_validate(clf, df_ref_nuc, y, cv=10, scoring='accuracy', return_estimator=True)
     accuracy = np.mean(output['test_score'])
     if int(config.params_dict['run_timer']) == 1:
