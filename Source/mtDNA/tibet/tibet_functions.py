@@ -130,8 +130,12 @@ def create_pair_regions_stat(top_features, regions):
         top_regions.append(' '.join(curr_regions))
     top_regions_dict = dict(Counter(top_regions).most_common())
     regions_sum = sum(top_regions_dict.values(), 0.0)
-    for feature_pair in top_regions_dict:
+    features_count = 0
+    for feature_pair in list(top_regions_dict.keys()):
         top_regions_dict[feature_pair] /= regions_sum
+        if features_count > 40:
+            del top_regions_dict[feature_pair]
+        features_count += 1
     return top_regions_dict
 
 
