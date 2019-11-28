@@ -18,6 +18,9 @@ def create_df_freq(raw_data):
         curr_nuc = [raw_data[i][j][nuc_id] for i in range(0, len(raw_data)) for j in range(0, len(raw_data[i]))]
         count_dict = Counter(curr_nuc).most_common()
         count_dict = dict(count_dict)
+        if '-' in count_dict:
+            if count_dict['-'] / len(curr_nuc) > 0.9:
+                continue
         reverse_dict = {}
         index_dict = {k: -1 for k in list(count_dict.keys())}
         for key in count_dict:
@@ -51,6 +54,9 @@ def create_df(raw_data):
         curr_nuc = [raw_data[i][j][nuc_id] for i in range(0, len(raw_data)) for j in range(0, len(raw_data[i]))]
         count_dict = Counter(curr_nuc).most_common()
         count_dict = dict(count_dict)
+        if '-' in count_dict:
+            if count_dict['-'] / len(curr_nuc) > 0.9:
+                continue
         if len(count_dict) == 1:
             for person_id in range(0, num_persons):
                 df[person_id, nuc_id] = 0
@@ -136,6 +142,8 @@ def get_variable_positions(raw_data):
         curr_nuc = [raw_data[i][j][nuc_id] for i in range(0, len(raw_data)) for j in range(0, len(raw_data[i]))]
         count_dict = Counter(curr_nuc).most_common()
         count_dict = dict(count_dict)
+        if '-' in count_dict and count_dict['-'] / len(curr_nuc) > 0.9:
+            continue
         if len(count_dict) > 1:
             positions.append(nuc_id)
     return positions
@@ -155,6 +163,9 @@ def create_co_df_freq(raw_data, variable_positions):
         curr_nuc_pair = [curr_nuc_1[i] + curr_nuc_2[i] for i in range(0, num_persons)]
         count_dict = Counter(curr_nuc_pair).most_common()
         count_dict = dict(count_dict)
+        if '-' in count_dict:
+            if count_dict['-'] / len(curr_nuc_pair) > 0.9:
+                continue
         reverse_dict = {}
         index_dict = {k: -1 for k in list(count_dict.keys())}
         for key in count_dict:
@@ -193,6 +204,9 @@ def create_co_df(raw_data, variable_positions):
         curr_nuc_pair = [curr_nuc_1[i] + curr_nuc_2[i] for i in range(0, num_persons)]
         count_dict = Counter(curr_nuc_pair).most_common()
         count_dict = dict(count_dict)
+        if '-' in count_dict:
+            if count_dict['-'] / len(curr_nuc_pair) > 0.9:
+                continue
         if len(count_dict) == 1:
             for person_id in range(0, num_persons):
                 df[person_id, combination_id] = 0
