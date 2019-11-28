@@ -1,11 +1,11 @@
-from mtDNA.tibet.tibet_functions import *
-from mtDNA.tibet.infrastructure_functions import *
-from mtDNA.tibet.plot_functions import *
+from mtDNA.tibet.functions.tibet_functions import *
+from mtDNA.tibet.functions.infrastructure_functions import *
+from mtDNA.tibet.functions.plot_functions import *
 
 use_freq = 1
 
 data_path = 'C:/Users/User/YandexDisk/tibet/Data/'
-isolated_result_path = 'C:/Users/User/YandexDisk/tibet/Result/'
+isolated_result_path = 'C:/Users/User/YandexDisk/tibet/Result/isolated/'
 co_result_path = 'C:/Users/User/YandexDisk/tibet/Result/co-occurrence/'
 
 groups = ['0-500', '1001-1500', '1501-2000', '2001-2500', '2501-3000', '3001-4000', '4001', '501-1000']

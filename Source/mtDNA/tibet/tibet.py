@@ -1,6 +1,6 @@
-from mtDNA.tibet.tibet_functions import *
-from mtDNA.tibet.infrastructure_functions import *
-from mtDNA.tibet.plot_functions import *
+from mtDNA.tibet.functions.tibet_functions import *
+from mtDNA.tibet.functions.infrastructure_functions import *
+from mtDNA.tibet.functions.plot_functions import *
 
 
 use_freq = 1

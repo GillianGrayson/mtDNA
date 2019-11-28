@@ -1,5 +1,5 @@
-from mtDNA.tibet.tibet_functions import *
-from mtDNA.tibet.infrastructure_functions import *
+from mtDNA.tibet.functions.tibet_functions import *
+from mtDNA.tibet.functions.infrastructure_functions import *
 import pandas as pd
 
 
