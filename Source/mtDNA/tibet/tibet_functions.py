@@ -5,9 +5,6 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 from bisect import bisect
-import plotly
-import plotly.graph_objs as go
-import os
 import itertools
 
 
@@ -132,63 +129,6 @@ def create_pair_regions_stat(top_features, regions):
     return top_regions_dict
 
 
-def plot_hist(data, suffix, file_path):
-    fig = go.Figure(go.Bar(
-        x=list(data.values())[::-1],
-        y=list(data.keys())[::-1],
-        orientation='h'
-    ))
-    fig.update_yaxes(
-        tickfont=dict(size=10)
-    )
-    fig.update_layout(width=700,
-                      height=1000)
-
-    plotly.offline.plot(fig, filename=file_path + suffix + '_hist.html', auto_open=False, show_link=True)
-    plotly.io.write_image(fig, file_path + suffix + '_hist.png')
-    plotly.io.write_image(fig, file_path + suffix + '_hist.pdf')
-
-
-def save_dict(data, filename):
-    f = open(filename, 'w')
-    for key in data.keys():
-        f.write(str(key) + '\t' + str(data[key]) + '\n')
-    f.close()
-
-
-def save_list(data, filename):
-    f = open(filename, 'w')
-    for item in data:
-        f.write(str(item) + '\n')
-    f.close()
-
-
-def get_data(data_path):
-    raw_data = []
-    data_classes = []
-    for filename in os.listdir(data_path):
-        if filename.endswith('fasta'):
-            f = open(data_path + filename, 'r')
-            raw_data.append([line.rstrip() for line in f][1::2])
-            data_classes.append(filename[:-6])
-            f.close()
-    return raw_data, data_classes
-
-
-def get_regions(data_path):
-    regions = {'region': [], 'start': [], 'finish': []}
-    f = open(data_path + 'regions.txt', 'r')
-    for line in f:
-        line_list = line.rstrip().split('\t')
-        if line_list[0].startswith('tRNA'):
-            line_list[0] = 'tRNA'
-        regions['region'].append(line_list[0])
-        regions['start'].append(int(line_list[1]))
-        regions['finish'].append(int(line_list[2]))
-    f.close()
-    return regions
-
-
 def get_variable_positions(raw_data):
     num_nuc = len(raw_data[0][0])
     positions = []
@@ -270,3 +210,10 @@ def create_co_df(raw_data, variable_positions):
 
     df = df[:, ~np.all(df[1:] == df[:-1], axis=0)]
     return df, positions
+
+
+def get_haplogroups_statistics(haplogroups):
+    haplogroups_stat = {}
+    for group in haplogroups:
+        haplogroups_stat[group] = dict(Counter(haplogroups[group]).most_common())
+    return haplogroups_stat
