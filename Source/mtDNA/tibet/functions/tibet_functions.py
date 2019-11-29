@@ -127,6 +127,7 @@ def create_pair_regions_stat(top_features, regions):
                 curr_regions.append(regions['region'][position])
             else:
                 curr_regions.append('NA')
+        curr_regions.sort()
         top_regions.append(' '.join(curr_regions))
     top_regions_dict = dict(Counter(top_regions).most_common())
     regions_sum = sum(top_regions_dict.values(), 0.0)

@@ -23,6 +23,11 @@ f = open(isolated_result_path + filename, 'r')
 curr_data = [int(line.rstrip().split('\t')[0]) for line in f]
 isolated_features_data['8_class'] = curr_data
 f.close()
+filename = 'binary_common_features_top_accuracy.txt'
+f = open(isolated_result_path + filename, 'r')
+curr_data = [int(line.rstrip().split('\t')[0]) for line in f]
+isolated_features_data['binary_top'] = curr_data
+f.close()
 
 co_features_data = {}
 for subset in itertools.combinations(groups, 2):
@@ -45,6 +50,23 @@ for subset in itertools.combinations(groups, 2):
 
 key = '8_class'
 filename = key + '_top_features.txt'
+f = open(co_result_path + filename, 'r')
+curr_data = []
+for line in f:
+    curr_pair = line.rstrip().split('\t')[0]
+    curr_pair_list = curr_pair.split('_')
+    curr_pair_list = [int(item) for item in curr_pair_list]
+    if curr_pair_list[0] in isolated_features_data[key]:
+        continue
+    elif curr_pair_list[1] in isolated_features_data[key]:
+        continue
+    else:
+        curr_data.append(curr_pair)
+co_features_data[key] = curr_data
+f.close()
+
+key = 'binary_top'
+filename = 'binary_common_features_top_accuracy.txt'
 f = open(co_result_path + filename, 'r')
 curr_data = []
 for line in f:
