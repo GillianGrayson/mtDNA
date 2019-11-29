@@ -64,7 +64,7 @@ for subset in itertools.combinations(raw_data, 2):
 
     features_intersection = list(set(features_intersection).intersection(set(top_features)))
     if top_accuracy > 0.8:
-        features_intersection_acc = list(set(features_intersection_acc).intersection(list(set(top_features.keys()))))
+        features_intersection_acc = list(set(features_intersection_acc).intersection(set(top_features)))
 
     file_suffix = result_path + data_classes[raw_data.index(test_data[0])] + '_' + \
                   data_classes[raw_data.index(test_data[1])] + '_top_features.txt'
