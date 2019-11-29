@@ -6,7 +6,7 @@ from mtDNA.tibet.functions.plot_functions import *
 use_freq = 1
 
 data_path = 'C:/Users/User/YandexDisk/tibet/Data/'
-result_path = 'C:/Users/User/YandexDisk/tibet/Result/isolated/'
+result_path = 'C:/Users/User/YandexDisk/tibet/Result/isolated/seq/'
 
 if not os.path.exists(result_path):
     os.makedirs(result_path)
@@ -24,18 +24,17 @@ classes = []
 for i in range(0, len(raw_data)):
     classes += [data_classes[i], ] * len(raw_data[i])
 
-accuracy, features_dict = run_random_forest(df_main, classes, positions)
-print('8-class Classification Accuracy: ' + str(accuracy))
+top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions)
+print('8-class Classification Accuracy: ' + str(top_accuracy))
 
 result_file_name = 'classification.txt'
 f = open(result_path + result_file_name, 'w')
-f.write('8-class Classification Accuracy: ' + str(accuracy) + '\n')
+f.write('8-class Classification Accuracy: ' + str(top_accuracy) + '\n')
 
-top_features = create_features_top(features_dict)
-top_regions = create_regions_stat(list(top_features.keys()), regions)
+top_regions = create_regions_stat(top_features, regions)
 
 file_suffix = result_path + '8_class_top_features.txt'
-save_dict(top_features, file_suffix)
+save_list(top_features, file_suffix)
 
 file_suffix = result_path + '8_class_regions.txt'
 save_dict(top_regions, file_suffix)
@@ -55,22 +54,21 @@ for subset in itertools.combinations(raw_data, 2):
     classes = [data_classes[raw_data.index(test_data[0])], ] * len(test_data[0]) + \
               [data_classes[raw_data.index(test_data[1])], ] * len(test_data[1])
 
-    accuracy, features_dict = run_random_forest(df_main, classes, positions)
+    top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions)
     print(data_classes[raw_data.index(test_data[0])] + ' vs ' + data_classes[raw_data.index(test_data[1])] +
-          ' Binary Classification Accuracy: ' + str(accuracy))
+          ' Binary Classification Accuracy: ' + str(top_accuracy))
     f.write(data_classes[raw_data.index(test_data[0])] + ' vs ' + data_classes[raw_data.index(test_data[1])] +
-            ' Binary Classification Accuracy: ' + str(accuracy) + '\n')
+            ' Binary Classification Accuracy: ' + str(top_accuracy) + '\n')
 
-    top_features = create_features_top(features_dict)
-    top_regions = create_regions_stat(list(top_features.keys()), regions)
+    top_regions = create_regions_stat(top_features, regions)
 
-    features_intersection = list(set(features_intersection).intersection(list(set(top_features.keys()))))
-    if accuracy > 0.8:
+    features_intersection = list(set(features_intersection).intersection(set(top_features)))
+    if top_accuracy > 0.8:
         features_intersection_acc = list(set(features_intersection_acc).intersection(list(set(top_features.keys()))))
 
     file_suffix = result_path + data_classes[raw_data.index(test_data[0])] + '_' + \
                   data_classes[raw_data.index(test_data[1])] + '_top_features.txt'
-    save_dict(top_features, file_suffix)
+    save_list(top_features, file_suffix)
 
     file_suffix = result_path + data_classes[raw_data.index(test_data[0])] + '_' + \
                   data_classes[raw_data.index(test_data[1])] + '_regions.txt'
