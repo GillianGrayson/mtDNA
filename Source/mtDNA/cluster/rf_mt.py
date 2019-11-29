@@ -580,7 +580,7 @@ def rf_type_3_mt(config, results):
         curr_features_ids = [gene_col_dict[feature] for feature in curr_features]
         curr_df = df_ref_mt[:, curr_features_ids].copy()
 
-        clf = RandomForestClassifier(n_estimators=100)
+        clf = RandomForestClassifier(n_estimators=500)
         output = cross_validate(clf, curr_df, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 

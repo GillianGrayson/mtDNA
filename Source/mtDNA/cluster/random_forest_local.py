@@ -182,6 +182,6 @@ def random_forest(config_path):
                         f.write('\n')
                         features_count += 1
 
-        if hasattr(unit_config, 'main_df'):
-            np.savez_compressed(experiment_result_path + 'main_df', data=unit_config.main_df)
-            np.savez_compressed(experiment_result_path + 'main_df_classes', data=unit_config.main_df_classes)
+    if hasattr(unit_config, 'main_df'):
+        np.savez_compressed(experiment_result_path + 'main_df', data=unit_config.main_df)
+        np.savez_compressed(experiment_result_path + 'main_df_classes', data=unit_config.main_df_classes)

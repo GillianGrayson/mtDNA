@@ -671,7 +671,7 @@ def rf_type_3_mt_nuc(config, results):
                                 gene_data[i] += 1 - reference_frequencies[common_index, 1]
                             elif snp_data_nuc[i] == 3:
                                 gene_data[i] += 1 - reference_frequencies[common_index, 2]
-                        if snp_data_mt[i] == 1:
+                        elif snp_data_mt[i] == 1:
                             if snp_data_nuc[i] == 0:
                                 gene_data[i] += 1 - reference_frequencies[common_index, 3]
                             elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
@@ -754,7 +754,7 @@ def rf_type_3_mt_nuc(config, results):
         curr_features_ids = [gene_col_dict[feature] for feature in curr_features]
         curr_df = df_ref[:, curr_features_ids].copy()
 
-        clf = RandomForestClassifier(n_estimators=100)
+        clf = RandomForestClassifier(n_estimators=500)
         output = cross_validate(clf, curr_df, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
@@ -768,7 +768,7 @@ def rf_type_3_mt_nuc(config, results):
             else:
                 item_list = item.split('_')
             mt_index = genes_names_mt.index(item_list[0])
-            nuc_index = genes_names_nuc.index(item_list[0])
+            nuc_index = genes_names_nuc.index(item_list[1])
 
             curr_mt_genes_ids.append(genes_ids_mt[mt_index])
             curr_nuc_genes_ids.append(genes_ids_nuc[nuc_index])
