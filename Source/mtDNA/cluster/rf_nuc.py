@@ -586,7 +586,12 @@ def rf_type_3_nuc(config, results):
 
     features_top = list(features_dict.keys())
 
-    for num_features in range(1, len(features_top)):
+    features_counts = np.geomspace(1.0, len(features_top), int(config.params_dict['num_sequential_runs']),
+                                   endpoint=True)
+    features_counts = list(set([int(item) for item in features_counts]))
+    features_counts.sort()
+
+    for num_features in features_counts:
         if num_features % 10 == 0:
             print('Sequential random forest #' + str(num_features))
 

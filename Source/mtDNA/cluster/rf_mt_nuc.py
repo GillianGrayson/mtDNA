@@ -746,7 +746,12 @@ def rf_type_3_mt_nuc(config, results):
 
     features_top = list(features_dict.keys())
 
-    for num_features in range(1, len(features_top)):
+    features_counts = np.geomspace(1.0, len(features_top), int(config.params_dict['num_sequential_runs']),
+                                   endpoint=True)
+    features_counts = list(set([int(item) for item in features_counts]))
+    features_counts.sort()
+
+    for num_features in features_counts:
         if num_features % 10 == 0:
             print('Sequential random forest #' + str(num_features))
 
@@ -755,7 +760,7 @@ def rf_type_3_mt_nuc(config, results):
         curr_df = df_ref[:, curr_features_ids].copy()
 
         clf = RandomForestClassifier(n_estimators=500)
-        output = cross_validate(clf, curr_df, y, cv=10, scoring='accuracy', return_estimator=True)
+        output = cross_validate(clf, curr_df, y, cv=5, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
         curr_mt_genes_ids = []

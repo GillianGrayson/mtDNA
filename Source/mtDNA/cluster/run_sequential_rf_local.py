@@ -9,7 +9,7 @@ import time
 data_path = 'C:/Users/User/YandexDisk/mtDNA/Data/'
 data_path_npz = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/npz/'
 data_path_pkl = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/pkl/'
-experiment_type = 'mt-nuc'
+experiment_type = 'mt'
 random_forest_type = 3
 reference_pop = 'FIN'
 target_pop = 'IBS'
@@ -17,7 +17,8 @@ reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.55
 num_features = 0
-gene_files = ['test_mt.txt', 'test_nuc.txt']
+num_sequential_runs = 3
+gene_files = ['mt_gene_list.txt']
 create_tree = 0
 run_timer = 1
 num_cluster_tasks = 1
@@ -88,6 +89,7 @@ if not os.path.isfile(fn_test):
     file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
     file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
     file_config.write('num_features\t' + str(num_features) + '\n')
+    file_config.write('num_sequential_runs\t' + str(num_sequential_runs) + '\n')
     file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
     file_config.write('create_tree\t' + str(create_tree) + '\n')
     file_config.write('run_timer\t' + str(run_timer) + '\n')
