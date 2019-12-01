@@ -1,13 +1,15 @@
 from mtDNA.tibet.functions.tibet_functions import *
 from mtDNA.tibet.functions.infrastructure_functions import *
 from mtDNA.tibet.functions.plot_functions import *
+from mtDNA.tibet.functions.file_system import get_path
 
 
 use_freq = 1
 
-data_path = 'C:/Users/User/YandexDisk/tibet/Data/'
-data_seq_path = 'C:/Users/User/YandexDisk/tibet/Result/co-occurrence/'
-result_path = 'C:/Users/User/YandexDisk/tibet/Result/co-occurrence/seq/'
+path = get_path()
+data_path = path + '/Data/'
+data_seq_path = path + '/Result/co-occurrence/'
+result_path = path + '/Result/co-occurrence/seq/'
 
 if not os.path.exists(result_path):
     os.makedirs(result_path)

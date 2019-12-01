@@ -1,10 +1,12 @@
 from mtDNA.tibet.functions.tibet_functions import *
 from mtDNA.tibet.functions.infrastructure_functions import *
 import pandas as pd
+from mtDNA.tibet.functions.file_system import get_path
 
 
-data_path = 'C:/Users/User/YandexDisk/tibet/Data/'
-result_path = 'C:/Users/User/YandexDisk/tibet/Result/haplogroups/'
+path = get_path()
+data_path = path + '/Data/'
+result_path = path + '/Result/haplogroups/'
 
 if not os.path.exists(result_path):
     os.makedirs(result_path)

@@ -1,12 +1,15 @@
 from mtDNA.tibet.functions.tibet_functions import *
 from mtDNA.tibet.functions.infrastructure_functions import *
 from mtDNA.tibet.functions.plot_functions import *
+from mtDNA.tibet.functions.file_system import get_path
+
 
 use_freq = 1
 
-data_path = 'C:/Users/User/YandexDisk/tibet/Data/'
-isolated_result_path = 'C:/Users/User/YandexDisk/tibet/Result/isolated/'
-co_result_path = 'C:/Users/User/YandexDisk/tibet/Result/co-occurrence/'
+path = get_path()
+data_path = path + '/Data/'
+isolated_result_path = path + '/Result/isolated/'
+co_result_path = path + '/Result/co-occurrence/'
 
 groups = ['0-500', '1001-1500', '1501-2000', '2001-2500', '2501-3000', '3001-4000', '4001', '501-1000']
 
