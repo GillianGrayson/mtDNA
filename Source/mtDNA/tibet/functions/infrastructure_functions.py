@@ -44,6 +44,17 @@ def get_regions(data_path):
     return regions
 
 
+def get_features_dict(filename):
+    features_dict = {}
+    f = open(filename, 'r')
+    for line in f:
+        line = line.rstrip()
+        line_list = line.split('\t')
+        features_dict[line_list[0]] = float(line_list[1])
+    f.close()
+    return features_dict
+
+
 def save_dict(data, filename):
     f = open(filename, 'w')
     for key in data.keys():

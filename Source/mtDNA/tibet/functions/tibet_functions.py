@@ -117,7 +117,30 @@ def run_sequential_random_forest(df, classes, positions):
 
     top_features = list(features_dict.keys())
     accuracy_list = []
-    features_counts = np.geomspace(2.0, len(top_features), 50, endpoint=True)
+    features_counts = np.geomspace(2.0, len(top_features) // 10, 10, endpoint=True)
+    features_counts = list(set([int(item) for item in features_counts]))
+    features_counts.sort()
+    for features_count in features_counts:
+        if features_counts.index(features_count) % 10 == 0:
+            print('Random forest #', str(features_counts.index(features_count)))
+        curr_features = top_features[:features_count]
+        curr_features_ids = [positions.index(item) for item in curr_features]
+        curr_df = df[:, curr_features_ids].copy()
+
+        clf = RandomForestClassifier(n_estimators=500)
+        output = cross_validate(clf, curr_df, y, cv=5, scoring='accuracy', return_estimator=True)
+        accuracy_list.append(np.mean(output['test_score']))
+    top_accuracy = max(accuracy_list)
+    top_features = top_features[: features_counts[accuracy_list.index(top_accuracy)]]
+    return top_accuracy, top_features
+
+
+def run_sequential_random_forest_preset(df, classes, positions, features_dict):
+    factor = pd.factorize(classes)
+    y = factor[0]
+    top_features = list(features_dict.keys())
+    accuracy_list = []
+    features_counts = np.geomspace(2.0, len(top_features), 10, endpoint=True)
     features_counts = list(set([int(item) for item in features_counts]))
     features_counts.sort()
     for features_count in features_counts:
