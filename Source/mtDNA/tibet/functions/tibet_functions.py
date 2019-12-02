@@ -147,7 +147,7 @@ def run_sequential_random_forest_preset(df, classes, positions, features_dict):
         if features_counts.index(features_count) % 10 == 0:
             print('Random forest #', str(features_counts.index(features_count)))
         curr_features = top_features[:features_count]
-        curr_features_ids = [positions.index(item) for item in curr_features]
+        curr_features_ids = [positions.index(item) for item in curr_features if item in positions]
         curr_df = df[:, curr_features_ids].copy()
 
         clf = RandomForestClassifier(n_estimators=500)
