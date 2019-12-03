@@ -140,7 +140,7 @@ def run_sequential_random_forest_preset(df, classes, positions, features_dict):
     y = factor[0]
     top_features = list(features_dict.keys())
     accuracy_list = []
-    features_counts = np.geomspace(2.0, len(top_features) // 2, 20, endpoint=True)
+    features_counts = np.geomspace(2.0, len(top_features) // 100, 50, endpoint=True)
     features_counts = list(set([int(item) for item in features_counts]))
     features_counts.sort()
     for features_count in features_counts:
