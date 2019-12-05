@@ -7,8 +7,8 @@ from mtDNA.tibet.functions.file_system import get_path
 use_freq = 1
 
 path = get_path()
-data_path = path + '/Data/'
-result_path = path + '/Result/isolated/'
+data_path = path + '/Data/haplogroups/'
+result_path = path + '/Result/haplogroups/isolated/'
 
 if not os.path.exists(result_path):
     os.makedirs(result_path)
@@ -27,22 +27,22 @@ for i in range(0, len(raw_data)):
     classes += [data_classes[i], ] * len(raw_data[i])
 
 accuracy, features_dict = run_random_forest(df_main, classes, positions)
-print('8-class Classification Accuracy: ' + str(accuracy))
+print('Multi-class Classification Accuracy: ' + str(accuracy))
 
 result_file_name = 'classification.txt'
 f = open(result_path + result_file_name, 'w')
-f.write('8-class Classification Accuracy: ' + str(accuracy) + '\n')
+f.write('Multi-class Classification Accuracy: ' + str(accuracy) + '\n')
 
 top_features = create_features_top(features_dict)
 top_regions = create_regions_stat(list(top_features.keys()), regions)
 
-file_suffix = result_path + '8_class_top_features.txt'
+file_suffix = result_path + 'multi_class_top_features.txt'
 save_dict(top_features, file_suffix)
 
-file_suffix = result_path + '8_class_regions.txt'
+file_suffix = result_path + 'multi_class_regions.txt'
 save_dict(top_regions, file_suffix)
 
-plot_hist(top_regions, '8_class_regions', result_path)
+plot_hist(top_regions, 'multi_class_regions', result_path)
 
 features_intersection = positions
 features_intersection_acc = positions

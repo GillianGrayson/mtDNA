@@ -7,8 +7,8 @@ from mtDNA.tibet.functions.file_system import get_path
 use_freq = 1
 
 path = get_path()
-data_path = path + '/Data/'
-result_path = path + '/isolated/seq/'
+data_path = path + '/Data/haplogroups/'
+result_path = path + '/Result/haplogroups/isolated/seq/'
 
 if not os.path.exists(result_path):
     os.makedirs(result_path)
@@ -26,22 +26,22 @@ classes = []
 for i in range(0, len(raw_data)):
     classes += [data_classes[i], ] * len(raw_data[i])
 
-top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions)
-print('8-class Classification Accuracy: ' + str(top_accuracy))
+top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions, 'lin', 50)
+print('Multi-class Classification Accuracy: ' + str(top_accuracy))
 
 result_file_name = 'classification.txt'
 f = open(result_path + result_file_name, 'w')
-f.write('8-class Classification Accuracy: ' + str(top_accuracy) + '\n')
+f.write('Multi-class Classification Accuracy: ' + str(top_accuracy) + '\n')
 
 top_regions = create_regions_stat(top_features, regions)
 
-file_suffix = result_path + '8_class_top_features.txt'
+file_suffix = result_path + 'multi_class_top_features.txt'
 save_list(top_features, file_suffix)
 
-file_suffix = result_path + '8_class_regions.txt'
+file_suffix = result_path + 'multi_class_regions.txt'
 save_dict(top_regions, file_suffix)
 
-plot_hist(top_regions, '8_class_regions', result_path)
+plot_hist(top_regions, 'multi_class_regions', result_path)
 
 features_intersection = positions
 features_intersection_acc = positions
@@ -56,7 +56,7 @@ for subset in itertools.combinations(raw_data, 2):
     classes = [data_classes[raw_data.index(test_data[0])], ] * len(test_data[0]) + \
               [data_classes[raw_data.index(test_data[1])], ] * len(test_data[1])
 
-    top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions)
+    top_accuracy, top_features = run_sequential_random_forest(df_main, classes, positions, 'lin', 50)
     print(data_classes[raw_data.index(test_data[0])] + ' vs ' + data_classes[raw_data.index(test_data[1])] +
           ' Binary Classification Accuracy: ' + str(top_accuracy))
     f.write(data_classes[raw_data.index(test_data[0])] + ' vs ' + data_classes[raw_data.index(test_data[1])] +

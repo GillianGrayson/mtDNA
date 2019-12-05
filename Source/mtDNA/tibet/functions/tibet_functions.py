@@ -95,7 +95,7 @@ def run_random_forest(df, classes, positions):
     return accuracy, features_dict
 
 
-def run_sequential_random_forest(df, classes, positions):
+def run_sequential_random_forest(df, classes, positions, type, num_runs):
     factor = pd.factorize(classes)
     y = factor[0]
     clf = RandomForestClassifier(n_estimators=500)
@@ -117,9 +117,13 @@ def run_sequential_random_forest(df, classes, positions):
 
     top_features = list(features_dict.keys())
     accuracy_list = []
-    features_counts = np.geomspace(2.0, len(top_features) // 10, 10, endpoint=True)
-    features_counts = list(set([int(item) for item in features_counts]))
-    features_counts.sort()
+    if type == 'geom':
+        features_counts = np.geomspace(2.0, len(top_features) // 10, num_runs, endpoint=True)
+        features_counts = list(set([int(item) for item in features_counts]))
+        features_counts.sort()
+    else:
+        features_counts = [i for i in range(1, num_runs + 1)]
+
     for features_count in features_counts:
         if features_counts.index(features_count) % 10 == 0:
             print('Random forest #', str(features_counts.index(features_count)))
