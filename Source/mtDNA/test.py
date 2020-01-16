@@ -1,5 +1,6 @@
 import numpy as np
 
+
 a = [0, 1, 2, 3, 4]
 quartiles = np.percentile(a, [25, 75])
 iqr = quartiles[1] - quartiles[0]
