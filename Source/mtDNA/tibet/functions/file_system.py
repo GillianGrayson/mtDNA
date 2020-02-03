@@ -5,7 +5,7 @@ import socket
 class DataPath(Enum):
     local_1 = 'D:/YandexDisk/Work/tibet'
     local_2 = 'E:/YandexDisk/Work/tibet'
-    local_3 = 'C:/Users/User/YandexDisk/tibet'
+    local_3 = 'D:/YandexDisk/tibet'
     local_4 = 'D:/Alena/YandexDisk/tibet'
 
 
