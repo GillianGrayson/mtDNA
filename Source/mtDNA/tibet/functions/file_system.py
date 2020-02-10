@@ -6,7 +6,8 @@ class DataPath(Enum):
     local_1 = 'D:/YandexDisk/Work/tibet'
     local_2 = 'E:/YandexDisk/Work/tibet'
     local_3 = 'D:/YandexDisk/tibet'
-    local_4 = 'D:/Alena/YandexDisk/tibet'
+    local_4 = 'E:/YandexDisk/tibet'
+    local_5 = 'D:/Alena/YandexDisk/tibet'
 
 
 def get_path():
@@ -17,7 +18,9 @@ def get_path():
         path = DataPath.local_2.value
     elif host_name == 'DESKTOP-4BEQ7MS':
         path = DataPath.local_3.value
-    else:
+    elif host_name == 'DESKTOP-7H2CNDR':
         path = DataPath.local_4.value
+    else:
+        path = DataPath.local_5.value
 
     return path
