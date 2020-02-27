@@ -10,6 +10,14 @@ for curr_file in os.listdir(path):
     with open(path + curr_file, "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, 'lxml')
+
+        table = soup.find('table')
+        table_rows = table.find_all('tr')
+        for tr in table_rows:
+            td = tr.find_all('td')
+            row = [i.text for i in td]
+            print(row)
+
         tree_text = soup.get_text()
         tree_text = re.sub(r'<.*?>', '', tree_text, flags=re.DOTALL)
         tree_text = re.sub(r'\n\s*\n', '\n', tree_text)
