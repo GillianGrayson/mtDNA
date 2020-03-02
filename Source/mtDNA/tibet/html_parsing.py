@@ -13,10 +13,17 @@ for curr_file in os.listdir(path):
 
         table = soup.find('table')
         table_rows = table.find_all('tr')
+        table_rows_list = []
         for tr in table_rows:
             td = tr.find_all('td')
             row = [i.text for i in td]
-            print(row)
+            table_rows_list.append(row)
+
+        table_rows_list = [row for row in table_rows_list if len(set(row)) > 1]
+        tree_name_index = table_rows_list[0][1].find('subtree') + len('subtree ')
+        tree_name = table_rows_list[0][1][tree_name_index:]
+
+
 
         tree_text = soup.get_text()
         tree_text = re.sub(r'<.*?>', '', tree_text, flags=re.DOTALL)
