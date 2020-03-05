@@ -22,6 +22,31 @@ for curr_file in os.listdir(path):
         table_rows_list = [row for row in table_rows_list if len(set(row)) > 1]
         tree_name_index = table_rows_list[0][1].find('subtree') + len('subtree ')
         tree_name = table_rows_list[0][1][tree_name_index:]
+        table_rows_list = table_rows_list[16:]
+        table_rows_list = [[elem.replace('\xa0', ' ') for elem in table_row] for table_row in table_rows_list]
+
+        tree_dict = {'haplogroup': [], 'index': [], 'mutations': []}
+        for i in range(0, len(table_rows_list)):
+            curr_row = table_rows_list[i][:-2]
+            for j in range(0, len(curr_row)):
+                if curr_row[j] == ' ':
+                    continue
+                else:
+                    if curr_row[j + 1] == ' ':
+                        curr_mutations = curr_row[j].split('  ')
+                        mutations = [elem.replace('\n', '') for elem in curr_mutations]
+                        tree_dict['mutations'][-1].extend(mutations)
+                        break
+                    else:
+                        tree_dict['haplogroup'].append(curr_row[j])
+                        tree_dict['index'].append(j)
+                        curr_mutations = curr_row[j + 1].split('  ')
+                        mutations = [elem.replace('\n', '') for elem in curr_mutations]
+                        tree_dict['mutations'].append(mutations)
+                        if j > 0:
+                            tree_dict['mutations'][-1].extend(tree_dict['mutations'][j - 1])
+                        break
+
 
 
 
