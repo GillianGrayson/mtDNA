@@ -8,6 +8,7 @@ path_in += '/Data/phylotree/html/'
 path_out = get_path()
 path_out += '/Data/phylotree/xlsx/'
 
+phylotrees = {'tree_name': [], 'tree': []}
 for curr_file in os.listdir(path_in):
     with open(path_in + curr_file, "r") as f:
         contents = f.read()
@@ -24,6 +25,7 @@ for curr_file in os.listdir(path_in):
         table_rows_list = [row for row in table_rows_list if len(set(row)) > 1]
         tree_name_index = table_rows_list[0][1].find('subtree') + len('subtree ')
         tree_name = table_rows_list[0][1][tree_name_index:]
+        phylotrees['tree'].append(tree_name)
         table_rows_list = table_rows_list[16:]
         table_rows_list = [[elem.replace('\xa0', ' ') for elem in table_row] for table_row in table_rows_list]
         df = pd.DataFrame(table_rows_list)
@@ -85,6 +87,7 @@ for curr_file in os.listdir(path_in):
             tree_dict['mutations'].append(
                 list(dict.fromkeys([elem for j in indexes for elem in tree_dict_raw['mutations'][j]])))
 
+        phylotrees['tree'].append(tree_dict)
         for i in range(0, len(tree_dict['mutations'])):
             mutations = tree_dict['mutations'][i]
             tree_dict['mutations'][i] = ' '.join(mutations)
@@ -93,3 +96,7 @@ for curr_file in os.listdir(path_in):
         tree_df.to_excel(writer, index=False, startrow=0)
         worksheet = writer.sheets['Sheet1']
         writer.save()
+
+phylotrees_info = {'haplogroup': [], 'mutation_type': [], 'position': [], 'ancestral_base': [], 'derived_base': []}
+for key in phylotrees:
+    haplogroups = phylotrees[key]
