@@ -1,14 +1,15 @@
 import os
-import re
 import pandas as pd
 from bs4 import BeautifulSoup
 from mtDNA.tibet.functions.file_system import get_path
 
-path = get_path()
-path += '/Data/phylotree/'
+path_in = get_path()
+path_in += '/Data/phylotree/html/'
+path_out = get_path()
+path_out += '/Data/phylotree/xlsx/'
 
-for curr_file in os.listdir(path):
-    with open(path + curr_file, "r") as f:
+for curr_file in os.listdir(path_in):
+    with open(path_in + curr_file, "r") as f:
         contents = f.read()
         soup = BeautifulSoup(contents, 'lxml')
 
@@ -28,7 +29,8 @@ for curr_file in os.listdir(path):
         df = pd.DataFrame(table_rows_list)
 
         table_rows_list_mod = []
-        last_group = ''
+        groups = []
+        group_indexes = []
         for i in range(0, len(table_rows_list)):
             curr_row = table_rows_list[i]
             for j in range(0, len(curr_row)):
@@ -36,10 +38,17 @@ for curr_file in os.listdir(path):
                     continue
                 else:
                     if curr_row[j + 1] == ' ':
-                        curr_row[j - 1] = last_group
+                        if j > group_indexes[-1]:
+                            curr_row[j - 1] = groups[-1]
+                        else:
+                            nearest_index = len(group_indexes) - 1 - group_indexes[::-1].index(j - 1)
+                            curr_row[j - 1] = groups[nearest_index]
+                        groups.append(curr_row[j - 1])
+                        group_indexes.append(j - 1)
                         break
                     else:
-                        last_group = curr_row[j]
+                        groups.append(curr_row[j])
+                        group_indexes.append(j)
                         break
             table_rows_list_mod.append(curr_row)
         df_mod = pd.DataFrame(table_rows_list_mod)
@@ -76,14 +85,11 @@ for curr_file in os.listdir(path):
             tree_dict['mutations'].append(
                 list(dict.fromkeys([elem for j in indexes for elem in tree_dict_raw['mutations'][j]])))
 
-        tree_text = soup.get_text()
-        tree_text = re.sub(r'<.*?>', '', tree_text, flags=re.DOTALL)
-        tree_text = re.sub(r'\n\s*\n', '\n', tree_text)
-        tree_name_index = tree_text.find('subtree') + 8
-        if tree_text[tree_name_index + 1] == '\n':
-            tree_name = tree_text[tree_name_index]
-        else:
-            tree_name = tree_text[tree_name_index:tree_name_index + 1]
-        tree = re.sub(r'.*mt-MRCA', 'mt-MRCA', tree_text, flags=re.DOTALL)
-        tree = tree.split('var', maxsplit=1)[0]
-        tree_lines = tree.split('\n')
+        for i in range(0, len(tree_dict['mutations'])):
+            mutations = tree_dict['mutations'][i]
+            tree_dict['mutations'][i] = ' '.join(mutations)
+        tree_df = pd.DataFrame(tree_dict)
+        writer = pd.ExcelWriter(path_out + 'tree_' + tree_name + '.xlsx', engine='xlsxwriter')
+        tree_df.to_excel(writer, index=False, startrow=0)
+        worksheet = writer.sheets['Sheet1']
+        writer.save()
