@@ -199,4 +199,4 @@ for line in f:
         config_dict['config_nuc_genes'].append([int(item) for item in items])
 f.close()
 
-random_forest(path, config_dict)
+random_forest(config_dict)

@@ -18,8 +18,8 @@ reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.55
 num_features = 0
-num_sequential_runs = 10
-sequential_run_type = 'max'  # lin, max, exp
+num_sequential_runs = 1
+sequential_run_type = 'lin'  # lin, max, exp
 num_estimators = 500
 num_cv_runs = 5
 gene_files = ['mt_gene_list.txt']
@@ -111,6 +111,3 @@ if not os.path.isfile(fn_test):
         os.system('sbatch run_mpipks_sd_sbatch.sh ' + fn_path)
     elif medium == 1:
         os.system('sbatch run_mpipks_sd_sbatch_medium.sh ' + fn_path)
-
-    if run_timer == 1:
-        print('Experiment time: ' + str(time.process_time() - start))
