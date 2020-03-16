@@ -19,6 +19,9 @@ result_file_suffix = ''
 target_accuracy = 0.55
 num_features = 0
 num_sequential_runs = 10
+sequential_run_type = 'max'  # lin, max, exp
+num_estimators = 500
+num_cv_runs = 5
 gene_files = ['mt_gene_list.txt']
 create_tree = 0
 run_timer = 1
@@ -94,6 +97,9 @@ if not os.path.isfile(fn_test):
     file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
     file_config.write('num_features\t' + str(num_features) + '\n')
     file_config.write('num_sequential_runs\t' + str(num_sequential_runs) + '\n')
+    file_config.write('sequential_run_type\t' + sequential_run_type + '\n')
+    file_config.write('num_estimators\t' + str(num_estimators) + '\n')
+    file_config.write('num_cv_runs\t' + str(num_cv_runs) + '\n')
     file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
     file_config.write('create_tree\t' + str(create_tree) + '\n')
     file_config.write('run_timer\t' + str(run_timer) + '\n')

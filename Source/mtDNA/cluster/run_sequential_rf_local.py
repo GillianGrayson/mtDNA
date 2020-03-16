@@ -6,10 +6,10 @@ import os
 import time
 
 
-data_path = 'C:/Users/User/YandexDisk/mtDNA/Data/'
-data_path_npz = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/npz/'
-data_path_pkl = 'C:/Users/User/YandexDisk/mtDNA/Data/genes/pkl/'
-experiment_type = 'mt'
+data_path = 'E:/YandexDisk/mtDNA/Data/'
+data_path_npz = 'E:/YandexDisk/mtDNA/Data/genes/npz/'
+data_path_pkl = 'E:/YandexDisk/mtDNA/Data/genes/pkl/'
+experiment_type = 'mt-nuc'
 random_forest_type = 3
 reference_pop = 'FIN'
 target_pop = 'IBS'
@@ -18,7 +18,10 @@ result_file_suffix = ''
 target_accuracy = 0.55
 num_features = 0
 num_sequential_runs = 3
-gene_files = ['mt_gene_list.txt']
+sequential_run_type = 'max'  # lin, max, exp
+num_estimators = 500
+num_cv_runs = 5
+gene_files = ['test_mt.txt', 'test_nuc.txt']
 create_tree = 0
 run_timer = 1
 num_cluster_tasks = 1
@@ -59,7 +62,7 @@ json_list = json.dumps([genes_mt, genes_nuc]).encode('utf-8')
 
 curr_hash = hashlib.md5(json_list).hexdigest()
 
-root = 'C:/Users/User/YandexDisk/mtDNA/Result/files'
+root = 'E:/YandexDisk/mtDNA/Result/files'
 local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
              '/ref_' + reference_pop + '_target_' + target_pop + '/' + curr_hash + '/'
 fn_path = root + local_path
@@ -90,6 +93,9 @@ if not os.path.isfile(fn_test):
     file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
     file_config.write('num_features\t' + str(num_features) + '\n')
     file_config.write('num_sequential_runs\t' + str(num_sequential_runs) + '\n')
+    file_config.write('sequential_run_type\t' + sequential_run_type + '\n')
+    file_config.write('num_estimators\t' + str(num_estimators) + '\n')
+    file_config.write('num_cv_runs\t' + str(num_cv_runs) + '\n')
     file_config.write('gene_files\t' + ', '.join(gene_files) + '\n')
     file_config.write('create_tree\t' + str(create_tree) + '\n')
     file_config.write('run_timer\t' + str(run_timer) + '\n')

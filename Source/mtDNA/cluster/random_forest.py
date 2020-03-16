@@ -74,6 +74,15 @@ def random_forest(config_dict):
     with open(config_dict['data_path_pkl'] + 'pop_person_dict.pickle', 'rb') as handle:
         unit_config.pop_person_dict = pickle.load(handle)
 
+    if os.path.exists(result_path + 'main_df.npz'):
+        unit_config.main_df = np.load(result_path + 'main_df.npz')['data']
+    if os.path.exists(result_path + 'main_df_classes.npz'):
+        unit_config.main_df_classes = np.load(result_path + 'main_df_classes.npz')['data']
+    if os.path.exists(result_path + 'gene_col_dict.pkl'):
+        with open(result_path + 'gene_col_dict.pkl', 'rb') as handle:
+            unit_config.gene_col_dict = pickle.load(handle)
+    unit_config.config_path = result_path
+
     results = Result()
     unit_task(unit_config, results)
 
@@ -160,7 +169,6 @@ def random_forest(config_dict):
         np.savez_compressed(experiment_result_path + 'main_df_classes', data=unit_config.main_df_classes)
 
 
-
 config_dict = {}
 f = open('config.txt')
 for line in f:
@@ -191,4 +199,4 @@ for line in f:
         config_dict['config_nuc_genes'].append([int(item) for item in items])
 f.close()
 
-random_forest(config_dict)
+random_forest(path, config_dict)

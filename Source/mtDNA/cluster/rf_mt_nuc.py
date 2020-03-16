@@ -1,3 +1,4 @@
+from Source.mtDNA.cluster.save import save_df
 import pandas as pd
 import numpy as np
 import random
@@ -571,147 +572,158 @@ def rf_type_3_mt_nuc(config, results):
 
     print(';'.join(genes_names_mt) + ';' + ';'.join(genes_names_nuc))
 
-    # Reference group
+    if not hasattr(config, 'main_df'):
 
-    reference_frequencies = np.zeros((len(genes_ids_mt) * len(genes_ids_nuc), 6), dtype=np.float32)
+        # Reference group
 
-    persons_mt = config.person_index_dict[0]
-    persons_nuc = config.person_index_dict[1]
+        reference_frequencies = np.zeros((len(genes_ids_mt) * len(genes_ids_nuc), 6), dtype=np.float32)
 
-    target_samples_ids_mt = []
-    target_samples_ids_nuc = []
-    target_samples_names = []
+        persons_mt = config.person_index_dict[0]
+        persons_nuc = config.person_index_dict[1]
 
-    for sample_name in persons_mt:
-        if sample_name in reference_list and sample_name in persons_nuc:
-            target_samples_ids_mt.append(persons_mt[sample_name])
-            target_samples_ids_nuc.append(persons_nuc[sample_name])
-            target_samples_names.append(sample_name)
+        target_samples_ids_mt = []
+        target_samples_ids_nuc = []
+        target_samples_names = []
 
-    if int(config.params_dict['run_timer']) == 1:
-        start_ref = time.process_time()
-
-    for gene_id_mt in range(0, len(genes_ids_mt)):
-        gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
-        for gene_id_nuc in range(0, len(genes_ids_nuc)):
-            gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
-            common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
-            for row_mt in config.data[gene_mt_index]:
-                snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
-                for row_nuc in config.data[gene_nuc_index]:
-                    snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
-                    for i in range(0, len(snp_data_mt)):
-                        if snp_data_mt[i] == 0:
-                            if snp_data_nuc[i] == 0:
-                                reference_frequencies[common_index, 0] += 1
-                            elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
-                                reference_frequencies[common_index, 1] += 1
-                            elif snp_data_nuc[i] == 3:
-                                reference_frequencies[common_index, 2] += 1
-                        elif snp_data_mt[i] == 1:
-                            if snp_data_nuc[i] == 0:
-                                reference_frequencies[common_index, 3] += 1
-                            elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
-                                reference_frequencies[common_index, 4] += 1
-                            elif snp_data_nuc[i] == 3:
-                                reference_frequencies[common_index, 5] += 1
-
-    for gene_id in range(0, len(genes_ids_mt) * len(genes_ids_nuc)):
-        ref_sum = np.sum(reference_frequencies[gene_id, :])
-        for i in range(0, 6):
-            reference_frequencies[gene_id, i] = reference_frequencies[gene_id, i] / ref_sum
-
-    if int(config.params_dict['run_timer']) == 1:
-        print('Time for frequencies calculating: ' + str(time.process_time() - start_ref))
-
-    # Remaining group
-
-    target_samples_ids_mt = []
-    target_samples_ids_nuc = []
-    target_samples_names = []
-
-    for sample_name in persons_mt:
-        if sample_name in persons_nuc:
-            if sample_name in config.pop_person_dict[target_pop] \
-                    or sample_name in config.pop_person_dict[reference_pop]:
+        for sample_name in persons_mt:
+            if sample_name in reference_list and sample_name in persons_nuc:
                 target_samples_ids_mt.append(persons_mt[sample_name])
                 target_samples_ids_nuc.append(persons_nuc[sample_name])
                 target_samples_names.append(sample_name)
 
-    num_frequencies = len(genes_ids_mt) * len(genes_ids_nuc)
+        if int(config.params_dict['run_timer']) == 1:
+            start_ref = time.process_time()
 
-    df_ref = np.empty(shape=(len(target_samples_names), num_frequencies), dtype=np.float32)
+        for gene_id_mt in range(0, len(genes_ids_mt)):
+            gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
+            for gene_id_nuc in range(0, len(genes_ids_nuc)):
+                gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
+                common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
+                for row_mt in config.data[gene_mt_index]:
+                    snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
+                    for row_nuc in config.data[gene_nuc_index]:
+                        snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
+                        for i in range(0, len(snp_data_mt)):
+                            if snp_data_mt[i] == 0:
+                                if snp_data_nuc[i] == 0:
+                                    reference_frequencies[common_index, 0] += 1
+                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                    reference_frequencies[common_index, 1] += 1
+                                elif snp_data_nuc[i] == 3:
+                                    reference_frequencies[common_index, 2] += 1
+                            elif snp_data_mt[i] == 1:
+                                if snp_data_nuc[i] == 0:
+                                    reference_frequencies[common_index, 3] += 1
+                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                    reference_frequencies[common_index, 4] += 1
+                                elif snp_data_nuc[i] == 3:
+                                    reference_frequencies[common_index, 5] += 1
 
-    names = []
-    gene_col_dict = {}
+        for gene_id in range(0, len(genes_ids_mt) * len(genes_ids_nuc)):
+            ref_sum = np.sum(reference_frequencies[gene_id, :])
+            for i in range(0, 6):
+                reference_frequencies[gene_id, i] = reference_frequencies[gene_id, i] / ref_sum
 
-    if int(config.params_dict['run_timer']) == 1:
-        start_df = time.process_time()
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for frequencies calculating: ' + str(time.process_time() - start_ref))
 
-    for gene_id_mt in range(0, len(genes_ids_mt)):
-        gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
-        for gene_id_nuc in range(0, len(genes_ids_nuc)):
-            gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
-            gene_data = np.zeros(shape=len(target_samples_names), dtype=np.float32)
-            common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
-            num_snps = 0
-            for row_mt in config.data[gene_mt_index]:
-                snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
-                for row_nuc in config.data[gene_nuc_index]:
-                    snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
+        # Remaining group
 
-                    if len(set(snp_data_mt)) == 1 and len(set(snp_data_nuc)) == 1:
-                        continue
+        target_samples_ids_mt = []
+        target_samples_ids_nuc = []
+        target_samples_names = []
 
-                    for i in range(0, len(snp_data_mt)):
-                        if snp_data_mt[i] == 0:
-                            if snp_data_nuc[i] == 0:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 0]
-                            elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 1]
-                            elif snp_data_nuc[i] == 3:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 2]
-                        elif snp_data_mt[i] == 1:
-                            if snp_data_nuc[i] == 0:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 3]
-                            elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 4]
-                            elif snp_data_nuc[i] == 3:
-                                gene_data[i] += 1 - reference_frequencies[common_index, 5]
+        for sample_name in persons_mt:
+            if sample_name in persons_nuc:
+                if sample_name in config.pop_person_dict[target_pop] \
+                        or sample_name in config.pop_person_dict[reference_pop]:
+                    target_samples_ids_mt.append(persons_mt[sample_name])
+                    target_samples_ids_nuc.append(persons_nuc[sample_name])
+                    target_samples_names.append(sample_name)
 
-                    num_snps += 1
+        num_frequencies = len(genes_ids_mt) * len(genes_ids_nuc)
 
-            df_ref[:, common_index] = np.divide(gene_data, num_snps)
+        df_ref = np.empty(shape=(len(target_samples_names), num_frequencies), dtype=np.float32)
 
-            gene_mt = config.params_dict['genes_list'][0][genes_ids_mt[gene_id_mt]]
-            gene_nuc = config.params_dict['genes_list'][1][genes_ids_nuc[gene_id_nuc]]
-            name = gene_mt + '_' + gene_nuc
-            names.append(name)
-            gene_col_dict[name] = common_index
+        names = []
+        gene_col_dict = {}
 
-    if int(config.params_dict['run_timer']) == 1:
-        print('Time for common data frame creating: ' + str(time.process_time() - start_df))
+        if int(config.params_dict['run_timer']) == 1:
+            start_df = time.process_time()
 
-    df_ref = df_ref[:, : len(names)]
+        for gene_id_mt in range(0, len(genes_ids_mt)):
+            gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
+            for gene_id_nuc in range(0, len(genes_ids_nuc)):
+                gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
+                gene_data = np.zeros(shape=len(target_samples_names), dtype=np.float32)
+                common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
+                num_snps = 0
+                for row_mt in config.data[gene_mt_index]:
+                    snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
+                    for row_nuc in config.data[gene_nuc_index]:
+                        snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
 
-    data_classes = []
-    for item in target_samples_names:
-        if item in config.pop_person_dict[target_pop]:
-            data_classes.append(target_pop)
-        elif item in config.pop_person_dict[reference_pop]:
-            data_classes.append(reference_pop)
+                        if len(set(snp_data_mt)) == 1 and len(set(snp_data_nuc)) == 1:
+                            continue
 
-    factor = pd.factorize(data_classes)
-    y = factor[0]
+                        for i in range(0, len(snp_data_mt)):
+                            if snp_data_mt[i] == 0:
+                                if snp_data_nuc[i] == 0:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 0]
+                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 1]
+                                elif snp_data_nuc[i] == 3:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 2]
+                            elif snp_data_mt[i] == 1:
+                                if snp_data_nuc[i] == 0:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 3]
+                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 4]
+                                elif snp_data_nuc[i] == 3:
+                                    gene_data[i] += 1 - reference_frequencies[common_index, 5]
+
+                        num_snps += 1
+
+                df_ref[:, common_index] = np.divide(gene_data, num_snps)
+
+                gene_mt = config.params_dict['genes_list'][0][genes_ids_mt[gene_id_mt]]
+                gene_nuc = config.params_dict['genes_list'][1][genes_ids_nuc[gene_id_nuc]]
+                name = gene_mt + '_' + gene_nuc
+                names.append(name)
+                gene_col_dict[name] = common_index
+
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for common data frame creating: ' + str(time.process_time() - start_df))
+
+        data_classes = []
+        for item in target_samples_names:
+            if item in config.pop_person_dict[target_pop]:
+                data_classes.append(target_pop)
+            elif item in config.pop_person_dict[reference_pop]:
+                data_classes.append(reference_pop)
+
+        factor = pd.factorize(data_classes)
+        y = factor[0]
+
+        config.main_df = df_ref
+        config.main_df_classes = y
+        config.gene_col_dict = gene_col_dict
+        save_df(config)
+
+    else:
+        df_ref = config.main_df
+        y = config.main_df_classes
+        gene_col_dict = config.gene_col_dict
+        names = list(gene_col_dict.keys())
 
     if int(config.params_dict['run_timer']) == 1:
         start_rf = time.process_time()
 
-    config.main_df = df_ref
-    config.main_df_classes = y
+    num_estimators = int(config.params_dict['num_estimators'])
+    num_cv_runs = int(config.params_dict['num_cv_runs'])
 
-    clf = RandomForestClassifier(n_estimators=500)
-    output = cross_validate(clf, df_ref, y, cv=10, scoring='accuracy', return_estimator=True)
+    clf = RandomForestClassifier(n_estimators=num_estimators)
+    output = cross_validate(clf, df_ref, y, cv=num_cv_runs, scoring='accuracy', return_estimator=True)
     accuracy = np.mean(output['test_score'])
     if int(config.params_dict['run_timer']) == 1:
         print('Total time for random forest ' + str(time.process_time() - start_rf))
@@ -746,8 +758,13 @@ def rf_type_3_mt_nuc(config, results):
 
     features_top = list(features_dict.keys())
 
-    features_counts = np.geomspace(1.0, len(features_top), int(config.params_dict['num_sequential_runs']),
-                                   endpoint=True)
+    if config.params_dict['sequential_run_type'] == 'lin':
+        features_counts = [i + 1 for i in range(0, int(config.params_dict['num_sequential_runs']))]
+    elif config.params_dict['sequential_run_type'] == 'max':
+        features_counts = [i + 1 for i in range(0, len(features_top) - 1)]
+    else:
+        features_counts = np.geomspace(1.0, len(features_top), int(config.params_dict['num_sequential_runs']),
+                                       endpoint=True)
     features_counts = list(set([int(item) for item in features_counts]))
     features_counts.sort()
 
@@ -759,8 +776,8 @@ def rf_type_3_mt_nuc(config, results):
         curr_features_ids = [gene_col_dict[feature] for feature in curr_features]
         curr_df = df_ref[:, curr_features_ids].copy()
 
-        clf = RandomForestClassifier(n_estimators=500)
-        output = cross_validate(clf, curr_df, y, cv=5, scoring='accuracy', return_estimator=True)
+        clf = RandomForestClassifier(n_estimators=num_estimators)
+        output = cross_validate(clf, curr_df, y, cv=num_cv_runs, scoring='accuracy', return_estimator=True)
         accuracy = np.mean(output['test_score'])
 
         curr_mt_genes_ids = []

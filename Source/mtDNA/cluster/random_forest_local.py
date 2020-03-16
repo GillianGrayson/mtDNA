@@ -1,4 +1,4 @@
-from mtDNA.cluster.rf_unit_local import unit_task
+from Source.mtDNA.cluster.rf_unit_local import unit_task
 import numpy as np
 import pickle
 import os
@@ -101,6 +101,15 @@ def random_forest(config_path):
     with open(config_dict['data_path_pkl'] + 'pop_person_dict.pickle', 'rb') as handle:
         unit_config.pop_person_dict = pickle.load(handle)
 
+    if os.path.exists(config_path + 'main_df.npz'):
+        unit_config.main_df = np.load(config_path + 'main_df.npz')['data']
+    if os.path.exists(config_path + 'main_df_classes.npz'):
+        unit_config.main_df_classes = np.load(config_path + 'main_df_classes.npz')['data']
+    if os.path.exists(config_path + 'gene_col_dict.pkl'):
+        with open(config_path + 'gene_col_dict.pkl', 'rb') as handle:
+            unit_config.gene_col_dict = pickle.load(handle)
+    unit_config.config_path = config_path
+
     results = Result()
     unit_task(unit_config, results)
 
@@ -181,7 +190,3 @@ def random_forest(config_path):
                         f.write(line)
                         f.write('\n')
                         features_count += 1
-
-    if hasattr(unit_config, 'main_df'):
-        np.savez_compressed(experiment_result_path + 'main_df', data=unit_config.main_df)
-        np.savez_compressed(experiment_result_path + 'main_df_classes', data=unit_config.main_df_classes)
