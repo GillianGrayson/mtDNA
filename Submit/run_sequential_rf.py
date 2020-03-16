@@ -7,9 +7,9 @@ import time
 
 medium = 1
 
-data_path = '/data/biophys/denysov/yusipov/mtDNA/input/'
-data_path_npz = '/data/biophys/denysov/yusipov/mtDNA/input/genes/npz/'
-data_path_pkl = '/data/biophys/denysov/yusipov/mtDNA/input/genes/pkl/'
+data_path = '/data/condmat/ivanchen/kalyakulina/mtDNA/input/'
+data_path_npz = '/data/condmat/ivanchen/kalyakulina/mtDNA/input/genes/npz/'
+data_path_pkl = '/data/condmat/ivanchen/kalyakulina/mtDNA/input/genes/pkl/'
 experiment_type = 'mt'
 random_forest_type = 3
 reference_pop = 'GBR'
@@ -29,7 +29,7 @@ num_cluster_tasks = 1
 num_atomic_tasks = 1
 num_running_tasks = 0
 
-result_path = '/data/biophys/denysov/yusipov/mtDNA/output/'
+result_path = '/data/condmat/ivanchen/kalyakulina/mtDNA/output/'
 
 genes_mt = []
 genes_mt_names = []
@@ -65,7 +65,7 @@ json_list = json.dumps([genes_mt, genes_nuc]).encode('utf-8')
 
 curr_hash = hashlib.md5(json_list).hexdigest()
 
-root = '/data/biophys/denysov/yusipov/mtDNA/output/'
+root = '/data/condmat/ivanchen/kalyakulina/mtDNA/output/'
 local_path = '/' + experiment_type + '/rf_type_' + str(random_forest_type) + \
              '/ref_' + reference_pop + '_target_' + target_pop + '/' + \
              'nat_' + str(num_atomic_tasks) + '/' + curr_hash + '/'

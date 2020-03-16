@@ -2,8 +2,8 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --time=2:00:00
 
-scratch=/scratch/denysov/yusipov/mtDNA/$1
-code_base=/home/denysov/yusipov/mtDNA/Source/mtDNA/cluster
+scratch=/scratch/ivanchen/kalyakulina/mtDNA/$1
+code_base=/home/ivanchen/kalyakulina/mtDNA/Source/mtDNA/cluster
 mkdir -p $scratch
 mkdir -p $1
 cd $scratch
