@@ -27,7 +27,6 @@ create_tree = 0
 run_timer = 1
 num_cluster_tasks = 1
 num_atomic_tasks = 1
-num_running_tasks = 0
 
 result_path = '/data/condmat/ivanchen/kalyakulina/mtDNA/output/'
 
@@ -115,5 +114,3 @@ if not os.path.isfile(fn_test):
 
     if run_timer == 1:
         print('Experiment time: ' + str(time.process_time() - start))
-
-print('Number of running tasks: ' + str(num_running_tasks))
