@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from bs4 import BeautifulSoup
-from mtDNA.tibet.functions.file_system import get_path
+from Source.mtDNA.tibet.functions.file_system import get_path
 
 path_in = get_path()
 path_in += '/Data/phylotree/html/'
@@ -25,7 +25,7 @@ for curr_file in os.listdir(path_in):
         table_rows_list = [row for row in table_rows_list if len(set(row)) > 1]
         tree_name_index = table_rows_list[0][1].find('subtree') + len('subtree ')
         tree_name = table_rows_list[0][1][tree_name_index:]
-        phylotrees['tree'].append(tree_name)
+        phylotrees['tree_name'].append(tree_name)
         table_rows_list = table_rows_list[16:]
         table_rows_list = [[elem.replace('\xa0', ' ') for elem in table_row] for table_row in table_rows_list]
         df = pd.DataFrame(table_rows_list)
@@ -85,7 +85,7 @@ for curr_file in os.listdir(path_in):
             indexes = [i for i, v in enumerate(tree_dict_raw['haplogroup']) if v == haplogroup]
             tree_dict['haplogroup'].append(haplogroup)
             tree_dict['mutations'].append(
-                list(dict.fromkeys([elem for j in indexes for elem in tree_dict_raw['mutations'][j]])))
+                list(dict.fromkeys([elem.strip() for j in indexes for elem in tree_dict_raw['mutations'][j]])))
 
         phylotrees['tree'].append(tree_dict)
         for i in range(0, len(tree_dict['mutations'])):
@@ -97,6 +97,66 @@ for curr_file in os.listdir(path_in):
         worksheet = writer.sheets['Sheet1']
         writer.save()
 
-phylotrees_info = {'haplogroup': [], 'mutation_type': [], 'position': [], 'ancestral_base': [], 'derived_base': []}
-for key in phylotrees:
-    haplogroups = phylotrees[key]
+phylotrees_info = {'phylotree': [], 'haplogroup': [], 'mutation_type': [], 'position': [],
+                   'ancestral_base': [], 'derived_base': []}
+for tree_id in range(0, len(phylotrees['tree_name'])):
+    for haplogroup_id in range(0, len(phylotrees['tree'][tree_id]['haplogroup'])):
+        haplogroup = phylotrees['tree'][tree_id]['haplogroup'][haplogroup_id]
+        if haplogroup in phylotrees_info['haplogroup']:
+            continue
+        else:
+            mutations = phylotrees['tree'][tree_id]['mutations'][haplogroup_id]
+            mutations = mutations.split(' ')
+            mutation_types = []
+            positions = []
+            ancestral_bases = []
+            derived_bases = []
+            excluded_mutations = []
+            for mutation in mutations:
+                if mutation in excluded_mutations:
+                    continue
+                elif len(mutation.split('.')) > 1:
+                    mutation_types.append('insertion')
+                    positions.append(mutation[0])
+                    ancestral_bases.append('')
+                    derived_bases.append(mutation[1][1:] * int(mutation[1][0]))
+                elif mutation.endswith('d'):
+                    mutation_types.append('deletion')
+                    if len(mutation[:-1].split('-')) > 1:
+                        positions.append(mutation[:-1])
+                        ancestral_bases.append('')
+                        derived_bases.append('')
+                    else:
+                        positions.append(mutation[1:-1])
+                        ancestral_bases.append(mutation[0])
+                        derived_bases.append('')
+                elif mutation.endswith('!!'):
+                    continue
+                elif mutation.endswith('!'):
+                    excluded_mutations.append(mutation[-2] + mutation[1:-2] + mutation[0])
+                    mutation_types.append('mutation')
+                    positions.append(mutation[1:-2])
+                    ancestral_bases.append(mutation[0])
+                    derived_bases.append(mutation[-2])
+                elif mutation.startswith('('):
+                    mutation_types.append('mutation')
+                    positions.append(mutation[2:-2])
+                    ancestral_bases.append(mutation[1])
+                    derived_bases.append(mutation[-2])
+                else:
+                    mutation_types.append('mutation')
+                    positions.append(mutation[1:-1])
+                    ancestral_bases.append(mutation[0])
+                    derived_bases.append(mutation[-1])
+            phylotrees_info['phylotree'].extend([phylotrees['tree_name'][tree_id]] * len(positions))
+            phylotrees_info['haplogroup'].extend([haplogroup] * len(positions))
+            phylotrees_info['mutation_type'].extend(mutation_types)
+            phylotrees_info['position'].extend(positions)
+            phylotrees_info['ancestral_base'].extend(ancestral_bases)
+            phylotrees_info['derived_base'].extend(derived_bases)
+
+info_df = pd.DataFrame(phylotrees_info)
+writer = pd.ExcelWriter(path_out + 'phylotrees.xlsx', engine='xlsxwriter')
+info_df.to_excel(writer, index=False, startrow=0)
+worksheet = writer.sheets['Sheet1']
+writer.save()
