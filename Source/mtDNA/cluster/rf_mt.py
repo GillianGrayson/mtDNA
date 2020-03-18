@@ -460,11 +460,11 @@ def rf_type_3_mt(config, results):
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
-                snp_data_mt = list(row[i] for i in target_samples_ids_mt)
-                for i in range(0, len(snp_data_mt)):
-                    if snp_data_mt[i] == 0:
+                for i in range(0, len(target_samples_ids_mt)):
+                    snp_mt = row[target_samples_ids_mt[i]]
+                    if snp_mt == 0:
                         reference_frequencies[gene_id, 0] += 1
-                    elif snp_data_mt[i] == 1:
+                    elif snp_mt == 1:
                         reference_frequencies[gene_id, 1] += 1
 
         for gene_id in range(0, len(genes_ids)):
@@ -501,14 +501,13 @@ def rf_type_3_mt(config, results):
             gene_data = np.zeros(shape=len(target_samples_ids_mt), dtype=np.float32)
             num_snps = 0
             for row in config.data[gene_index]:
-                snp_data_mt = list(row[i] for i in target_samples_ids_mt)
-                if len(set(snp_data_mt)) == 1:
+                if len(set(row[target_samples_ids_mt].tolist())) == 1:
                     continue
-
-                for i in range(0, len(snp_data_mt)):
-                    if snp_data_mt[i] == 0:
+                for i in range(0, len(target_samples_ids_mt)):
+                    snp_mt = row[target_samples_ids_mt[i]]
+                    if snp_mt == 0:
                         gene_data[i] += 1 - reference_frequencies[gene_id, 0]
-                    elif snp_data_mt[i] == 1:
+                    elif snp_mt == 1:
                         gene_data[i] += 1 - reference_frequencies[gene_id, 1]
 
                 num_snps += 1

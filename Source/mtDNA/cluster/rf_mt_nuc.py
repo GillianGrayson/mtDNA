@@ -594,29 +594,37 @@ def rf_type_3_mt_nuc(config, results):
         if int(config.params_dict['run_timer']) == 1:
             start_ref = time.process_time()
 
+        len_mt = 0
+        len_nuc = 0
+        for i in range(0, len(genes_ids_mt)):
+            len_mt += config.data[i].shape[0]
+        for i in range(len(genes_ids_mt), len(genes_ids_mt) + len(genes_ids_nuc)):
+            len_nuc += config.data[i].shape[0]
+        total = len_mt * len_nuc * len(target_samples_ids_mt)
+
         for gene_id_mt in range(0, len(genes_ids_mt)):
             gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
             for gene_id_nuc in range(0, len(genes_ids_nuc)):
                 gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
                 common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
                 for row_mt in config.data[gene_mt_index]:
-                    snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
                     for row_nuc in config.data[gene_nuc_index]:
-                        snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
-                        for i in range(0, len(snp_data_mt)):
-                            if snp_data_mt[i] == 0:
-                                if snp_data_nuc[i] == 0:
+                        for i in range(0, len(target_samples_ids_mt)):
+                            snp_mt = row_mt[target_samples_ids_mt[i]]
+                            snp_nuc = row_nuc[target_samples_ids_nuc[i]]
+                            if snp_mt == 0:
+                                if snp_nuc == 0:
                                     reference_frequencies[common_index, 0] += 1
-                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                elif snp_nuc == 1 or snp_nuc == 2:
                                     reference_frequencies[common_index, 1] += 1
-                                elif snp_data_nuc[i] == 3:
+                                elif snp_nuc == 3:
                                     reference_frequencies[common_index, 2] += 1
-                            elif snp_data_mt[i] == 1:
-                                if snp_data_nuc[i] == 0:
+                            elif snp_mt == 1:
+                                if snp_nuc == 0:
                                     reference_frequencies[common_index, 3] += 1
-                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                elif snp_nuc == 1 or snp_nuc == 2:
                                     reference_frequencies[common_index, 4] += 1
-                                elif snp_data_nuc[i] == 3:
+                                elif snp_nuc == 3:
                                     reference_frequencies[common_index, 5] += 1
 
         for gene_id in range(0, len(genes_ids_mt) * len(genes_ids_nuc)):
@@ -659,27 +667,26 @@ def rf_type_3_mt_nuc(config, results):
                 common_index = gene_id_mt * len(genes_ids_nuc) + gene_id_nuc
                 num_snps = 0
                 for row_mt in config.data[gene_mt_index]:
-                    snp_data_mt = list(row_mt[i] for i in target_samples_ids_mt)
                     for row_nuc in config.data[gene_nuc_index]:
-                        snp_data_nuc = list(row_nuc[i] for i in target_samples_ids_nuc)
-
-                        if len(set(snp_data_mt)) == 1 and len(set(snp_data_nuc)) == 1:
+                        if len(set(row_mt[target_samples_ids_mt].tolist())) == 1 and len(
+                                set(row_nuc[target_samples_ids_nuc].tolist())) == 1:
                             continue
-
-                        for i in range(0, len(snp_data_mt)):
-                            if snp_data_mt[i] == 0:
-                                if snp_data_nuc[i] == 0:
+                        for i in range(0, len(target_samples_ids_mt)):
+                            snp_mt = row_mt[target_samples_ids_mt[i]]
+                            snp_nuc = row_nuc[target_samples_ids_nuc[i]]
+                            if snp_mt == 0:
+                                if snp_nuc == 0:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 0]
-                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                elif snp_nuc == 1 or snp_nuc == 2:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 1]
-                                elif snp_data_nuc[i] == 3:
+                                elif snp_nuc == 3:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 2]
-                            elif snp_data_mt[i] == 1:
-                                if snp_data_nuc[i] == 0:
+                            elif snp_mt == 1:
+                                if snp_nuc == 0:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 3]
-                                elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                                elif snp_nuc == 1 or snp_nuc == 2:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 4]
-                                elif snp_data_nuc[i] == 3:
+                                elif snp_nuc == 3:
                                     gene_data[i] += 1 - reference_frequencies[common_index, 5]
 
                         num_snps += 1

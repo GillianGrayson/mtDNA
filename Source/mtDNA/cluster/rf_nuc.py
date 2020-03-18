@@ -471,13 +471,13 @@ def rf_type_3_nuc(config, results):
         for gene_id in range(0, len(genes_ids)):
             gene_index = config.data_position_dict[genes_names[gene_id]]
             for row in config.data[gene_index]:
-                snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
-                for i in range(0, len(snp_data_nuc)):
-                    if snp_data_nuc[i] == 0:
+                for i in range(0, len(target_samples_ids_nuc)):
+                    snp_nuc = row[target_samples_ids_nuc[i]]
+                    if snp_nuc == 0:
                         reference_frequencies[gene_id, 0] += 1
-                    elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                    elif snp_nuc == 1 or snp_nuc == 2:
                         reference_frequencies[gene_id, 1] += 1
-                    elif snp_data_nuc[i] == 3:
+                    elif snp_nuc == 3:
                         reference_frequencies[gene_id, 2] += 1
 
         for gene_id in range(0, len(genes_ids)):
@@ -514,16 +514,15 @@ def rf_type_3_nuc(config, results):
             gene_data = np.zeros(shape=len(target_samples_ids_nuc), dtype=np.float32)
             num_snps = 0
             for row in config.data[gene_index]:
-                snp_data_nuc = list(row[i] for i in target_samples_ids_nuc)
-                if len(set(snp_data_nuc)) == 1:
+                if len(set(row[target_samples_ids_nuc].tolist())) == 1:
                     continue
-
-                for i in range(0, len(snp_data_nuc)):
-                    if snp_data_nuc[i] == 0:
+                for i in range(0, len(target_samples_ids_nuc)):
+                    snp_nuc = row[target_samples_ids_nuc[i]]
+                    if snp_nuc == 0:
                         gene_data[i] += 1 - reference_frequencies[gene_id, 0]
-                    elif snp_data_nuc[i] == 1 or snp_data_nuc[i] == 2:
+                    elif snp_nuc == 1 or snp_nuc == 2:
                         gene_data[i] += 1 - reference_frequencies[gene_id, 1]
-                    elif snp_data_nuc[i] == 3:
+                    elif snp_nuc == 3:
                         gene_data[i] += 1 - reference_frequencies[gene_id, 2]
 
                 num_snps += 1
