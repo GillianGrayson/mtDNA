@@ -64,14 +64,14 @@ for curr_file in os.listdir(path_in):
                 else:
                     if curr_row[j + 1] == ' ':
                         curr_mutations = curr_row[j].split('  ')
-                        mutations = [elem.replace('\n', '') for elem in curr_mutations]
+                        mutations = [elem.replace('\n', '').strip() for elem in curr_mutations]
                         tree_dict_raw['mutations'][-1].extend(mutations)
                         break
                     else:
                         tree_dict_raw['haplogroup'].append(curr_row[j])
                         tree_dict_raw['index'].append(j)
                         curr_mutations = curr_row[j + 1].split('  ')
-                        mutations = [elem.replace('\n', '') for elem in curr_mutations]
+                        mutations = [elem.replace('\n', '').strip() for elem in curr_mutations]
                         tree_dict_raw['mutations'].append(mutations)
                         if j > 0:
                             nearest_index = len(tree_dict_raw['index']) - 1 - tree_dict_raw['index'][::-1].index(j - 1)
@@ -113,13 +113,23 @@ for tree_id in range(0, len(phylotrees['tree_name'])):
             derived_bases = []
             excluded_mutations = []
             for mutation in mutations:
-                if mutation in excluded_mutations:
+                if len(mutation) == 0 or mutation in excluded_mutations:
                     continue
-                elif len(mutation.split('.')) > 1:
-                    mutation_types.append('insertion')
-                    positions.append(mutation[0])
-                    ancestral_bases.append('')
-                    derived_bases.append(mutation[1][1:] * int(mutation[1][0]))
+                if mutation.startswith('('):
+                    mutation = mutation[1:-1]
+                if len(mutation.split('.')) > 1:
+                    mutation = mutation.split('.')
+                    if mutation[1].endswith('!'):
+                        excluded_mutations.append(mutation[0][1:] + '.' + mutation[1][0] + mutation[0][0])
+                    else:
+                        mutation_types.append('insertion')
+                        positions.append(mutation[0])
+                        ancestral_bases.append('')
+                        try:
+                            int(mutation[1][0])
+                            derived_bases.append(mutation[1][1:] * int(mutation[1][0]))
+                        except ValueError:
+                            derived_bases.append(mutation[1])
                 elif mutation.endswith('d'):
                     mutation_types.append('deletion')
                     if len(mutation[:-1].split('-')) > 1:
@@ -131,17 +141,12 @@ for tree_id in range(0, len(phylotrees['tree_name'])):
                         ancestral_bases.append(mutation[0])
                         derived_bases.append('')
                 elif mutation.endswith('!!'):
-                    continue
+                    excluded_mutations.append(mutation[-3] + mutation[1:-3] + mutation[0])
                 elif mutation.endswith('!'):
                     excluded_mutations.append(mutation[-2] + mutation[1:-2] + mutation[0])
                     mutation_types.append('mutation')
                     positions.append(mutation[1:-2])
                     ancestral_bases.append(mutation[0])
-                    derived_bases.append(mutation[-2])
-                elif mutation.startswith('('):
-                    mutation_types.append('mutation')
-                    positions.append(mutation[2:-2])
-                    ancestral_bases.append(mutation[1])
                     derived_bases.append(mutation[-2])
                 else:
                     mutation_types.append('mutation')
