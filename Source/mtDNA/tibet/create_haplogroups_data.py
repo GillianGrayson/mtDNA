@@ -1,4 +1,4 @@
-from mtDNA.tibet.functions.file_system import get_path
+from Source.mtDNA.tibet.functions.file_system import get_path
 import os
 
 path = get_path()

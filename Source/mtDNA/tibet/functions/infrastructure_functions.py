@@ -1,16 +1,20 @@
 import os
+import pandas as pd
 
 
 def get_data(data_path):
     raw_data = []
+    subjects = []
     data_classes = []
     for filename in os.listdir(data_path):
         if filename.endswith('fasta'):
             f = open(data_path + filename, 'r')
             raw_data.append([line.rstrip() for line in f][1::2])
+            f = open(data_path + filename, 'r')
+            subjects.append([line.rstrip().split(' ')[0][1:] for line in f][0::2])
             data_classes.append(filename[:-6])
             f.close()
-    return raw_data, data_classes
+    return raw_data, subjects, data_classes
 
 
 def get_haplogroups(data_path):
@@ -30,6 +34,15 @@ def get_haplogroups(data_path):
     return haplogroups
 
 
+def get_subjects_haplogroups(data_path, subjects):
+    haplogroups = {subject: '' for subject_group in subjects for subject in subject_group }
+    groups_dict = pd.read_excel(data_path + 'subjects.xlsx').to_dict('list')
+    for subject in haplogroups:
+        group_index = groups_dict['subject'].index(subject)
+        haplogroups[subject] = groups_dict['group'][group_index]
+    return haplogroups
+
+
 def get_regions(data_path):
     regions = {'region': [], 'start': [], 'finish': []}
     f = open(data_path + 'regions.txt', 'r')
@@ -42,6 +55,16 @@ def get_regions(data_path):
         regions['finish'].append(int(line_list[2]))
     f.close()
     return regions
+
+
+def get_mutations_positions(data_path):
+    mutation_positions = {}
+    phylotree = pd.read_excel(data_path + 'phylotrees.xlsx').to_dict('list')
+    for i in range(0, len(phylotree['haplogroup'])):
+        if phylotree['haplogroup'][i] not in mutation_positions:
+            mutation_positions[phylotree['haplogroup'][i]] = []
+        mutation_positions[phylotree['haplogroup'][i]].append(phylotree['position'][i])
+    return mutation_positions
 
 
 def get_features_dict(filename):
