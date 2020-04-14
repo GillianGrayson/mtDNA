@@ -66,13 +66,13 @@ if experiment_type == 'nuc' or experiment_type == 'mt-nuc':
 if experiment_type == 'mt':
     if len(mt_genes_num) > 1:
         if mt_genes_num[0] > mt_genes_num[1]:
-            mt_genes_num = mt_genes_num[1:]
-            accuracy = accuracy[1:]
+            mt_genes_num.append(mt_genes_num.pop(0))
+            accuracy.append(accuracy.pop(0))
 else:
     if len(nuc_genes_num) > 1:
         if nuc_genes_num[0] > nuc_genes_num[1]:
-            nuc_genes_num = nuc_genes_num[1:]
-            accuracy = accuracy[1:]
+            nuc_genes_num.append(nuc_genes_num.pop(0))
+            accuracy.append(accuracy.pop(0))
 
 figure_path = 'E:/YandexDisk/mtDNA/Result/figures/'
 figure_path += experiment_type + '/rf_type_' + str(random_forest_type) + \
