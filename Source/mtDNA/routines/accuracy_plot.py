@@ -68,10 +68,16 @@ if experiment_type == 'mt':
         if mt_genes_num[0] > mt_genes_num[1]:
             mt_genes_num.append(mt_genes_num.pop(0))
             accuracy.append(accuracy.pop(0))
-else:
+elif experiment_type == 'nuc':
     if len(nuc_genes_num) > 1:
         if nuc_genes_num[0] > nuc_genes_num[1]:
             nuc_genes_num.append(nuc_genes_num.pop(0))
+            accuracy.append(accuracy.pop(0))
+else:
+    if len(nuc_genes_num) > 1:
+        if nuc_genes_num[0] > nuc_genes_num[1]:
+            nuc_genes_num.pop(0)
+            nuc_genes_num.append(nuc_genes_num[-1] + 1)
             accuracy.append(accuracy.pop(0))
 
 figure_path = 'E:/YandexDisk/mtDNA/Result/figures/'
