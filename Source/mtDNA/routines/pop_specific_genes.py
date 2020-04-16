@@ -97,40 +97,52 @@ for reference_pop in reference_pops:
                     curr_pair = mt_genes[reference_pop][target_pop][i] + ';' + nuc_genes[reference_pop][target_pop][i]
                     mt_nuc_genes[reference_pop][target_pop].append(curr_pair)
 
-specific_mt_genes = {reference: [] for reference in reference_pops}
-specific_nuc_genes = {reference: [] for reference in reference_pops}
-specific_mt_nuc_genes = {reference: [] for reference in reference_pops}
+specific_mt_genes = {reference: set() for reference in reference_pops}
+specific_nuc_genes = {reference: set() for reference in reference_pops}
+specific_mt_nuc_genes = {reference: set() for reference in reference_pops}
 for reference_pop in reference_pops:
     curr_index = reference_pops.index(reference_pop)
     if curr_index + 1 < len(target_pops):
         if experiment_type == 'mt':
-            mt_curr_intersect = set(mt_genes[reference_pop][target_pops[curr_index + 1]])
+            specific_mt_genes[reference_pop] = set(mt_genes[reference_pop][target_pops[curr_index + 1]])
         elif experiment_type == 'nuc':
-            nuc_curr_intersect = set(nuc_genes[reference_pop][target_pops[curr_index + 1]])
+            specific_nuc_genes[reference_pop] = set(nuc_genes[reference_pop][target_pops[curr_index + 1]])
         else:
-            mt_nuc_curr_intersect = set(mt_nuc_genes[reference_pop][target_pops[curr_index + 1]])
+            specific_mt_nuc_genes[reference_pop] = set(mt_nuc_genes[reference_pop][target_pops[curr_index + 1]])
     else:
         if experiment_type == 'mt':
-            mt_curr_intersect = set(mt_genes[reference_pop][target_pops[0]])
+            specific_mt_genes[reference_pop] = set(mt_genes[reference_pop][target_pops[0]])
         elif experiment_type == 'nuc':
-            nuc_curr_intersect = set(nuc_genes[reference_pop][target_pops[0]])
+            specific_nuc_genes[reference_pop] = set(nuc_genes[reference_pop][target_pops[0]])
         else:
-            mt_nuc_curr_intersect = set(mt_nuc_genes[reference_pop][target_pops[0]])
+            specific_mt_nuc_genes[reference_pop] = set(mt_nuc_genes[reference_pop][target_pops[0]])
 
+for reference_pop in reference_pops:
     for target_pop in target_pops:
         if target_pop != reference_pop:
             if experiment_type == 'mt':
-                mt_curr_intersect = mt_curr_intersect.intersection(set(mt_genes[reference_pop][target_pop]))
+                specific_mt_genes[reference_pop] = specific_mt_genes[reference_pop].intersection(
+                    set(mt_genes[reference_pop][target_pop]))
+                specific_mt_genes[target_pop] = specific_mt_genes[target_pop].intersection(
+                    set(mt_genes[target_pop][reference_pop]))
             elif experiment_type == 'nuc':
-                nuc_curr_intersect = nuc_curr_intersect.intersection(set(nuc_genes[reference_pop][target_pop]))
+                specific_nuc_genes[reference_pop] = specific_nuc_genes[reference_pop].intersection(
+                    set(nuc_genes[reference_pop][target_pop]))
+                specific_nuc_genes[target_pop] = specific_nuc_genes[target_pop].intersection(
+                    set(nuc_genes[target_pop][reference_pop]))
             else:
-                mt_nuc_curr_intersect = mt_nuc_curr_intersect.intersection(set(mt_nuc_genes[reference_pop][target_pop]))
+                specific_mt_nuc_genes[reference_pop] = specific_mt_nuc_genes[reference_pop].intersection(
+                    set(mt_nuc_genes[reference_pop][target_pop]))
+                specific_mt_nuc_genes[target_pop] = specific_mt_nuc_genes[target_pop].intersection(
+                    set(mt_nuc_genes[target_pop][reference_pop]))
+
+for reference_pop in reference_pops:
     if experiment_type == 'mt':
-        specific_mt_genes[reference_pop] = list(mt_curr_intersect)
+        specific_mt_genes[reference_pop] = list(specific_mt_genes[reference_pop])
     elif experiment_type == 'nuc':
-        specific_nuc_genes[reference_pop] = list(nuc_curr_intersect)
+        specific_nuc_genes[reference_pop] = list(specific_nuc_genes[reference_pop])
     else:
-        specific_mt_nuc_genes[reference_pop] = list(mt_nuc_curr_intersect)
+        specific_mt_nuc_genes[reference_pop] = list(specific_mt_nuc_genes[reference_pop])
 
 mt_all = []
 nuc_all = []
