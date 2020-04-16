@@ -1,3 +1,4 @@
+import os
 import json
 import hashlib
 
@@ -30,24 +31,32 @@ for reference_pop in reference_pops:
     for target_pop in target_pops:
         if reference_pop != target_pop:
             genes_mt = []
+            genes_names_mt = []
             genes_nuc = []
+            genes_names_nuc = []
             for file_id in range(0, len(gene_files)):
                 data_gene_file = open(gene_path + gene_files[file_id])
                 if file_id == 0:
                     if experiment_type == 'mt':
                         for i, line in enumerate(data_gene_file):
                             genes_mt.append(i)
+                            genes_names_mt.append(line.rstrip())
                         genes_nuc = []
+                        genes_names_nuc = []
                     elif experiment_type == 'nuc':
                         genes_mt = []
+                        genes_names_mt = []
                         for i, line in enumerate(data_gene_file):
                             genes_nuc.append(i)
+                            genes_names_nuc.append(line.rstrip())
                     elif experiment_type == 'mt-nuc':
                         for i, line in enumerate(data_gene_file):
                             genes_mt.append(i)
+                            genes_names_mt.append(line.rstrip())
                 else:
                     for i, line in enumerate(data_gene_file):
                         genes_nuc.append(i)
+                        genes_names_nuc.append(line.rstrip())
                 data_gene_file.close()
 
             json_list = json.dumps([genes_mt, genes_nuc]).encode('utf-8')
@@ -83,29 +92,104 @@ for reference_pop in reference_pops:
                         nuc_genes[reference_pop][target_pop] = line.rstrip().split('\t')
                 f.close()
 
-            for i in range(0, len(mt_genes[reference_pop][target_pop])):
-                curr_pair = mt_genes[reference_pop][target_pop][i] + ';' + nuc_genes[reference_pop][target_pop][i]
-                mt_nuc_genes[reference_pop][target_pop].append(curr_pair)
+            if experiment_type == 'mt-nuc':
+                for i in range(0, len(mt_genes[reference_pop][target_pop])):
+                    curr_pair = mt_genes[reference_pop][target_pop][i] + ';' + nuc_genes[reference_pop][target_pop][i]
+                    mt_nuc_genes[reference_pop][target_pop].append(curr_pair)
 
 specific_mt_genes = {reference: [] for reference in reference_pops}
 specific_nuc_genes = {reference: [] for reference in reference_pops}
 specific_mt_nuc_genes = {reference: [] for reference in reference_pops}
 for reference_pop in reference_pops:
+    curr_index = reference_pops.index(reference_pop)
+    if curr_index + 1 < len(target_pops):
+        if experiment_type == 'mt':
+            mt_curr_intersect = set(mt_genes[reference_pop][target_pops[curr_index + 1]])
+        elif experiment_type == 'nuc':
+            nuc_curr_intersect = set(nuc_genes[reference_pop][target_pops[curr_index + 1]])
+        else:
+            mt_nuc_curr_intersect = set(mt_nuc_genes[reference_pop][target_pops[curr_index + 1]])
+    else:
+        if experiment_type == 'mt':
+            mt_curr_intersect = set(mt_genes[reference_pop][target_pops[0]])
+        elif experiment_type == 'nuc':
+            nuc_curr_intersect = set(nuc_genes[reference_pop][target_pops[0]])
+        else:
+            mt_nuc_curr_intersect = set(mt_nuc_genes[reference_pop][target_pops[0]])
+
     for target_pop in target_pops:
         if target_pop != reference_pop:
-            for item in mt_genes[reference_pop][target_pop]:
-                if item in specific_mt_genes[reference_pop]:
-                    specific_mt_genes[reference_pop].pop(item)
-                else:
-                    specific_mt_genes[reference_pop].append(item)
-            for item in nuc_genes[reference_pop][target_pop]:
-                if item in specific_nuc_genes[reference_pop]:
-                    specific_nuc_genes[reference_pop].pop(item)
-                else:
-                    specific_nuc_genes[reference_pop].append(item)
-            for item in mt_nuc_genes[reference_pop][target_pop]:
-                if item in specific_mt_nuc_genes[reference_pop]:
-                    specific_mt_nuc_genes[reference_pop].pop(item)
-                else:
-                    specific_mt_nuc_genes[reference_pop].append(item)
-olo = 8
+            if experiment_type == 'mt':
+                mt_curr_intersect = mt_curr_intersect.intersection(set(mt_genes[reference_pop][target_pop]))
+            elif experiment_type == 'nuc':
+                nuc_curr_intersect = nuc_curr_intersect.intersection(set(nuc_genes[reference_pop][target_pop]))
+            else:
+                mt_nuc_curr_intersect = mt_nuc_curr_intersect.intersection(set(mt_nuc_genes[reference_pop][target_pop]))
+    if experiment_type == 'mt':
+        specific_mt_genes[reference_pop] = list(mt_curr_intersect)
+    elif experiment_type == 'nuc':
+        specific_nuc_genes[reference_pop] = list(nuc_curr_intersect)
+    else:
+        specific_mt_nuc_genes[reference_pop] = list(mt_nuc_curr_intersect)
+
+mt_all = []
+nuc_all = []
+mt_nuc_all = []
+for reference_pop in reference_pops:
+    if experiment_type == 'mt':
+        mt_all.extend(specific_mt_genes[reference_pop])
+    elif experiment_type == 'nuc':
+        nuc_all.extend(specific_nuc_genes[reference_pop])
+    else:
+        mt_nuc_all.extend(specific_mt_nuc_genes[reference_pop])
+
+for reference_pop in reference_pops:
+    if experiment_type == 'mt':
+        specific_mt_genes[reference_pop] = [item for item in specific_mt_genes[reference_pop] if
+                                            mt_all.count(item) == 1]
+        for i in range(0, len(specific_mt_genes[reference_pop])):
+            curr_item = int(specific_mt_genes[reference_pop][i])
+            specific_mt_genes[reference_pop][i] = genes_names_mt[curr_item]
+
+    elif experiment_type == 'nuc':
+        specific_nuc_genes[reference_pop] = [item for item in specific_nuc_genes[reference_pop] if
+                                             nuc_all.count(item) == 1]
+        for i in range(0, len(specific_nuc_genes[reference_pop])):
+            curr_item = int(specific_nuc_genes[reference_pop][i])
+            specific_nuc_genes[reference_pop][i] = genes_names_nuc[curr_item]
+
+    else:
+        specific_mt_nuc_genes[reference_pop] = [item for item in specific_mt_nuc_genes[reference_pop] if
+                                                mt_nuc_all.count(item) == 1]
+        for i in range(0, len(specific_mt_nuc_genes[reference_pop])):
+            curr_item = specific_mt_nuc_genes[reference_pop][i].split(';')
+            curr_item_mt = int(curr_item[0])
+            curr_item_nuc = int(curr_item[1])
+            specific_mt_nuc_genes[reference_pop][i] = genes_names_mt[curr_item_mt] + ';' + genes_names_nuc[
+                curr_item_nuc]
+
+for reference_pop in reference_pops:
+    result_path = data_path + experiment_type + '/pop_specific/ref_' + reference_pop + '/'
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
+
+    if experiment_type == 'mt':
+        file_name = result_path + 'mt_genes.txt'
+        f = open(file_name, 'w')
+        for item in specific_mt_genes[reference_pop]:
+            f.write(item + '\n')
+        f.close()
+
+    elif experiment_type == 'nuc':
+        file_name = result_path + 'nuc_genes.txt'
+        f = open(file_name, 'w')
+        for item in specific_nuc_genes[reference_pop]:
+            f.write(item + '\n')
+        f.close()
+
+    else:
+        file_name = result_path + 'mt_nuc_genes.txt'
+        f = open(file_name, 'w')
+        for item in specific_mt_nuc_genes[reference_pop]:
+            f.write(item + '\n')
+        f.close()
