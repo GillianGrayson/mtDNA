@@ -6,10 +6,11 @@ data_path = 'E:/YandexDisk/mtDNA/Result/files/'
 gene_path = 'E:/YandexDisk/mtDNA/Data/'
 experiment_type = 'mt-nuc'
 random_forest_type = 3
-target_accuracy = 0.55
+target_accuracy = 0.5
 gene_files = ['mt_gene_list.txt', 'test_gene_list_cold_adaptation.txt']
 reference_pops = ['GBR', 'FIN', 'TSI', 'IBS']
 target_pops = ['GBR', 'FIN', 'TSI', 'IBS']
+remove_genes = 1
 
 mt_genes = {}
 nuc_genes = {}
@@ -144,35 +145,43 @@ for reference_pop in reference_pops:
     else:
         specific_mt_nuc_genes[reference_pop] = list(specific_mt_nuc_genes[reference_pop])
 
-mt_all = []
-nuc_all = []
-mt_nuc_all = []
-for reference_pop in reference_pops:
-    if experiment_type == 'mt':
-        mt_all.extend(specific_mt_genes[reference_pop])
-    elif experiment_type == 'nuc':
-        nuc_all.extend(specific_nuc_genes[reference_pop])
-    else:
-        mt_nuc_all.extend(specific_mt_nuc_genes[reference_pop])
+if remove_genes:
+    mt_all = []
+    nuc_all = []
+    mt_nuc_all = []
+    for reference_pop in reference_pops:
+        if experiment_type == 'mt':
+            mt_all.extend(specific_mt_genes[reference_pop])
+        elif experiment_type == 'nuc':
+            nuc_all.extend(specific_nuc_genes[reference_pop])
+        else:
+            mt_nuc_all.extend(specific_mt_nuc_genes[reference_pop])
+
+    for reference_pop in reference_pops:
+        if experiment_type == 'mt':
+            specific_mt_genes[reference_pop] = [item for item in specific_mt_genes[reference_pop] if
+                                                mt_all.count(item) == 1]
+
+        elif experiment_type == 'nuc':
+            specific_nuc_genes[reference_pop] = [item for item in specific_nuc_genes[reference_pop] if
+                                                 nuc_all.count(item) == 1]
+
+        else:
+            specific_mt_nuc_genes[reference_pop] = [item for item in specific_mt_nuc_genes[reference_pop] if
+                                                    mt_nuc_all.count(item) == 1]
 
 for reference_pop in reference_pops:
     if experiment_type == 'mt':
-        specific_mt_genes[reference_pop] = [item for item in specific_mt_genes[reference_pop] if
-                                            mt_all.count(item) == 1]
         for i in range(0, len(specific_mt_genes[reference_pop])):
             curr_item = int(specific_mt_genes[reference_pop][i])
             specific_mt_genes[reference_pop][i] = genes_names_mt[curr_item]
 
     elif experiment_type == 'nuc':
-        specific_nuc_genes[reference_pop] = [item for item in specific_nuc_genes[reference_pop] if
-                                             nuc_all.count(item) == 1]
         for i in range(0, len(specific_nuc_genes[reference_pop])):
             curr_item = int(specific_nuc_genes[reference_pop][i])
             specific_nuc_genes[reference_pop][i] = genes_names_nuc[curr_item]
 
     else:
-        specific_mt_nuc_genes[reference_pop] = [item for item in specific_mt_nuc_genes[reference_pop] if
-                                                mt_nuc_all.count(item) == 1]
         for i in range(0, len(specific_mt_nuc_genes[reference_pop])):
             curr_item = specific_mt_nuc_genes[reference_pop][i].split(';')
             curr_item_mt = int(curr_item[0])
@@ -180,27 +189,33 @@ for reference_pop in reference_pops:
             specific_mt_nuc_genes[reference_pop][i] = genes_names_mt[curr_item_mt] + ';' + genes_names_nuc[
                 curr_item_nuc]
 
+
+if remove_genes:
+    suffix = ''
+else:
+    suffix = '_all'
+
 for reference_pop in reference_pops:
     result_path = data_path + experiment_type + '/pop_specific/ref_' + reference_pop + '/'
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 
     if experiment_type == 'mt':
-        file_name = result_path + 'mt_genes.txt'
+        file_name = result_path + 'mt_genes' + suffix + '.txt'
         f = open(file_name, 'w')
         for item in specific_mt_genes[reference_pop]:
             f.write(item + '\n')
         f.close()
 
     elif experiment_type == 'nuc':
-        file_name = result_path + 'nuc_genes.txt'
+        file_name = result_path + 'nuc_genes' + suffix + '.txt'
         f = open(file_name, 'w')
         for item in specific_nuc_genes[reference_pop]:
             f.write(item + '\n')
         f.close()
 
     else:
-        file_name = result_path + 'mt_nuc_genes.txt'
+        file_name = result_path + 'mt_nuc_genes' + suffix + '.txt'
         f = open(file_name, 'w')
         for item in specific_mt_nuc_genes[reference_pop]:
             f.write(item + '\n')

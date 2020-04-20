@@ -10,7 +10,7 @@ experiment_type = 'mt-nuc'
 random_forest_type = 3
 reference_pop = 'IBS'
 target_pop = 'TSI'
-target_accuracy = 0.55
+target_accuracy = 0.5
 gene_files = ['mt_gene_list.txt', 'test_gene_list_cold_adaptation.txt']
 
 gene_path = 'E:/YandexDisk/mtDNA/Data/'
