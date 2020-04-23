@@ -111,7 +111,7 @@ for tree_id in range(0, len(phylotrees['tree_name'])):
             positions = []
             ancestral_bases = []
             derived_bases = []
-            excluded_mutations = []
+            excluded_mutations = ['reserved']
             for mutation in mutations:
                 if len(mutation) == 0 or mutation in excluded_mutations:
                     continue

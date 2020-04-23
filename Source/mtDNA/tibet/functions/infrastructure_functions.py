@@ -35,7 +35,7 @@ def get_haplogroups(data_path):
 
 
 def get_subjects_haplogroups(data_path, subjects):
-    haplogroups = {subject: '' for subject_group in subjects for subject in subject_group }
+    haplogroups = {subject: '' for subject_group in subjects for subject in subject_group}
     groups_dict = pd.read_excel(data_path + 'subjects.xlsx').to_dict('list')
     for subject in haplogroups:
         group_index = groups_dict['subject'].index(subject)
@@ -63,7 +63,14 @@ def get_mutations_positions(data_path):
     for i in range(0, len(phylotree['haplogroup'])):
         if phylotree['haplogroup'][i] not in mutation_positions:
             mutation_positions[phylotree['haplogroup'][i]] = []
-        mutation_positions[phylotree['haplogroup'][i]].append(phylotree['position'][i])
+        if len(phylotree['position'][i].split('-')) > 1:
+            positions_to_add = list(
+                range(int(phylotree['position'][i].split('-')[0]), int(phylotree['position'][i].split('-')[1]) + 1))
+            mutation_positions[phylotree['haplogroup'][i]].extend(positions_to_add)
+        else:
+            mutation_positions[phylotree['haplogroup'][i]].append(int(phylotree['position'][i]))
+    for key in mutation_positions:
+        mutation_positions[key].sort()
     return mutation_positions
 
 
