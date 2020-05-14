@@ -594,7 +594,7 @@ def rf_type_3_nuc(config, results):
         results.nuc_genes.append(genes_ids)
 
     features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
-    results.features = features_dict
+    results.features.append(features_dict)
 
     features_top = list(features_dict.keys())
 
@@ -623,3 +623,21 @@ def rf_type_3_nuc(config, results):
         if accuracy >= float(config.params_dict['target_accuracy']):
             results.accuracy.append(accuracy)
             results.nuc_genes.append(curr_features_ids)
+
+            features_dict = dict((key, []) for key in curr_features)
+
+            for idx, estimator in enumerate(output['estimator']):
+                feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                                   index=curr_features,
+                                                   columns=['importance']).sort_values('importance', ascending=False)
+
+                features_names = list(feature_importances.index.values)
+                features_values = list(feature_importances.values)
+                for i in range(0, len(features_names)):
+                    features_dict[features_names[i]].append(features_values[i][0])
+
+            for key in features_dict.keys():
+                features_dict[key] = np.mean(features_dict[key])
+
+            features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+            results.features.append(features_dict)

@@ -8,8 +8,8 @@ experiment_type = 'mt-nuc'
 random_forest_type = 3
 target_accuracy = 0.5
 gene_files = ['mt_gene_list.txt', 'test_gene_list_cold_adaptation.txt']
-reference_pops = ['GBR', 'FIN', 'TSI', 'IBS']
-target_pops = ['GBR', 'FIN', 'TSI', 'IBS']
+reference_pops = ['GBR', 'FIN', 'TSI']
+target_pops = ['GBR', 'FIN', 'TSI']
 remove_genes = 1
 
 mt_genes = {}

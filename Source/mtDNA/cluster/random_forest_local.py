@@ -21,7 +21,7 @@ class Result:
         self.mt_genes = []
         self.nuc_genes = []
         self.num_features = []
-        self.features = {}
+        self.features = []
 
 
 def random_forest(config_path):
@@ -116,8 +116,8 @@ def random_forest(config_path):
     if int(config_dict['create_tree']) == 1:
         result_path = 'C:/Users/User/YandexDisk/mtDNA/Result/files/'
         experiment_result_path = result_path + unit_config.params_dict['experiment_type'] + '/' + \
-            'ref_' + unit_config.params_dict['reference_pop'] + '_' + \
-            'target_' + unit_config.params_dict['target_pop'] + '/'
+                                 'ref_' + unit_config.params_dict['reference_pop'] + '_' + \
+                                 'target_' + unit_config.params_dict['target_pop'] + '/'
         try:
             os.makedirs(experiment_result_path)
         except OSError as e:
@@ -158,35 +158,30 @@ def random_forest(config_path):
             for item in results.nuc_genes:
                 f.write("%s\n" % '\t'.join(list(map(str, item))))
 
-    if int(unit_config.params_dict['num_features']) > 0:
+    if unit_config.params_dict['features_type'] == 'lin' or unit_config.params_dict['features_type'] == 'max':
 
         if unit_config.params_dict['experiment_type'] == 'mt':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt' +
-                      suffix + '.txt', 'w') as f:
-                features_count = 0
-                for key, value in results.features.items():
-                    if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
-                        line = str(key) + '\t' + str(value)
-                        f.write(line)
-                        f.write('\n')
-                        features_count += 1
+            f = open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt' +
+                     suffix + '.txt', 'w')
         elif unit_config.params_dict['experiment_type'] == 'nuc':
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc' +
-                      suffix + '.txt', 'w') as f:
-                features_count = 0
-                for key, value in results.features.items():
-                    if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
-                        line = str(key) + '\t' + str(value)
-                        f.write(line)
-                        f.write('\n')
-                        features_count += 1
+            f = open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_nuc' +
+                     suffix + '.txt', 'w')
         else:
-            with open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_nuc' +
-                      suffix + '.txt', 'w') as f:
-                features_count = 0
-                for key, value in results.features.items():
-                    if value > 0.0 and features_count < int(unit_config.params_dict['num_features']):
-                        line = str(key) + '\t' + str(value)
-                        f.write(line)
-                        f.write('\n')
-                        features_count += 1
+            f = open(experiment_result_path + str(config_dict['target_accuracy']) + '_top_features_mt_nuc' +
+                     suffix + '.txt', 'w')
+
+        for experiment_id in range(0, len(results.features)):
+
+            if unit_config.params_dict['features_type'] == 'lin':
+                num_features = int(unit_config.params_dict['num_features'])
+            else:
+                num_features = len(results.features[experiment_id].items())
+
+            features_count = 0
+            line = ''
+            for key, value in results.features[experiment_id].items():
+                if value > 0.0 and features_count < num_features:
+                    line += str(key) + ':' + str(value) + ';'
+                    features_count += 1
+            f.write(line)
+            f.write('\n')

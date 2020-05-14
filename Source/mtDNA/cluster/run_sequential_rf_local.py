@@ -11,12 +11,13 @@ data_path_npz = 'E:/YandexDisk/mtDNA/Data/genes/npz/'
 data_path_pkl = 'E:/YandexDisk/mtDNA/Data/genes/pkl/'
 experiment_type = 'mt-nuc'
 random_forest_type = 3
-reference_pop = 'IBS'
-target_pop = 'TSI'
+reference_pop = 'TSI'
+target_pop = 'FIN'
 reference_part = 0.75
 result_file_suffix = ''
 target_accuracy = 0.5
 num_features = 0
+features_type = 'max'  # lin, max, no
 num_sequential_runs = 10
 sequential_run_type = 'max'  # lin, max, exp
 num_estimators = 500
@@ -92,6 +93,7 @@ if not os.path.isfile(fn_test):
     file_config.write('result_file_suffix\t' + result_file_suffix + '\n')
     file_config.write('target_accuracy\t' + str(target_accuracy) + '\n')
     file_config.write('num_features\t' + str(num_features) + '\n')
+    file_config.write('features_type\t' + features_type + '\n')
     file_config.write('num_sequential_runs\t' + str(num_sequential_runs) + '\n')
     file_config.write('sequential_run_type\t' + sequential_run_type + '\n')
     file_config.write('num_estimators\t' + str(num_estimators) + '\n')
