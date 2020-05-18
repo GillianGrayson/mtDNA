@@ -10,7 +10,7 @@ target_accuracy = 0.5
 gene_files = ['mt_gene_list.txt', 'test_gene_list_cold_adaptation.txt']
 reference_pops = ['GBR', 'FIN', 'TSI']
 target_pops = ['GBR', 'FIN', 'TSI']
-remove_genes = 1
+remove_genes = 0
 
 mt_genes = {}
 nuc_genes = {}
@@ -125,17 +125,17 @@ for reference_pop in reference_pops:
                 specific_mt_genes[reference_pop] = specific_mt_genes[reference_pop].intersection(
                     set(mt_genes[reference_pop][target_pop]))
                 specific_mt_genes[target_pop] = specific_mt_genes[target_pop].intersection(
-                    set(mt_genes[target_pop][reference_pop]))
+                    set(mt_genes[reference_pop][target_pop]))
             elif experiment_type == 'nuc':
                 specific_nuc_genes[reference_pop] = specific_nuc_genes[reference_pop].intersection(
                     set(nuc_genes[reference_pop][target_pop]))
                 specific_nuc_genes[target_pop] = specific_nuc_genes[target_pop].intersection(
-                    set(nuc_genes[target_pop][reference_pop]))
+                    set(nuc_genes[reference_pop][target_pop]))
             else:
                 specific_mt_nuc_genes[reference_pop] = specific_mt_nuc_genes[reference_pop].intersection(
                     set(mt_nuc_genes[reference_pop][target_pop]))
                 specific_mt_nuc_genes[target_pop] = specific_mt_nuc_genes[target_pop].intersection(
-                    set(mt_nuc_genes[target_pop][reference_pop]))
+                    set(mt_nuc_genes[reference_pop][target_pop]))
 
 for reference_pop in reference_pops:
     if experiment_type == 'mt':
