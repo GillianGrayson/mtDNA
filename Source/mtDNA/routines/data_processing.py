@@ -1,19 +1,20 @@
 import numpy as np
 import os
 
-data_path = '../Data/'
-genes_file_name = 'genes_locations_sorted.txt'
-target_chromosome = 'X'
-result_path = '../Data/chr' + target_chromosome + '/'
+data_path = 'E:/YandexDisk/mtDNA/Data/'
+genes_file_name = 'mart_export.txt'
+target_chromosome = '4'
+result_path = 'E:/YandexDisk/mtDNA/Data/chr/' + target_chromosome + '/'
 if not os.path.exists(result_path):
     os.makedirs(result_path)
 
 f = open(data_path + genes_file_name)
+f.readline()
 gene_data = []
 for line in f:
-    curr_gene_data = line.split('\t')
+    curr_gene_data = line.rstrip().split('\t')
     gene_name = curr_gene_data[0]
-    chromosome_name = curr_gene_data[1]
+    chromosome_name = curr_gene_data[4]
     gene_start = int(curr_gene_data[2])
     gene_finish = int(curr_gene_data[3])
     if chromosome_name == target_chromosome:
