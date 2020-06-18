@@ -1,9 +1,8 @@
-import numpy as np
 import os
 
 data_path = 'E:/YandexDisk/mtDNA/Data/'
 genes_file_name = 'mart_export.txt'
-target_chromosome = '4'
+target_chromosome = 'X'
 result_path = 'E:/YandexDisk/mtDNA/Data/chr/' + target_chromosome + '/'
 if not os.path.exists(result_path):
     os.makedirs(result_path)
@@ -25,6 +24,8 @@ if target_chromosome == 'MT':
     file_name = 'ALL.chr' + target_chromosome + '.phase3_callmom-v0_4.20130502.genotypes.vcf'
 elif target_chromosome == 'X':
     file_name = 'ALL.chr' + target_chromosome + '.phase3_shapeit2_mvncall_integrated_v1b.20130502.genotypes.vcf'
+elif target_chromosome == 'Y':
+    file_name = 'ALL.chr' + target_chromosome + '.phase3_integrated_v2a.20130502.genotypes.vcf'
 else:
     file_name = 'ALL.chr' + target_chromosome + '.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf'
 f = open(data_path + file_name)
@@ -63,7 +64,10 @@ for line in f:
 
                 fn = result_path + gene_name + '.txt'
                 snp_data[0] = column_data
-                np.savetxt(fn, snp_data, fmt='%s')
+                fw = open(fn, 'w')
+                for item in snp_data:
+                    fw.write('\t'.join(item) + '\n')
+                fw.close()
                 snp_data = []
 
             genes_passed += 1

@@ -35,5 +35,5 @@ subjects_df.to_csv(result_path + 'populations.txt', index=None, sep='\t', mode='
 
 for gene in genes:
     data = pd.read_csv(genes_path + gene + '.txt', sep=' ')
-    data = data.drop(columns=subjects_to_remove)
+    data = data.drop(columns=subjects_to_remove, errors='ignore')
     data.to_csv(result_path + gene + '.txt', index=None, sep='\t', mode='a')
