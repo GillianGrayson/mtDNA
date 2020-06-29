@@ -1,7 +1,7 @@
-from mtDNA.tibet.functions.tibet_functions import *
-from mtDNA.tibet.functions.infrastructure_functions import *
+from Source.mtDNA.tibet.functions.tibet_functions import *
+from Source.mtDNA.tibet.functions.infrastructure_functions import *
 import pandas as pd
-from mtDNA.tibet.functions.file_system import get_path
+from Source.mtDNA.tibet.functions.file_system import get_path
 
 
 path = get_path()
