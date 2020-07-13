@@ -101,7 +101,10 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
 
     features_rating = list(features_dict.keys())
     accuracy_list = []
-    features_counts = [i for i in range(1, num_runs + 1)]
+    if num_runs == 'max':
+        features_counts = [i for i in range(1, len(features_rating) + 1)]
+    else:
+        features_counts = [i for i in range(1, num_runs + 1)]
 
     for features_count in features_counts:
         if features_counts.index(features_count) % 10 == 0:
@@ -123,3 +126,13 @@ def save_results(path, filename, data):
     for item in data:
         f.write(str(item) + '\n')
     f.close()
+
+
+def read_results(path, filename):
+    data = []
+    f = open(path + filename, 'r')
+    for line in f:
+        line = line.rstrip()
+        data.append(float(line))
+    f.close()
+    return data

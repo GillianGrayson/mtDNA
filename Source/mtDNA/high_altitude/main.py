@@ -1,6 +1,8 @@
 from Source.mtDNA.tibet.functions.file_system import get_path
 from Source.mtDNA.high_altitude.functions import *
 
+read_tibet_data = 1
+
 path = get_path()
 tibet_data_path = path + '/Data/tibet/'
 world_data_path = path + '/Data/world/'
@@ -19,10 +21,16 @@ current_tibet_classes = {'low': ['0-500', '501-1000', '1001-1500', '1501-2000', 
 tibet_subset, tibet_subject_classes = subset_subjects(tibet_data, tibet_classes, current_tibet_classes)
 tibet_table, tibet_mutated_positions = create_classes_table(tibet_subset)
 
-tibet_accuracy, tibet_features, tibet_accuracy_list, tibet_features_rating = \
-    run_sequential_random_forest(tibet_table, tibet_subject_classes, tibet_mutated_positions, 10)
+if read_tibet_data:
+    tibet_results = read_results(tibet_result_path, 'tibet_rf.txt')
+    tibet_accuracy = tibet_results[0]
+    tibet_features = tibet_results[1:]
+else:
+    tibet_accuracy, tibet_features, tibet_accuracy_list, tibet_features_rating = \
+        run_sequential_random_forest(tibet_table, tibet_subject_classes, tibet_mutated_positions, 'max')
 
-save_results(tibet_result_path, 'tibet_rf', [tibet_accuracy] + tibet_features)
-save_results(tibet_result_path, 'tibet_rf_accuracy', tibet_accuracy_list)
-save_results(tibet_result_path, 'tibet_rf_features', tibet_features_rating)
+    save_results(tibet_result_path, 'tibet_rf', [tibet_accuracy] + tibet_features)
+    save_results(tibet_result_path, 'tibet_rf_accuracy', tibet_accuracy_list)
+    save_results(tibet_result_path, 'tibet_rf_features', tibet_features_rating)
+
 olo = 0
