@@ -1,28 +1,9 @@
-import os
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from collections import Counter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
-
-
-def read_data(data_path):
-    raw_data = []
-    subjects = []
-    data_classes = []
-    for filename in os.listdir(data_path):
-        if filename.endswith('fasta') or filename.endswith('fa'):
-            f = open(data_path + filename, 'r')
-            raw_data.append([line.rstrip() for line in f][1::2])
-            f = open(data_path + filename, 'r')
-            subjects.append([line.rstrip().split(' ')[0][1:] for line in f][0::2])
-            if filename.endswith('fasta'):
-                data_classes.append(filename[:-6])
-            else:
-                data_classes.append(filename[:-3])
-            f.close()
-    return raw_data, subjects, data_classes
 
 
 def get_region_info(data_path):
@@ -121,18 +102,54 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
     return top_accuracy, features_top, accuracy_list, features_rating
 
 
-def save_results(path, filename, data):
-    f = open(path + filename + '.txt', 'w')
-    for item in data:
-        f.write(str(item) + '\n')
-    f.close()
+def read_haplogroups(data_path, classes):
+    data = pd.read_excel(data_path + 'subjects.xlsx').to_dict('list')
+    data_classes = [item for curr_class in classes for item in classes[curr_class]]
+    haplogroups = []
+    for item_id in range(0, len(data['subject'])):
+        if data['height'][item_id] in data_classes:
+            haplogroup = data['group'][item_id]
+            if haplogroup not in haplogroups:
+                haplogroups.append(haplogroup)
+    return haplogroups
 
 
-def read_results(path, filename):
-    data = []
-    f = open(path + filename, 'r')
-    for line in f:
-        line = line.rstrip()
-        data.append(float(line))
-    f.close()
-    return data
+def get_haplogroups_positions(data_path, haplogroups):
+    phylotrees = pd.read_excel(data_path + 'phylotrees.xlsx').to_dict('list')
+    positions = []
+    for item_id in tqdm(range(0, len(phylotrees['phylotree']))):
+        if phylotrees['haplogroup'][item_id] in haplogroups:
+            position = phylotrees['position'][item_id]
+            if isinstance(position, str):
+                start_position = int(position.split('-')[0])
+                end_position = int(position.split('-')[1])
+                curr_positions = list(range(start_position, end_position + 1))
+                for curr_position in curr_positions:
+                    if curr_position not in positions:
+                        positions.append(curr_position)
+            else:
+                if position not in positions:
+                    positions.append(position)
+    positions.sort()
+    return positions
+
+
+def remove_items_from_list(initial_list, positions_to_remove):
+    modified_list = initial_list.copy()
+    for item in positions_to_remove:
+        if item in initial_list:
+            modified_list.remove(item)
+    return modified_list
+
+
+def calculate_mutation_frequency(data, classes, features):
+    frequency_dict = {position: {data_class: 0.0 for data_class in classes} for position in features}
+    for position in features:
+        for data_class in classes:
+            data_class_id = classes.index(data_class)
+            curr_nuc = [data[data_class_id][person_id][position] for person_id in range(0, len(data[data_class_id]))]
+            count_dict = Counter(curr_nuc).most_common()
+            count_dict = dict(count_dict)
+            count_list = [count_dict[item] for item in count_dict]
+            frequency_dict[position][data_class] = np.sum(count_list[1:]) / np.sum(count_list)
+    return frequency_dict
