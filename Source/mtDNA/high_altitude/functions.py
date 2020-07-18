@@ -4,6 +4,7 @@ from tqdm import tqdm
 from collections import Counter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
+from bisect import bisect
 
 
 def get_region_info(data_path):
@@ -143,7 +144,7 @@ def remove_items_from_list(initial_list, positions_to_remove):
 
 
 def calculate_mutation_frequency(data, classes, features):
-    frequency_dict = {position: {data_class: 0.0 for data_class in classes} for position in features}
+    frequency_dict = {str(position): {data_class: 0.0 for data_class in classes} for position in features}
     for position in features:
         for data_class in classes:
             data_class_id = classes.index(data_class)
@@ -151,5 +152,20 @@ def calculate_mutation_frequency(data, classes, features):
             count_dict = Counter(curr_nuc).most_common()
             count_dict = dict(count_dict)
             count_list = [count_dict[item] for item in count_dict]
-            frequency_dict[position][data_class] = np.sum(count_list[1:]) / np.sum(count_list)
+            frequency_dict[str(position)][data_class] = np.sum(count_list[1:]) / np.sum(count_list)
     return frequency_dict
+
+
+def calculate_regions_statistics(features, regions):
+    regions_stat = []
+    for feature in features:
+        position = bisect(regions['start'], feature) - 1
+        if feature <= regions['finish'][position]:
+            regions_stat.append(regions['region'][position])
+        else:
+            regions_stat.append('NA')
+    regions_dict = dict(Counter(regions_stat).most_common())
+    regions_sum = sum(regions_dict.values(), 0.0)
+    for feature in regions_dict:
+        regions_dict[feature] /= regions_sum
+    return regions_dict
