@@ -17,6 +17,8 @@ if not os.path.exists(world_result_path):
     os.makedirs(world_result_path)
 
 tibet_data, tibet_subjects, tibet_classes = read_data(tibet_data_path)
+tibet_data = [[tibet_data[group_id][subject_id][1:] for subject_id in range(0, len(tibet_data[group_id]))] for group_id
+              in range(0, len(tibet_data))]
 regions = get_region_info(tibet_data_path)
 
 current_tibet_classes = {'low': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000'],
@@ -38,14 +40,30 @@ else:
 
 tibet_haplogroups = read_haplogroups(tibet_data_path, current_tibet_classes)
 positions_to_remove = get_haplogroups_positions(tibet_data_path, tibet_haplogroups)
-positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]
+positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]  # haplogroups data has numeration from 1
 
 tibet_filtered_features = remove_items_from_list(tibet_features, positions_to_remove_corrected)
-tibet_filtered_features_corrected = [(item + 1) for item in tibet_filtered_features]
 
 world_data, world_subjects, world_classes = read_data(world_data_path)
-frequency_dict = calculate_mutation_frequency(world_data, world_classes, tibet_filtered_features_corrected)
+frequency_dict = calculate_mutation_frequency(world_data, world_classes, tibet_filtered_features)
+frequency_dict_non_zero_1, frequency_dict_non_zero_2, frequency_dict_non_zero_3 = filter_frequency_dict(frequency_dict)
+tibet_filtered_features_corrected = [(tibet_filtered_features[i] + 1) for i in range(0, len(tibet_filtered_features))]
+frequency_non_zero_1_corrected = [(int(list(frequency_dict_non_zero_1.keys())[i]) + 1) for i in
+                                  range(0, len(list(frequency_dict_non_zero_1.keys())))]
+frequency_non_zero_2_corrected = [(int(list(frequency_dict_non_zero_2.keys())[i]) + 1) for i in
+                                  range(0, len(list(frequency_dict_non_zero_2.keys())))]
+frequency_non_zero_3_corrected = [(int(list(frequency_dict_non_zero_3.keys())[i]) + 1) for i in
+                                  range(0, len(list(frequency_dict_non_zero_3.keys())))]
 regions_dict = calculate_regions_statistics(tibet_filtered_features_corrected, regions)
+regions_dict_non_zero_1 = calculate_regions_statistics(frequency_non_zero_1_corrected, regions)
+regions_dict_non_zero_2 = calculate_regions_statistics(frequency_non_zero_2_corrected, regions)
+regions_dict_non_zero_3 = calculate_regions_statistics(frequency_non_zero_3_corrected, regions)
 
 write_frequency_to_xlsx(world_result_path, 'frequency', frequency_dict)
+write_frequency_to_xlsx(world_result_path, 'frequency_non_zero_1', frequency_dict_non_zero_1)
+write_frequency_to_xlsx(world_result_path, 'frequency_non_zero_2', frequency_dict_non_zero_2)
+write_frequency_to_xlsx(world_result_path, 'frequency_non_zero_3', frequency_dict_non_zero_3)
 write_regions_to_xlsx(world_result_path, 'regions', regions_dict)
+write_regions_to_xlsx(world_result_path, 'regions_non_zero_1', regions_dict_non_zero_1)
+write_regions_to_xlsx(world_result_path, 'regions_non_zero_2', regions_dict_non_zero_2)
+write_regions_to_xlsx(world_result_path, 'regions_non_zero_3', regions_dict_non_zero_3)

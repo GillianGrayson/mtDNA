@@ -156,9 +156,34 @@ def calculate_mutation_frequency(data, classes, features):
     return frequency_dict
 
 
+def filter_frequency_dict(frequency_dict):
+    positions = list(frequency_dict.keys())
+    frequency_dict_1 = {}
+    frequency_dict_2 = {}
+    frequency_dict_3 = {}
+    for position in positions:
+        populations = list(frequency_dict[position].keys())
+        is_all_non_zero = 0
+        for population in populations:
+            if frequency_dict[position][population] > 0:
+                is_all_non_zero += 1
+        if is_all_non_zero == 1:
+            frequency_dict_1[position] = {population: frequency_dict[position][population] for population in
+                                          populations}
+        if is_all_non_zero == 2:
+            frequency_dict_2[position] = {population: frequency_dict[position][population] for population in
+                                          populations}
+        if is_all_non_zero == 3:
+            frequency_dict_3[position] = {population: frequency_dict[position][population] for population in
+                                          populations}
+    return frequency_dict_1, frequency_dict_2, frequency_dict_3
+
+
 def calculate_regions_statistics(features, regions):
     regions_stat = []
     for feature in features:
+        if isinstance(feature, str):
+            feature = int(feature)
         position = bisect(regions['start'], feature) - 1
         if feature <= regions['finish'][position]:
             regions_stat.append(regions['region'][position])
