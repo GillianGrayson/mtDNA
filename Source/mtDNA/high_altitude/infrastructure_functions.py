@@ -43,17 +43,18 @@ def write_frequency_to_xlsx(path, filename, data):
     worksheet = workbook.add_worksheet()
     row_id = 0
     column_id = 0
-    keys = list(data.keys())
-    column_names = list(data[keys[0]].keys())
-    worksheet.write(row_id, column_id, 'Id')
-    for key_id in range(0, len(column_names)):
-        worksheet.write(row_id, column_id + key_id + 1, column_names[key_id])
-    row_id += 1
-    for key in data:
-        worksheet.write(row_id, column_id, key)
-        for column_name_id in range(0, len(column_names)):
-            worksheet.write(row_id, column_id + column_name_id + 1, data[key][column_names[column_name_id]])
+    if len(data) > 0:
+        keys = list(data.keys())
+        column_names = list(data[keys[0]].keys())
+        worksheet.write(row_id, column_id, 'Id')
+        for key_id in range(0, len(column_names)):
+            worksheet.write(row_id, column_id + key_id + 1, column_names[key_id])
         row_id += 1
+        for key in data:
+            worksheet.write(row_id, column_id, key)
+            for column_name_id in range(0, len(column_names)):
+                worksheet.write(row_id, column_id + column_name_id + 1, data[key][column_names[column_name_id]])
+            row_id += 1
     workbook.close()
 
 
@@ -65,10 +66,11 @@ def write_regions_to_xlsx(path, filename, data):
     worksheet.write(row_id, column_id, 'Region')
     worksheet.write(row_id, column_id + 1, 'Frequency')
     row_id += 1
-    for key in data:
-        worksheet.write(row_id, column_id, key)
-        worksheet.write(row_id, column_id + 1, data[key])
-        row_id += 1
+    if len(data) > 0:
+        for key in data:
+            worksheet.write(row_id, column_id, key)
+            worksheet.write(row_id, column_id + 1, data[key])
+            row_id += 1
     workbook.close()
 
 
