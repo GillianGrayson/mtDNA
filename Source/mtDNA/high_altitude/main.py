@@ -5,8 +5,9 @@ from Source.mtDNA.high_altitude.infrastructure_functions import *
 read_tibet_data = 1
 
 path = get_path()
-tibet_data_path = path + '/Data/tibet/'
-world_data_path = path + '/Data/world/'
+info_data_path = path + '/Data/alignment/info/'
+tibet_data_path = path + '/Data/alignment/tibet/'
+world_data_path = path + '/Data/alignment/world/'
 
 tibet_result_path = path + '/Result/tibet/'
 if not os.path.exists(tibet_result_path):
@@ -19,7 +20,7 @@ if not os.path.exists(world_result_path):
 tibet_data, tibet_subjects, tibet_classes = read_data(tibet_data_path)
 tibet_data = [[tibet_data[group_id][subject_id][1:] for subject_id in range(0, len(tibet_data[group_id]))] for group_id
               in range(0, len(tibet_data))]
-regions = get_region_info(tibet_data_path)
+regions = get_region_info(info_data_path)
 
 current_tibet_classes = {
     'Tibetan Low Altitude': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000'],
@@ -39,8 +40,8 @@ else:
     save_results(tibet_result_path, 'tibet_rf_accuracy', tibet_accuracy_list)
     save_results(tibet_result_path, 'tibet_rf_features', tibet_features_rating)
 
-tibet_haplogroups = read_haplogroups(tibet_data_path, current_tibet_classes)
-positions_to_remove = get_haplogroups_positions(tibet_data_path, tibet_haplogroups)
+tibet_haplogroups = read_haplogroups(info_data_path, current_tibet_classes)
+positions_to_remove = get_haplogroups_positions(info_data_path, tibet_haplogroups)
 positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]  # haplogroups data has numeration from 1
 
 tibet_filtered_features = remove_items_from_list(tibet_features, positions_to_remove_corrected)
