@@ -21,8 +21,9 @@ tibet_data = [[tibet_data[group_id][subject_id][1:] for subject_id in range(0, l
               in range(0, len(tibet_data))]
 regions = get_region_info(tibet_data_path)
 
-current_tibet_classes = {'low': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000'],
-                         'high': ['3001-4000', '4001']}
+current_tibet_classes = {
+    'Tibetan Low Altitude': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000'],
+    'Tibetan High Altitude': ['3001-4000', '4001']}
 tibet_subset, tibet_subject_classes = subset_subjects(tibet_data, tibet_classes, current_tibet_classes)
 tibet_table, tibet_mutated_positions = create_classes_table(tibet_subset)
 
@@ -45,6 +46,9 @@ positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]  # 
 tibet_filtered_features = remove_items_from_list(tibet_features, positions_to_remove_corrected)
 
 world_data, world_subjects, world_classes = read_data(world_data_path)
+current_world_classes = {'Tibetan': ['Tibetan'], 'Andes': ['Andes'], 'Ethiopia': ['Ethiopia']}
+world_subset, world_subject_classes = subset_subjects(world_data, world_classes, current_world_classes)
+
 frequency_dict = calculate_mutation_frequency(world_data, world_classes, tibet_filtered_features)
 frequency_dict_non_zero_1, frequency_dict_non_zero_2, frequency_dict_non_zero_3 = filter_frequency_dict(frequency_dict)
 tibet_filtered_features_corrected = [(tibet_filtered_features[i] + 1) for i in range(0, len(tibet_filtered_features))]
@@ -67,3 +71,9 @@ write_regions_to_xlsx(world_result_path, 'regions', regions_dict)
 write_regions_to_xlsx(world_result_path, 'regions_non_zero_1', regions_dict_non_zero_1)
 write_regions_to_xlsx(world_result_path, 'regions_non_zero_2', regions_dict_non_zero_2)
 write_regions_to_xlsx(world_result_path, 'regions_non_zero_3', regions_dict_non_zero_3)
+
+classes = ['Tibetan Low Altitude', 'Tibetan High Altitude', 'Tibetan', 'Andes', 'Ethiopia']
+data = tibet_subset
+data.update(world_subset)
+stat_dict = create_mutation_statistics(data, tibet_filtered_features, classes)
+write_stat_to_xlsx(world_result_path, 'mutation_stat', stat_dict)

@@ -1,5 +1,6 @@
 import os
 import xlsxwriter
+import pandas as pd
 
 
 def read_data(data_path):
@@ -61,7 +62,6 @@ def write_regions_to_xlsx(path, filename, data):
     worksheet = workbook.add_worksheet()
     row_id = 0
     column_id = 0
-    keys = list(data.keys())
     worksheet.write(row_id, column_id, 'Region')
     worksheet.write(row_id, column_id + 1, 'Frequency')
     row_id += 1
@@ -70,3 +70,8 @@ def write_regions_to_xlsx(path, filename, data):
         worksheet.write(row_id, column_id + 1, data[key])
         row_id += 1
     workbook.close()
+
+
+def write_stat_to_xlsx(path, filename, data):
+    df = pd.DataFrame(data)
+    df.to_excel(path + filename + '.xlsx', index=False)

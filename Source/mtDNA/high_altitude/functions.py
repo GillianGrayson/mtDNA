@@ -140,6 +140,7 @@ def remove_items_from_list(initial_list, positions_to_remove):
     for item in positions_to_remove:
         if item in initial_list:
             modified_list.remove(item)
+    modified_list.sort()
     return modified_list
 
 
@@ -194,3 +195,31 @@ def calculate_regions_statistics(features, regions):
     for feature in regions_dict:
         regions_dict[feature] /= regions_sum
     return regions_dict
+
+
+def create_mutation_statistics(data, positions, classes):
+    result_dict = {'Position': []}
+    classes_extended = []
+    for curr_class in classes:
+        classes_extended.append(curr_class + ' Main')
+        classes_extended.append(curr_class + ' Minor')
+        classes_extended.append(curr_class + ' Other')
+    result_dict.update({curr_class: [] for curr_class in classes_extended})
+    for position in positions:
+        result_dict['Position'].append(position)
+        for curr_class in classes:
+            curr_nucleotide = [data[curr_class][person_id][position] for person_id in range(0, len(data[curr_class]))]
+            count_dict = Counter(curr_nucleotide).most_common()
+            count_dict = dict(count_dict)
+            variants_list = list(count_dict.keys())
+            result_dict[curr_class + ' Main'].append(variants_list[0])
+            if len(variants_list) == 1:
+                result_dict[curr_class + ' Minor'].append('')
+                result_dict[curr_class + ' Other'].append('')
+            if len(variants_list) > 1:
+                result_dict[curr_class + ' Minor'].append(variants_list[1])
+                if len(variants_list) == 2:
+                    result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
+            if len(variants_list) > 2:
+                result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
+    return result_dict
