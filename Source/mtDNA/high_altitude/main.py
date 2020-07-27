@@ -18,8 +18,6 @@ if not os.path.exists(world_result_path):
     os.makedirs(world_result_path)
 
 tibet_data, tibet_subjects, tibet_classes = read_data(tibet_data_path)
-tibet_data = [[tibet_data[group_id][subject_id][1:] for subject_id in range(0, len(tibet_data[group_id]))] for group_id
-              in range(0, len(tibet_data))]
 regions = get_region_info(info_data_path)
 
 current_tibet_classes = {

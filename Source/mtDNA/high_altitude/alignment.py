@@ -30,7 +30,7 @@ for filename in os.listdir(world_data_path):
         world_subjects_count[filename[:-3]] = (i + 1) // 2
 
 data = []
-f = open(aligned_data_path + 'all_aligned.fa')
+f = open(aligned_data_path + 'all_data_wo_gaps_aligned.fasta')
 for line in f:
     if line.startswith('>'):
         data.append(line.rstrip())

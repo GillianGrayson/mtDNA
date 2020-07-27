@@ -140,7 +140,6 @@ def remove_items_from_list(initial_list, positions_to_remove):
     for item in positions_to_remove:
         if item in initial_list:
             modified_list.remove(item)
-    modified_list.sort()
     return modified_list
 
 
@@ -206,7 +205,7 @@ def create_mutation_statistics(data, positions, classes):
         classes_extended.append(curr_class + ' Other')
     result_dict.update({curr_class: [] for curr_class in classes_extended})
     for position in positions:
-        result_dict['Position'].append(position)
+        result_dict['Position'].append(position + 1)
         for curr_class in classes:
             curr_nucleotide = [data[curr_class][person_id][position] for person_id in range(0, len(data[curr_class]))]
             count_dict = Counter(curr_nucleotide).most_common()
