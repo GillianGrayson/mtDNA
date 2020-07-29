@@ -201,8 +201,11 @@ def create_mutation_statistics(data, positions, classes):
     classes_extended = []
     for curr_class in classes:
         classes_extended.append(curr_class + ' Main')
+        classes_extended.append(curr_class + ' Main Freq')
         classes_extended.append(curr_class + ' Minor')
+        classes_extended.append(curr_class + ' Minor Freq')
         classes_extended.append(curr_class + ' Other')
+        classes_extended.append(curr_class + ' Other Freq')
     result_dict.update({curr_class: [] for curr_class in classes_extended})
     for position in positions:
         result_dict['Position'].append(position + 1)
@@ -212,13 +215,20 @@ def create_mutation_statistics(data, positions, classes):
             count_dict = dict(count_dict)
             variants_list = list(count_dict.keys())
             result_dict[curr_class + ' Main'].append(variants_list[0])
+            result_dict[curr_class + ' Main Freq'].append(count_dict[variants_list[0]] / len(curr_nucleotide))
             if len(variants_list) == 1:
                 result_dict[curr_class + ' Minor'].append('')
+                result_dict[curr_class + ' Minor Freq'].append(0.0)
                 result_dict[curr_class + ' Other'].append('')
+                result_dict[curr_class + ' Other Freq'].append(0.0)
             if len(variants_list) > 1:
                 result_dict[curr_class + ' Minor'].append(variants_list[1])
+                result_dict[curr_class + ' Minor Freq'].append(count_dict[variants_list[1]] / len(curr_nucleotide))
                 if len(variants_list) == 2:
-                    result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
+                    result_dict[curr_class + ' Other'].append('')
+                    result_dict[curr_class + ' Other Freq'].append(0.0)
             if len(variants_list) > 2:
                 result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
+                result_dict[curr_class + ' Other Freq'].append(
+                    np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nucleotide))
     return result_dict
