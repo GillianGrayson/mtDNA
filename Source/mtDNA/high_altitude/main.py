@@ -21,8 +21,8 @@ tibet_data, tibet_subjects, tibet_classes = read_data(tibet_data_path)
 regions = get_region_info(info_data_path)
 
 current_tibet_classes = {
-    'Tibetan Low Altitude': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000'],
-    'Tibetan High Altitude': ['3001-4000', '4001']}
+    'Asian Low Altitude': ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000', '3001-4000'],
+    'Tibetan High Altitude': ['4001']}
 tibet_subset, tibet_subject_classes = subset_subjects(tibet_data, tibet_classes, current_tibet_classes)
 tibet_table, tibet_mutated_positions = create_classes_table(tibet_subset)
 
@@ -71,7 +71,7 @@ write_regions_to_xlsx(world_result_path, 'regions_non_zero_1', regions_dict_non_
 write_regions_to_xlsx(world_result_path, 'regions_non_zero_2', regions_dict_non_zero_2)
 write_regions_to_xlsx(world_result_path, 'regions_non_zero_3', regions_dict_non_zero_3)
 
-classes = ['Tibetan Low Altitude', 'Tibetan High Altitude', 'Tibetan', 'Andes', 'Ethiopia']
+classes = ['Asian Low Altitude', 'Tibetan High Altitude', 'Tibetan', 'Andes', 'Ethiopia']
 data = tibet_subset
 data.update(world_subset)
 stat_dict = create_mutation_statistics(data, tibet_filtered_features, classes)

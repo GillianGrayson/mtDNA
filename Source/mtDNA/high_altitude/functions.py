@@ -96,7 +96,7 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
         curr_table = table[:, curr_features_ids].copy()
 
         clf = RandomForestClassifier(n_estimators=500)
-        output = cross_validate(clf, curr_table, y, cv=5, scoring='accuracy', return_estimator=True)
+        output = cross_validate(clf, curr_table, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy_list.append(np.mean(output['test_score']))
     top_accuracy = max(accuracy_list)
     features_top = features_rating[: features_counts[accuracy_list.index(top_accuracy)]]
