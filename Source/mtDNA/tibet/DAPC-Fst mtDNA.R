@@ -6,16 +6,6 @@ library(ggplot2)
 library(ggpubr)
 library(raster)
 
-#my genotype files
-gene1_pruned.raw #PRDM16
-gene2_pruned.raw #LEPR
-gene3_pruned.raw #PPARG
-gene4_pruned.raw #NRF1
-gene5_pruned.raw #UCP3
-gene6_pruned.raw #DIO2
-gene7_pruned.raw #PLIN1
-gene8_pruned.raw #CIDEA
-
 theme_white <- function (base_size = 11, base_family = "") {
   theme_bw() %+replace% 
     theme(
@@ -144,6 +134,7 @@ for(i in 1:length(gene_list)){
   group_3001_4000_vs_4001=matrix(,200,2)
   
   for(j in 1:nrow(group_0_500_vs_501_1000)){
+    pop(df) = sample(pop(df))
     fst_toss=pairwise.neifst(genind2hierfstat(df))
     fst_toss=data.frame(fst_toss)
     fst_toss$POP=row.names(fst_toss)
