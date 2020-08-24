@@ -70,32 +70,32 @@ for key in fasta_data:
                                                               'group': phylotrees_dict['haplogroup'][i]}
 
 positions_list = list(positions_to_remove.keys())
-positions_list.sort(reverse=True)
+positions_list.sort()
 for position in positions_list:
     if positions_to_remove[position]['type'] == 'mutation':
         for key in fasta_data:
             curr_dna = fasta_data[key]
-            fasta_data[key] = curr_dna[:position] + curr_dna[position+1:]
+            fasta_data[key] = curr_dna[:position] + 'X' + curr_dna[position+1:]
     elif positions_to_remove[position]['type'] == 'insertion':
         for key in fasta_data:
             curr_index = subjects_info_dict['subject'].index(key)
             if positions_to_remove[position]['group'].startswith(subjects_info_dict['group'][curr_index]):
                 curr_dna = fasta_data[key]
-                fasta_data[key] = curr_dna[:position] + curr_dna[position + 1:]
+                fasta_data[key] = curr_dna[:position] + 'X' + curr_dna[position + 1:]
     elif positions_to_remove[position]['type'] == 'deletion':
         for key in fasta_data:
             curr_index = subjects_info_dict['subject'].index(key)
             if not positions_to_remove[position]['group'].startswith(subjects_info_dict['group'][curr_index]):
                 curr_dna = fasta_data[key]
-                fasta_data[key] = curr_dna[:position] + curr_dna[position + 1:]
+                fasta_data[key] = curr_dna[:position] + 'X' + curr_dna[position + 1:]
 
 fasta_data_mod = {}
 for key in fasta_data:
     curr_index = subjects_info_dict['subject'].index(key)
     curr_height = subjects_info_dict['height'][curr_index]
-    fasta_data_mod[key + '_' + curr_height] = fasta_data[key]
+    fasta_data_mod[key + '_' + curr_height] = fasta_data[key].replace('X', '')
 
-f = open(path + '/all_removed.fasta', 'w')
+f = open(path + '/data_wo_hg.fasta', 'w')
 for key in fasta_data_mod:
     f.write('>' + key + '\n')
     f.write(fasta_data_mod[key] + '\n')
