@@ -3,9 +3,12 @@ from skbio import DistanceMatrix
 from skbio.stats.ordination import pcoa
 import numpy as np
 import pandas as pd
+import plotly
+import colorlover as cl
+import plotly.graph_objs as go
 
 path = get_path()
-dm_filename = path + '/FastMe_Distance_Matrix.txt'
+dm_filename = path + '/DM.txt'
 dm_array = np.loadtxt(dm_filename)
 
 id_filename = path + '/Mapping.txt'
@@ -13,6 +16,7 @@ id_array = np.genfromtxt(id_filename, dtype='str')
 ids = [id_array[i][0] for i in range(0, len(id_array))]
 
 metadata = {}
+subject_dict = {}
 for curr_id in ids:
     curr_list = curr_id.split('_')
     key = curr_list[0]
@@ -20,6 +24,10 @@ for curr_id in ids:
         value = '4001'
     else:
         value = curr_list[2] + '-' + curr_list[3]
+    if value in subject_dict:
+        subject_dict[value].append(curr_id)
+    else:
+        subject_dict[value] = [curr_id]
     metadata[curr_id] = {'height': value}
 df = pd.DataFrame.from_dict(metadata, orient='index')
 
@@ -28,3 +36,109 @@ pcoa_results = pcoa(dm)
 
 fig = pcoa_results.plot(df=df, column='height')
 fig.show()
+
+coord_matrix = pcoa_results.samples.values.T
+xs_all = coord_matrix[0]
+ys_all = coord_matrix[1]
+
+traces_2d = []
+for status in subject_dict:
+    curr_subjects = subject_dict[status]
+    xs = []
+    ys = []
+    for subj in curr_subjects:
+        index = ids.index(subj)
+        xs.append(xs_all[index])
+        ys.append(ys_all[index])
+
+    color = cl.scales['8']['div']['Spectral'][list(subject_dict.keys()).index(status)]
+    coordinates = color[4:-1].split(',')
+    color_transparent = 'rgba(' + ','.join(coordinates) + ',' + str(0.3) + ')'
+    color_border = 'rgba(' + ','.join(coordinates) + ',' + str(0.8) + ')'
+
+    trace = go.Scatter(
+        x=ys,
+        y=xs,
+        name=status,
+        mode='markers',
+        marker=dict(
+            size=8,
+            color=color_border,
+            line=dict(
+                color=color_transparent,
+                width=0.5
+            ),
+            opacity=0.9
+        )
+    )
+    traces_2d.append(trace)
+
+layout_2d = go.Layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    margin=go.layout.Margin(
+        l=0,
+        r=0,
+        b=0,
+        t=0,
+        pad=0
+    ),
+    autosize=True,
+    legend=dict(
+        font=dict(
+            family='Arial',
+            size=16,
+        )
+    ),
+    xaxis=dict(
+        title='PC1',
+        showgrid=True,
+        showline=True,
+        gridcolor='rgba(0,0,0,0.1)',
+        mirror='ticks',
+        titlefont=dict(
+            family='Arial',
+            color='black',
+            size=24,
+        ),
+        showticklabels=True,
+        tickangle=0,
+        tickfont=dict(
+            family='Arial',
+            color='black',
+            size=20
+        ),
+        exponentformat='e',
+        showexponent='all',
+        zeroline=True,
+        zerolinecolor='rgba(0,0,0,0.1)'
+    ),
+    yaxis=dict(
+        title='PC2',
+        showgrid=True,
+        showline=True,
+        gridcolor='rgba(0,0,0,0.1)',
+        mirror='ticks',
+        titlefont=dict(
+            family='Arial',
+            color='black',
+            size=24,
+        ),
+        showticklabels=True,
+        tickangle=0,
+        tickfont=dict(
+            family='Arial',
+            color='black',
+            size=20
+        ),
+        exponentformat='e',
+        showexponent='all',
+        zeroline=True,
+        zerolinecolor='rgba(0,0,0,0.1)'
+    ),
+)
+
+fig_2d = go.Figure(data=traces_2d, layout=layout_2d)
+
+plotly.offline.plot(fig_2d, filename=path + '/pcoa_2d.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig_2d, path + '/pcoa_2d.png')
+plotly.io.write_image(fig_2d, path + '/pcoa_2d.pdf')
