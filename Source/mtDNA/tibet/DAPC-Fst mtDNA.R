@@ -70,7 +70,7 @@ for(i in 1:length(gene_list)){
   #DAPC plot
   pdf(file = paste("DAPC_",gene_list[i],".pdf", sep = ""))
   scatter(dapc1, scree.da=F, bg="white", pch=20,  
-          cell=1, cstar=0, solid=.4, cex=1.5, clab=1, leg=TRUE, sub=paste("DAPC on ", gene_list[i], sep = ""), possub = "topleft")
+          cell=1, cstar=0, solid=.8, cex=1.5, clab=1, leg=TRUE, sub=paste("DAPC on ", gene_list[i], sep = ""), possub = "topleft")
   dev.off()
 }
 

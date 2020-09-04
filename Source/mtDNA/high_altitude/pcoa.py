@@ -6,6 +6,20 @@ import pandas as pd
 import plotly
 import colorlover as cl
 import plotly.graph_objs as go
+import plotly.express as px
+import cmocean
+
+
+def cmocean_to_plotly(cmap, pl_entries):
+    h = 1.0/(pl_entries-1)
+    pl_colorscale = []
+
+    for k in range(pl_entries):
+        C = list(map(np.uint8, np.array(cmap(k*h)[:3])*255))
+        pl_colorscale.append([k*h, 'rgb'+str((C[0], C[1], C[2]))])
+
+    return pl_colorscale
+
 
 path = get_path()
 dm_filename = path + '/DM.txt'
@@ -51,10 +65,15 @@ for status in subject_dict:
         xs.append(xs_all[index])
         ys.append(ys_all[index])
 
-    color = cl.scales['8']['div']['Spectral'][list(subject_dict.keys()).index(status)]
-    coordinates = color[4:-1].split(',')
-    color_transparent = 'rgba(' + ','.join(coordinates) + ',' + str(0.3) + ')'
-    color_border = 'rgba(' + ','.join(coordinates) + ',' + str(0.8) + ')'
+    color = cmocean_to_plotly(cmocean.cm.phase, 10)[list(subject_dict.keys()).index(status)]
+    coordinates = color[1][4:-1].split(',')
+    color_transparent = 'rgba(' + ','.join(['0', '0', '0']) + ',' + str(0.7) + ')'
+    color_border = 'rgba(' + ','.join(coordinates) + ',' + str(1) + ')'
+
+    #color = cl.scales['8']['qual']['Set1'][list(subject_dict.keys()).index(status)]
+    #coordinates = color[4:-1].split(',')
+    #color_transparent = 'rgba(' + ','.join(coordinates) + ',' + str(0.3) + ')'
+    #color_border = 'rgba(' + ','.join(coordinates) + ',' + str(1) + ')'
 
     trace = go.Scatter(
         x=ys,
@@ -62,13 +81,13 @@ for status in subject_dict:
         name=status,
         mode='markers',
         marker=dict(
-            size=8,
+            size=12,
             color=color_border,
             line=dict(
                 color=color_transparent,
-                width=0.5
+                width=1.0
             ),
-            opacity=0.9
+            opacity=1.0
         )
     )
     traces_2d.append(trace)
@@ -93,8 +112,10 @@ layout_2d = go.Layout(
         title='PC1',
         showgrid=True,
         showline=True,
+        linewidth=1,
+        linecolor='rgba(0,0,0,0.5)',
         gridcolor='rgba(0,0,0,0.1)',
-        mirror='ticks',
+        mirror=True,
         titlefont=dict(
             family='Arial',
             color='black',
@@ -116,8 +137,10 @@ layout_2d = go.Layout(
         title='PC2',
         showgrid=True,
         showline=True,
+        linewidth=1,
+        linecolor='rgba(0,0,0,0.5)',
         gridcolor='rgba(0,0,0,0.1)',
-        mirror='ticks',
+        mirror=True,
         titlefont=dict(
             family='Arial',
             color='black',
