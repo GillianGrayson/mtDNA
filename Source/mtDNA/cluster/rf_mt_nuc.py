@@ -879,7 +879,6 @@ def rf_type_4_mt_nuc(config, results):
             start_df = time.process_time()
 
         snp_index = 0
-        num_skipped_rows = 0
         for gene_id_mt in range(0, len(genes_ids_mt)):
             gene_mt_index = config.data_position_dict[genes_names_mt[gene_id_mt]]
             print(config.params_dict['genes_list'][0][genes_ids_mt[gene_id_mt]])
@@ -893,7 +892,6 @@ def rf_type_4_mt_nuc(config, results):
                         row_nuc = config.data[gene_nuc_index][row_nuc_index]
                         if len(set(row_mt[target_samples_ids_mt].tolist())) == 1 and len(
                                 set(row_nuc[target_samples_ids_nuc].tolist())) == 1:
-                            num_skipped_rows += 1
                             continue
                         for i in range(0, len(target_samples_ids_mt)):
                             snp_mt = row_mt[target_samples_ids_mt[i]]
@@ -923,7 +921,7 @@ def rf_type_4_mt_nuc(config, results):
                         names.append(name)
                         snp_col_dict[name] = snp_index
 
-        df_ref.drop(df_ref.tail(num_skipped_rows).index, inplace=True)
+        df_ref = df_ref[:, :len(names)]
 
         if int(config.params_dict['run_timer']) == 1:
             print('Time for common data frame creating: ' + str(time.process_time() - start_df))
