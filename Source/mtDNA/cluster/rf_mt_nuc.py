@@ -826,7 +826,7 @@ def rf_type_3_mt_nuc(config, results):
             results.features.append(features_dict)
 
 
-# type 4 - using genes variations for for sequential rf
+# type 4 - using genes variations for rf
 def rf_type_4_mt_nuc(config, results):
     reference_pop = config.params_dict['reference_pop']
     target_pop = config.params_dict['target_pop']
@@ -898,18 +898,18 @@ def rf_type_4_mt_nuc(config, results):
                             snp_nuc = row_nuc[target_samples_ids_nuc[i]]
                             if snp_mt == 0:
                                 if snp_nuc == 0:
-                                    df_ref[i, snp_index] += 0
+                                    df_ref[i, snp_index] = 0
                                 elif snp_nuc == 1 or snp_nuc == 2:
-                                    df_ref[i, snp_index] += 1
+                                    df_ref[i, snp_index] = 1
                                 elif snp_nuc == 3:
-                                    df_ref[i, snp_index] += 2
+                                    df_ref[i, snp_index] = 2
                             elif snp_mt == 1:
                                 if snp_nuc == 0:
-                                    df_ref[i, snp_index] += 3
+                                    df_ref[i, snp_index] = 3
                                 elif snp_nuc == 1 or snp_nuc == 2:
-                                    df_ref[i, snp_index] += 4
+                                    df_ref[i, snp_index] = 4
                                 elif snp_nuc == 3:
-                                    df_ref[i, snp_index] += 5
+                                    df_ref[i, snp_index] = 5
 
                         snp_index += 1
 
@@ -986,65 +986,3 @@ def rf_type_4_mt_nuc(config, results):
 
     features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
     results.features.append(features_dict)
-
-    features_top = list(features_dict.keys())
-
-    if config.params_dict['sequential_run_type'] == 'lin':
-        features_counts = [i + 1 for i in range(0, int(config.params_dict['num_sequential_runs']))]
-    elif config.params_dict['sequential_run_type'] == 'max':
-        features_counts = [i + 1 for i in range(0, len(features_top) - 1)]
-    else:
-        features_counts = np.geomspace(1.0, len(features_top), int(config.params_dict['num_sequential_runs']),
-                                       endpoint=True)
-    features_counts = list(set([int(item) for item in features_counts]))
-    features_counts.sort()
-
-    for num_features in features_counts:
-        if num_features % 10 == 0:
-            print('Sequential random forest #' + str(num_features))
-
-        curr_features = features_top[0:num_features]
-        curr_features_ids = [gene_col_dict[feature] for feature in curr_features]
-        curr_df = df_ref[:, curr_features_ids].copy()
-
-        clf = RandomForestClassifier(n_estimators=num_estimators)
-        output = cross_validate(clf, curr_df, y, cv=num_cv_runs, scoring='accuracy', return_estimator=True)
-        accuracy = np.mean(output['test_score'])
-
-        curr_mt_genes_ids = []
-        curr_nuc_genes_ids = []
-
-        for item in curr_features:
-            if item.startswith('MT_ND'):
-                item_list = item.split('_')
-                item_list = [item_list[0] + '_' + item_list[1], item_list[2]]
-            else:
-                item_list = item.split('_')
-            mt_index = genes_names_mt.index(item_list[0])
-            nuc_index = genes_names_nuc.index(item_list[1])
-
-            curr_mt_genes_ids.append(genes_ids_mt[mt_index])
-            curr_nuc_genes_ids.append(genes_ids_nuc[nuc_index])
-
-        if accuracy >= float(config.params_dict['target_accuracy']):
-            results.accuracy.append(accuracy)
-            results.mt_genes.append(curr_mt_genes_ids)
-            results.nuc_genes.append(curr_nuc_genes_ids)
-
-            features_dict = dict((key, []) for key in curr_features)
-
-            for idx, estimator in enumerate(output['estimator']):
-                feature_importances = pd.DataFrame(estimator.feature_importances_,
-                                                   index=curr_features,
-                                                   columns=['importance']).sort_values('importance', ascending=False)
-
-                features_names = list(feature_importances.index.values)
-                features_values = list(feature_importances.values)
-                for i in range(0, len(features_names)):
-                    features_dict[features_names[i]].append(features_values[i][0])
-
-            for key in features_dict.keys():
-                features_dict[key] = np.mean(features_dict[key])
-
-            features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
-            results.features.append(features_dict)

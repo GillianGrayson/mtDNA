@@ -641,3 +641,133 @@ def rf_type_3_nuc(config, results):
 
             features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
             results.features.append(features_dict)
+
+
+# type 4 - using genes variations for rf
+def rf_type_4_nuc(config, results):
+    reference_pop = config.params_dict['reference_pop']
+    target_pop = config.params_dict['target_pop']
+
+    genes_ids_nuc = config.params_dict['config_nuc_genes'][0]
+    genes_names_nuc = [config.params_dict['genes_list'][0][i] for i in genes_ids_nuc]
+
+    print(';'.join(genes_names_nuc))
+
+    if not hasattr(config, 'main_df'):
+
+        persons_nuc = config.person_index_dict
+
+        target_samples_ids_nuc = []
+        target_samples_names = []
+
+        for sample_name in persons_nuc:
+            if sample_name in config.pop_person_dict[target_pop] \
+                    or sample_name in config.pop_person_dict[reference_pop]:
+                target_samples_ids_nuc.append(persons_nuc[sample_name])
+                target_samples_names.append(sample_name)
+
+        num_nuc_snps = 0
+        for gene_id_nuc in range(0, len(genes_ids_nuc)):
+            gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
+            for row_nuc in config.data[gene_nuc_index]:
+                num_nuc_snps += 1
+
+        df_ref = np.empty(shape=(len(target_samples_names), num_nuc_snps), dtype=np.float32)
+
+        names = []
+        snp_col_dict = {}
+
+        if int(config.params_dict['run_timer']) == 1:
+            start_df = time.process_time()
+
+        snp_index = 0
+        for gene_id_nuc in range(0, len(genes_ids_nuc)):
+            gene_nuc_index = config.data_position_dict[genes_names_nuc[gene_id_nuc]]
+            for row_nuc_index in range(0, len(config.data[gene_nuc_index])):
+                row_nuc = config.data[gene_nuc_index][row_nuc_index]
+                if row_nuc_index % 10 == 0:
+                    print(str(row_nuc_index))
+                if len(set(row_nuc[target_samples_ids_nuc].tolist())) == 1:
+                    continue
+                for i in range(0, len(target_samples_ids_nuc)):
+                    snp_nuc = row_nuc[target_samples_ids_nuc[i]]
+                    if snp_nuc == 0:
+                        df_ref[i, snp_index] = 0
+                    elif snp_nuc == 1 or snp_nuc == 2:
+                        df_ref[i, snp_index] = 1
+                    elif snp_nuc == 3:
+                        df_ref[i, snp_index] = 2
+
+                snp_index += 1
+
+                gene_nuc = config.params_dict['genes_list'][0][genes_ids_nuc[gene_id_nuc]]
+                snp_nuc = list(config.gene_snp_dict[gene_nuc].keys())[row_nuc_index]
+                name = snp_nuc + ':' + gene_nuc
+                names.append(name)
+                snp_col_dict[name] = snp_index
+
+        df_ref = df_ref[:, :len(names)]
+
+        if int(config.params_dict['run_timer']) == 1:
+            print('Time for common data frame creating: ' + str(time.process_time() - start_df))
+
+        data_classes = []
+        for item in target_samples_names:
+            if item in config.pop_person_dict[target_pop]:
+                data_classes.append(target_pop)
+            elif item in config.pop_person_dict[reference_pop]:
+                data_classes.append(reference_pop)
+
+        factor = pd.factorize(data_classes)
+        y = factor[0]
+
+        config.main_df = df_ref
+        config.main_df_classes = y
+        config.gene_col_dict = snp_col_dict
+        save_df(config)
+
+    else:
+        df_ref = config.main_df
+        y = config.main_df_classes
+        gene_col_dict = config.gene_col_dict
+        names = list(gene_col_dict.keys())
+
+    if int(config.params_dict['run_timer']) == 1:
+        start_rf = time.process_time()
+
+    num_estimators = int(config.params_dict['num_estimators'])
+    num_cv_runs = int(config.params_dict['num_cv_runs'])
+
+    clf = RandomForestClassifier(n_estimators=num_estimators)
+    output = cross_validate(clf, df_ref, y, cv=num_cv_runs, scoring='accuracy', return_estimator=True)
+    accuracy = np.mean(output['test_score'])
+    if int(config.params_dict['run_timer']) == 1:
+        print('Total time for random forest ' + str(time.process_time() - start_rf))
+
+    features_dict = dict((key, []) for key in names)
+
+    num_features = 0
+
+    for idx, estimator in enumerate(output['estimator']):
+        feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                           index=names,
+                                           columns=['importance']).sort_values('importance', ascending=False)
+
+        features_names = list(feature_importances.index.values)
+        features_values = list(feature_importances.values)
+        for i in range(0, len(features_names)):
+            features_dict[features_names[i]].append(features_values[i][0])
+
+    for key in features_dict.keys():
+        features_dict[key] = np.mean(features_dict[key])
+        if features_dict[key] > 0:
+            num_features += 1
+
+    if accuracy >= float(config.params_dict['target_accuracy']):
+        results.accuracy.append(accuracy)
+        results.num_features.append(num_features)
+        results.mt_genes.append([])
+        results.nuc_genes.append(genes_ids_nuc)
+
+    features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+    results.features.append(features_dict)

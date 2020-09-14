@@ -9,7 +9,7 @@ import time
 data_path = 'E:/YandexDisk/mtDNA/Data/'
 data_path_npz = 'E:/YandexDisk/mtDNA/Data/genes/npz/'
 data_path_pkl = 'E:/YandexDisk/mtDNA/Data/genes/pkl/'
-experiment_type = 'mt-nuc'
+experiment_type = 'nuc'
 random_forest_type = 4
 reference_pop = 'FIN'
 target_pop = 'TSI'
@@ -22,7 +22,7 @@ num_sequential_runs = 0
 sequential_run_type = 'lin'  # lin, max, exp
 num_estimators = 500
 num_cv_runs = 10
-gene_files = ['mt_gene_list.txt', 'nuc_gene_list.txt']
+gene_files = ['nuc_gene_list.txt']
 create_tree = 0
 run_timer = 1
 num_cluster_tasks = 1
