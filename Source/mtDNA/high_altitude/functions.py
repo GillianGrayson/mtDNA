@@ -5,6 +5,7 @@ from collections import Counter
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 from bisect import bisect
+import itertools
 
 
 def get_region_info(data_path):
@@ -61,11 +62,63 @@ def create_classes_table(raw_data):
     return table, mut_positions
 
 
+def get_variable_positions(raw_data):
+    data_classes = list(raw_data.keys())
+    num_nucleotides = len(raw_data[data_classes[0]][0])
+    variable_positions = []
+    for nuc_id in tqdm(range(0, num_nucleotides)):
+        curr_nuc = [raw_data[data_class][j][nuc_id] for data_class in data_classes for j in
+                    range(0, len(raw_data[data_class]))]
+        count_dict = Counter(curr_nuc).most_common()
+        count_dict = dict(count_dict)
+        if '-' in count_dict and count_dict['-'] / len(curr_nuc) > 0.9:
+            continue
+        if len(count_dict) > 1:
+            variable_positions.append(nuc_id)
+    return variable_positions
+
+
+def create_classes_table_pairs(raw_data, variable_positions):
+    data_classes = list(raw_data.keys())
+    nucleotide_pairs = list(itertools.combinations(variable_positions, 2))
+    num_persons = int(np.sum([len(raw_data[data_class]) for data_class in data_classes]))
+    table = np.empty(shape=(num_persons, len(nucleotide_pairs)), dtype=np.int)
+    mut_positions = []
+    combination_id = 0
+    for nucleotide_pair in tqdm(nucleotide_pairs):
+        nuc_1_id = nucleotide_pair[0]
+        nuc_2_id = nucleotide_pair[1]
+        curr_nuc_1 = [raw_data[data_class][person_id][nuc_1_id] for data_class in data_classes for person_id in
+                      range(0, len(raw_data[data_class]))]
+        curr_nuc_2 = [raw_data[data_class][person_id][nuc_2_id] for data_class in data_classes for person_id in
+                      range(0, len(raw_data[data_class]))]
+        curr_nuc_pair = [curr_nuc_1[i] + curr_nuc_2[i] for i in range(0, num_persons)]
+        count_dict = Counter(curr_nuc_pair).most_common()
+        count_dict = dict(count_dict)
+        if '--' in count_dict:
+            if count_dict['--'] / len(curr_nuc_pair) > 0.9:
+                continue
+        if len(count_dict) == 1:
+            continue
+        else:
+            for person_id in range(0, num_persons):
+                if list(count_dict.keys()).index(curr_nuc_pair[person_id]) == 0:
+                    table[person_id, combination_id] = 0
+                else:
+                    table[person_id, combination_id] = 1
+        if len(np.unique(table[:, combination_id])) > 1:
+            mut_positions.append(nucleotide_pair)
+        combination_id += 1
+    table = table[:, ~np.all(table[1:] == table[:-1], axis=0)]
+    return table, mut_positions
+
+
 def run_sequential_random_forest(table, classes, positions, num_runs):
     factor = pd.factorize(classes)
     y = factor[0]
     clf = RandomForestClassifier(n_estimators=500)
     output = cross_validate(clf, table, y, cv=10, scoring='accuracy', return_estimator=True)
+    accuracy = np.mean(output['test_score'])
 
     features_dict = dict((key, []) for key in positions)
     for idx, estimator in enumerate(output['estimator']):
@@ -82,9 +135,11 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
     features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
 
     features_rating = list(features_dict.keys())
-    accuracy_list = []
+    accuracy_list = [accuracy]
     if num_runs == 'max':
         features_counts = [i for i in range(1, len(features_rating) + 1)]
+    elif isinstance(num_runs, str) and num_runs.startswith('>'):
+        features_counts = [1]
     else:
         features_counts = [i for i in range(1, num_runs + 1)]
 
@@ -99,7 +154,18 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
         output = cross_validate(clf, curr_table, y, cv=10, scoring='accuracy', return_estimator=True)
         accuracy_list.append(np.mean(output['test_score']))
     top_accuracy = max(accuracy_list)
-    features_top = features_rating[: features_counts[accuracy_list.index(top_accuracy)]]
+    top_index = accuracy_list.index(top_accuracy)
+    if top_index == 0:
+        if isinstance(num_runs, str) and num_runs.startswith('>'):
+            target_value = float(num_runs[1:])
+            features_top = []
+            for feature in features_rating:
+                if features_dict[feature] > target_value:
+                    features_top.append(feature)
+        else:
+            features_top = features_rating
+    else:
+        features_top = features_rating[: top_index]
     return top_accuracy, features_top, accuracy_list, features_rating
 
 
@@ -139,6 +205,14 @@ def remove_items_from_list(initial_list, positions_to_remove):
     modified_list = initial_list.copy()
     for item in positions_to_remove:
         if item in initial_list:
+            modified_list.remove(item)
+    return modified_list
+
+
+def remove_pairs_from_list(initial_list, positions_to_remove):
+    modified_list = initial_list.copy()
+    for item in initial_list:
+        if item[0] in positions_to_remove or item[1] in positions_to_remove:
             modified_list.remove(item)
     return modified_list
 
@@ -231,4 +305,46 @@ def create_mutation_statistics(data, positions, classes):
                 result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
                 result_dict[curr_class + ' Other Freq'].append(
                     np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nucleotide))
+    return result_dict
+
+
+def create_pair_statistics(data, positions, classes):
+    result_dict = {'Position': []}
+    classes_extended = []
+    for curr_class in classes:
+        classes_extended.append(curr_class + ' Main')
+        classes_extended.append(curr_class + ' Main Freq')
+        classes_extended.append(curr_class + ' Minor')
+        classes_extended.append(curr_class + ' Minor Freq')
+        classes_extended.append(curr_class + ' Other')
+        classes_extended.append(curr_class + ' Other Freq')
+    result_dict.update({curr_class: [] for curr_class in classes_extended})
+    for position_pair in positions:
+        result_dict['Position'].append(str(position_pair[0] + 1) + ', ' + str(position_pair[1] + 1))
+        for curr_class in classes:
+            curr_nucleotide_1 = [data[curr_class][person_id][position_pair[0]] for person_id in
+                                 range(0, len(data[curr_class]))]
+            curr_nucleotide_2 = [data[curr_class][person_id][position_pair[1]] for person_id in
+                                 range(0, len(data[curr_class]))]
+            curr_nuc_pair = [curr_nucleotide_1[i] + curr_nucleotide_2[i] for i in range(0, len(curr_nucleotide_1))]
+            count_dict = Counter(curr_nuc_pair).most_common()
+            count_dict = dict(count_dict)
+            variants_list = list(count_dict.keys())
+            result_dict[curr_class + ' Main'].append(variants_list[0])
+            result_dict[curr_class + ' Main Freq'].append(count_dict[variants_list[0]] / len(curr_nuc_pair))
+            if len(variants_list) == 1:
+                result_dict[curr_class + ' Minor'].append('')
+                result_dict[curr_class + ' Minor Freq'].append(0.0)
+                result_dict[curr_class + ' Other'].append('')
+                result_dict[curr_class + ' Other Freq'].append(0.0)
+            if len(variants_list) > 1:
+                result_dict[curr_class + ' Minor'].append(variants_list[1])
+                result_dict[curr_class + ' Minor Freq'].append(count_dict[variants_list[1]] / len(curr_nuc_pair))
+                if len(variants_list) == 2:
+                    result_dict[curr_class + ' Other'].append('')
+                    result_dict[curr_class + ' Other Freq'].append(0.0)
+            if len(variants_list) > 2:
+                result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
+                result_dict[curr_class + ' Other Freq'].append(
+                    np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nuc_pair))
     return result_dict
