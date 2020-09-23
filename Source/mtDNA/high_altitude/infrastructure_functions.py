@@ -33,7 +33,7 @@ def read_results(path, filename):
     f = open(path + filename, 'r')
     for line in f:
         line = line.rstrip()
-        data.append(float(line))
+        data.append(line)
     f.close()
     return data
 
@@ -74,6 +74,10 @@ def write_regions_to_xlsx(path, filename, data):
     workbook.close()
 
 
-def write_stat_to_xlsx(path, filename, data):
+def write_stat_to_xlsx(path, filename, data, num_lines):
     df = pd.DataFrame(data)
-    df.to_excel(path + filename + '.xlsx', index=False)
+    if num_lines == 'all':
+        new_df = df
+    elif isinstance(num_lines, int):
+        new_df = df.head(num_lines)
+    new_df.to_excel(path + filename + '.xlsx', index=False)

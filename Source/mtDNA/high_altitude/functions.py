@@ -209,10 +209,18 @@ def remove_items_from_list(initial_list, positions_to_remove):
     return modified_list
 
 
-def remove_pairs_from_list(initial_list, positions_to_remove):
+def remove_items_from_pair(initial_list, positions_to_remove):
     modified_list = initial_list.copy()
     for item in initial_list:
         if item[0] in positions_to_remove or item[1] in positions_to_remove:
+            modified_list.remove(item)
+    return modified_list
+
+
+def remove_pairs_from_list(initial_list, positions_to_remove):
+    modified_list = initial_list.copy()
+    for item in initial_list:
+        if item[0] in positions_to_remove and item[1] in positions_to_remove:
             modified_list.remove(item)
     return modified_list
 
@@ -319,12 +327,18 @@ def create_pair_statistics(data, positions, classes):
         classes_extended.append(curr_class + ' Other')
         classes_extended.append(curr_class + ' Other Freq')
     result_dict.update({curr_class: [] for curr_class in classes_extended})
-    for position_pair in positions:
-        result_dict['Position'].append(str(position_pair[0] + 1) + ', ' + str(position_pair[1] + 1))
+    for position_pair in tqdm(positions):
+        if isinstance(position_pair, str):
+            position_1 = int(position_pair[1:-1].split(',')[0])
+            position_2 = int(position_pair[1:-1].split(',')[1])
+        else:
+            position_1 = int(position_pair[0])
+            position_2 = int(position_pair[1])
+        result_dict['Position'].append(str(position_1 + 1) + ', ' + str(position_2 + 1))
         for curr_class in classes:
-            curr_nucleotide_1 = [data[curr_class][person_id][position_pair[0]] for person_id in
+            curr_nucleotide_1 = [data[curr_class][person_id][position_1] for person_id in
                                  range(0, len(data[curr_class]))]
-            curr_nucleotide_2 = [data[curr_class][person_id][position_pair[1]] for person_id in
+            curr_nucleotide_2 = [data[curr_class][person_id][position_2] for person_id in
                                  range(0, len(data[curr_class]))]
             curr_nuc_pair = [curr_nucleotide_1[i] + curr_nucleotide_2[i] for i in range(0, len(curr_nucleotide_1))]
             count_dict = Counter(curr_nuc_pair).most_common()
