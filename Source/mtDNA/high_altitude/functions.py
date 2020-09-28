@@ -362,3 +362,78 @@ def create_pair_statistics(data, positions, classes):
                 result_dict[curr_class + ' Other Freq'].append(
                     np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nuc_pair))
     return result_dict
+
+
+def create_selected_statistics(data, positions, classes):
+    result_dict = {'Position': []}
+    classes_extended = []
+    for curr_class in classes:
+        classes_extended.append(curr_class + ' Main')
+        classes_extended.append(curr_class + ' Main Freq')
+        classes_extended.append(curr_class + ' Minor')
+        classes_extended.append(curr_class + ' Minor Freq')
+        classes_extended.append(curr_class + ' Other')
+        classes_extended.append(curr_class + ' Other Freq')
+    result_dict.update({curr_class: [] for curr_class in classes_extended})
+    for position_pair in tqdm(positions):
+        curr_dict = {'Position': ''}
+        curr_dict.update({curr_class: 0.0 for curr_class in classes_extended})
+        if isinstance(position_pair, str):
+            position_1 = int(position_pair[1:-1].split(',')[0])
+            position_2 = int(position_pair[1:-1].split(',')[1])
+        else:
+            position_1 = int(position_pair[0])
+            position_2 = int(position_pair[1])
+        curr_dict['Position'] = str(position_1 + 1) + ', ' + str(position_2 + 1)
+        for curr_class in classes:
+            curr_nucleotide_1 = [data[curr_class][person_id][position_1] for person_id in
+                                 range(0, len(data[curr_class]))]
+            curr_nucleotide_2 = [data[curr_class][person_id][position_2] for person_id in
+                                 range(0, len(data[curr_class]))]
+            curr_nuc_pair = [curr_nucleotide_1[i] + curr_nucleotide_2[i] for i in range(0, len(curr_nucleotide_1))]
+            count_dict = Counter(curr_nuc_pair).most_common()
+            count_dict = dict(count_dict)
+            variants_list = list(count_dict.keys())
+            curr_dict[curr_class + ' Main'] = variants_list[0]
+            curr_dict[curr_class + ' Main Freq'] = count_dict[variants_list[0]] / len(curr_nuc_pair)
+            if len(variants_list) == 1:
+                curr_dict[curr_class + ' Minor'] = ''
+                curr_dict[curr_class + ' Minor Freq'] = 0.0
+                curr_dict[curr_class + ' Other'] = ''
+                curr_dict[curr_class + ' Other Freq'] = 0.0
+            if len(variants_list) > 1:
+                curr_dict[curr_class + ' Minor'] = variants_list[1]
+                curr_dict[curr_class + ' Minor Freq'] = count_dict[variants_list[1]] / len(curr_nuc_pair)
+                if len(variants_list) == 2:
+                    curr_dict[curr_class + ' Other'] = ''
+                    curr_dict[curr_class + ' Other Freq'] = 0.0
+            if len(variants_list) > 2:
+                curr_dict[curr_class + ' Other'] = ''.join(variants_list[2:])
+                curr_dict[curr_class + ' Other Freq'] = np.sum(
+                    [count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nuc_pair)
+
+        if curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan High Altitude'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Andes'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Ethiopia']:
+            result_dict['Position'].append(curr_dict['Position'])
+            for curr_class in classes:
+                result_dict[curr_class + ' Main'].append(curr_dict[curr_class + ' Main'])
+                result_dict[curr_class + ' Main Freq'].append(curr_dict[curr_class + ' Main Freq'])
+                result_dict[curr_class + ' Minor'].append(curr_dict[curr_class + ' Minor'])
+                result_dict[curr_class + ' Minor Freq'].append(curr_dict[curr_class + ' Minor Freq'])
+                result_dict[curr_class + ' Other'].append(curr_dict[curr_class + ' Other'])
+                result_dict[curr_class + ' Other Freq'].append(curr_dict[curr_class + ' Other Freq'])
+        elif curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan High Altitude'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Andes'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Ethiopia']:
+            result_dict['Position'].append(curr_dict['Position'])
+            for curr_class in classes:
+                result_dict[curr_class + ' Main'].append(curr_dict[curr_class + ' Main'])
+                result_dict[curr_class + ' Main Freq'].append(curr_dict[curr_class + ' Main Freq'])
+                result_dict[curr_class + ' Minor'].append(curr_dict[curr_class + ' Minor'])
+                result_dict[curr_class + ' Minor Freq'].append(curr_dict[curr_class + ' Minor Freq'])
+                result_dict[curr_class + ' Other'].append(curr_dict[curr_class + ' Other'])
+                result_dict[curr_class + ' Other Freq'].append(curr_dict[curr_class + ' Other Freq'])
+    return result_dict

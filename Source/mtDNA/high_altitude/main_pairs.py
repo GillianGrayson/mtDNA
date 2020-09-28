@@ -2,7 +2,7 @@ from Source.mtDNA.tibet.functions.file_system import get_path
 from Source.mtDNA.high_altitude.functions import *
 from Source.mtDNA.high_altitude.infrastructure_functions import *
 
-read_tibet_data = 1
+read_tibet_data = 0
 
 path = get_path()
 info_data_path = path + '/Data/alignment/info/'
@@ -59,3 +59,9 @@ write_stat_to_xlsx(world_result_path, 'mutation_stat_pairs_filtered', stat_dict_
 
 stat_dict_pairs_items = create_pair_statistics(data, tibet_filtered_pairs_items, classes)
 write_stat_to_xlsx(world_result_path, 'mutation_stat_items_filtered', stat_dict_pairs_items, 1000)
+
+stat_dict_pairs = create_selected_statistics(data, tibet_filtered_pairs, classes)
+write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_pairs_filtered', stat_dict_pairs, 'all')
+
+stat_dict_pairs_items = create_selected_statistics(data, tibet_filtered_pairs_items, classes)
+write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_items_filtered', stat_dict_pairs_items, 'all')
