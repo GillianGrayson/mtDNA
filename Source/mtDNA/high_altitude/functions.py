@@ -412,10 +412,10 @@ def create_selected_statistics(data, positions, classes):
                 curr_dict[curr_class + ' Other Freq'] = np.sum(
                     [count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nuc_pair)
 
-        if curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan High Altitude'] and \
-                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan'] and \
-                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Andes'] and \
-                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Ethiopia']:
+        if curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan High Altitude Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Tibetan Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Andes Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] > curr_dict['Ethiopia Main Freq']:
             result_dict['Position'].append(curr_dict['Position'])
             for curr_class in classes:
                 result_dict[curr_class + ' Main'].append(curr_dict[curr_class + ' Main'])
@@ -424,10 +424,10 @@ def create_selected_statistics(data, positions, classes):
                 result_dict[curr_class + ' Minor Freq'].append(curr_dict[curr_class + ' Minor Freq'])
                 result_dict[curr_class + ' Other'].append(curr_dict[curr_class + ' Other'])
                 result_dict[curr_class + ' Other Freq'].append(curr_dict[curr_class + ' Other Freq'])
-        elif curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan High Altitude'] and \
-                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan'] and \
-                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Andes'] and \
-                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Ethiopia']:
+        elif curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan High Altitude Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Tibetan Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Andes Main Freq'] and \
+                curr_dict['Asian Low Altitude Main Freq'] < curr_dict['Ethiopia Main Freq']:
             result_dict['Position'].append(curr_dict['Position'])
             for curr_class in classes:
                 result_dict[curr_class + ' Main'].append(curr_dict[curr_class + ' Main'])
@@ -436,4 +436,37 @@ def create_selected_statistics(data, positions, classes):
                 result_dict[curr_class + ' Minor Freq'].append(curr_dict[curr_class + ' Minor Freq'])
                 result_dict[curr_class + ' Other'].append(curr_dict[curr_class + ' Other'])
                 result_dict[curr_class + ' Other Freq'].append(curr_dict[curr_class + ' Other Freq'])
+    return result_dict
+
+
+def calculate_pair_regions_statistics(features, regions):
+    regions_stat = []
+    for position_pair in tqdm(features):
+        if isinstance(position_pair, str):
+            feature_1 = int(position_pair[1:-1].split(',')[0])
+            feature_2 = int(position_pair[1:-1].split(',')[1])
+        else:
+            feature_1 = int(position_pair[0])
+            feature_2 = int(position_pair[1])
+        position_1 = bisect(regions['start'], feature_1) - 1
+        if feature_1 <= regions['finish'][position_1]:
+            region_1 = regions['region'][position_1]
+        else:
+            region_1 = 'NA'
+        position_2 = bisect(regions['start'], feature_2) - 1
+        if feature_2 <= regions['finish'][position_2]:
+            region_2 = regions['region'][position_2]
+        else:
+            region_2 = 'NA'
+        curr_regions = [region_1, region_2]
+        curr_regions.sort()
+        regions_stat.append(';'.join(curr_regions))
+    regions_dict = dict(Counter(regions_stat).most_common())
+    regions_sum = sum(regions_dict.values(), 0.0)
+    for feature in regions_dict:
+        regions_dict[feature] /= regions_sum
+    result_dict = {'Region': [], 'Freq': []}
+    for key in regions_dict:
+        result_dict['Region'].append(key)
+        result_dict['Freq'].append(regions_dict[key])
     return result_dict

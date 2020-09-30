@@ -2,7 +2,7 @@ from Source.mtDNA.tibet.functions.file_system import get_path
 from Source.mtDNA.high_altitude.functions import *
 from Source.mtDNA.high_altitude.infrastructure_functions import *
 
-read_tibet_data = 0
+read_tibet_data = 1
 
 path = get_path()
 info_data_path = path + '/Data/alignment/info/'
@@ -54,14 +54,23 @@ world_subset, world_subject_classes = subset_subjects(world_data, world_classes,
 classes = ['Asian Low Altitude', 'Tibetan High Altitude', 'Tibetan', 'Andes', 'Ethiopia']
 data = tibet_subset
 data.update(world_subset)
+
 stat_dict_pairs = create_pair_statistics(data, tibet_filtered_pairs, classes)
-write_stat_to_xlsx(world_result_path, 'mutation_stat_pairs_filtered', stat_dict_pairs, 1000)
+write_stat_to_xlsx(world_result_path, 'mutation_stat_pairs_filtered', stat_dict_pairs, 100000)
+regions_dict_pairs = calculate_pair_regions_statistics(tibet_filtered_pairs, regions)
+write_stat_to_xlsx(world_result_path, 'regions_stat_pairs_filtered', regions_dict_pairs, 'all')
 
 stat_dict_pairs_items = create_pair_statistics(data, tibet_filtered_pairs_items, classes)
-write_stat_to_xlsx(world_result_path, 'mutation_stat_items_filtered', stat_dict_pairs_items, 1000)
+write_stat_to_xlsx(world_result_path, 'mutation_stat_items_filtered', stat_dict_pairs_items, 100000)
+regions_dict_pairs_items = calculate_pair_regions_statistics(tibet_filtered_pairs_items, regions)
+write_stat_to_xlsx(world_result_path, 'regions_stat_items_filtered', regions_dict_pairs_items, 'all')
 
 stat_dict_pairs = create_selected_statistics(data, tibet_filtered_pairs, classes)
-write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_pairs_filtered', stat_dict_pairs, 'all')
+write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_pairs_filtered', stat_dict_pairs, 100000)
+regions_dict_pairs = calculate_pair_regions_statistics(tibet_filtered_pairs, regions)
+write_stat_to_xlsx(world_result_path, 'regions_stat_selected_pairs_filtered', regions_dict_pairs, 'all')
 
 stat_dict_pairs_items = create_selected_statistics(data, tibet_filtered_pairs_items, classes)
-write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_items_filtered', stat_dict_pairs_items, 'all')
+write_stat_to_xlsx(world_result_path, 'mutation_stat_selected_items_filtered', stat_dict_pairs_items, 100000)
+regions_dict_pairs_items = calculate_pair_regions_statistics(tibet_filtered_pairs_items, regions)
+write_stat_to_xlsx(world_result_path, 'regions_stat_selected_items_filtered', regions_dict_pairs_items, 'all')
