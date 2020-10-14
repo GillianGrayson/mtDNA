@@ -42,7 +42,7 @@ for gene_id in tqdm(range(len(list(gene_chr_dict.keys())))):
         if gene_chr_dict[gene] == 'MT':
             person_index = person_index_mt_dict[curr_subject]
             curr_subject_gene_data = curr_gene_data[:, person_index]
-            if len(set(curr_subject_gene_data)) == 2:
+            if len(set(curr_subject_gene_data)) > 1:
                 mt_gene_mutation_dict[curr_subject][gene] = 1
             elif len(set(curr_subject_gene_data)) == 1 and curr_subject_gene_data[0] == 1:
                 mt_gene_mutation_dict[curr_subject][gene] = 1
@@ -57,6 +57,11 @@ for gene_id in tqdm(range(len(list(gene_chr_dict.keys())))):
                 nuc_gene_mutation_dict[curr_subject][gene] = 1
             else:
                 nuc_gene_mutation_dict[curr_subject][gene] = 0
+
+with open(result_path + 'mt_gene_mutation.pickle', 'wb') as handle:
+    pickle.dump(mt_gene_mutation_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+with open(result_path + 'nuc_gene_mutation.pickle', 'wb') as handle:
+    pickle.dump(nuc_gene_mutation_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 for subject in common_subjects:
     f = open(result_path_files + subject + '.txt', 'w+')

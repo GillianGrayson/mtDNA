@@ -60,14 +60,14 @@ for folder_name in os.listdir(data_path_txt):
                 line = line.replace('\n', '')
                 curr_data = line.split(' ')
                 if len(curr_data) == 1:
-                    curr_data = l.split('\t')
+                    curr_data = line.split('\t')
                 chr = curr_data[0]
                 if chr.startswith('chr'):
                     chr = chr[3:]
                 gene = curr_data[1]
                 pos = curr_data[2]
                 snp = curr_data[3]
-                if chr == 'MT':
+                if chr == 'chrMT' or chr == 'MT':
                     gene_snp_dict[gene][pos] = line_id
                 else:
                     gene_snp_dict[gene][snp] = line_id
@@ -75,7 +75,7 @@ for folder_name in os.listdir(data_path_txt):
                     gene_chr_dict[gene] = chr
                 subject_id = 0
                 for item in curr_data[15:]:
-                    if chr == 'MT':
+                    if chr == 'chrMT' or chr == 'MT':
                         if item == '0':
                             data[line_id, subject_id] = 0
                         elif item == '1':
@@ -107,13 +107,18 @@ for line in f:
         pop_person_dict[curr_pop_data[1]].append(curr_pop_data[0])
 f.close()
 
-with open(data_path + 'gene_snp_dict.pickle', 'wb') as handle:
-    pickle.dump(gene_snp_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-with open(data_path + 'person_index_nuc_dict.pickle', 'wb') as handle:
-    pickle.dump(person_index_nuc_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-with open(data_path + 'person_index_mt_dict.pickle', 'wb') as handle:
-    pickle.dump(person_index_mt_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-with open(data_path + 'gene_chr_dict.pickle', 'wb') as handle:
-    pickle.dump(gene_chr_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-with open(data_path + 'pop_person_dict.pickle', 'wb') as handle:
-    pickle.dump(pop_person_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if gene_snp_dict:
+    with open(data_path + 'gene_snp_dict.pickle', 'wb') as handle:
+        pickle.dump(gene_snp_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if person_index_nuc_dict:
+    with open(data_path + 'person_index_nuc_dict.pickle', 'wb') as handle:
+        pickle.dump(person_index_nuc_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if person_index_mt_dict:
+    with open(data_path + 'person_index_mt_dict.pickle', 'wb') as handle:
+        pickle.dump(person_index_mt_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if gene_chr_dict:
+    with open(data_path + 'gene_chr_dict.pickle', 'wb') as handle:
+        pickle.dump(gene_chr_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+if pop_person_dict:
+    with open(data_path + 'pop_person_dict.pickle', 'wb') as handle:
+        pickle.dump(pop_person_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
