@@ -44,7 +44,7 @@ def create_classes_table(raw_data):
         count_dict = Counter(curr_nuc).most_common()
         count_dict = dict(count_dict)
         if '-' in count_dict:
-            if count_dict['-'] / len(curr_nuc) > 0.9:
+            if count_dict['-'] / len(curr_nuc) > 0.1:
                 continue
         if len(count_dict) == 1:
             for person_id in range(0, num_persons):
