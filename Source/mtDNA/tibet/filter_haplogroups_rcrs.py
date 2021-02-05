@@ -49,10 +49,6 @@ for key in fasta_data:
     curr_dna = fasta_data[key]
     fasta_data[key] = ''.join([i for j, i in enumerate(curr_dna) if j not in ids_to_remove])
 
-for key in fasta_data:
-    curr_dna = fasta_data[key]
-    fasta_data[key] = curr_dna.replace('-', '')
-
 positions_to_remove = {}
 for key in fasta_data:
     subject_index = subjects_dict['subject'].index(key)
