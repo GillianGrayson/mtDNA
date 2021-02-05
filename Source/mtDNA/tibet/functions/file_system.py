@@ -7,7 +7,7 @@ class DataPath(Enum):
     local_2 = 'E:/YandexDisk/Work/tibet'
     local_3 = 'D:/YandexDisk/tibet'
     local_4 = 'E:/YandexDisk/tibet'
-    local_5 = '/media/sf_nuage/tibet'
+    local_5 = '/media/sf_nuage/world'
     local_6 = 'D:/Alena/YandexDisk/tibet'
 
 
