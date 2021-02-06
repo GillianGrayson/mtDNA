@@ -34,21 +34,17 @@ subject_dict = {}
 for curr_id in ids:
     curr_list = curr_id.split('_')
     key = curr_list[0]
-    if '4001' in curr_list:
-        value = '4001'
+    if key in subject_dict:
+        subject_dict[key].append(curr_id)
     else:
-        value = curr_list[2] + '-' + curr_list[3]
-    if value in subject_dict:
-        subject_dict[value].append(curr_id)
-    else:
-        subject_dict[value] = [curr_id]
-    metadata[curr_id] = {'height': value}
+        subject_dict[key] = [curr_id]
+    metadata[curr_id] = {'group': key}
 df = pd.DataFrame.from_dict(metadata, orient='index')
 
 dm = DistanceMatrix(dm_array, ids)
 pcoa_results = pcoa(dm)
 
-fig = pcoa_results.plot(df=df, column='height')
+fig = pcoa_results.plot(df=df, column='group')
 fig.show()
 
 coord_matrix = pcoa_results.samples.values.T
@@ -65,7 +61,7 @@ for status in subject_dict:
         xs.append(xs_all[index])
         ys.append(ys_all[index])
 
-    color = cmocean_to_plotly(cmocean.cm.phase, 10)[list(subject_dict.keys()).index(status)]
+    color = cmocean_to_plotly(cmocean.cm.phase, 4)[list(subject_dict.keys()).index(status)]
     coordinates = color[1][4:-1].split(',')
     color_transparent = 'rgba(' + ','.join(['0', '0', '0']) + ',' + str(0.7) + ')'
     color_border = 'rgba(' + ','.join(coordinates) + ',' + str(1) + ')'
