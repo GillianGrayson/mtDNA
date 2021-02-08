@@ -3,10 +3,10 @@ from Source.mtDNA.high_altitude.functions import *
 from Source.mtDNA.high_altitude.infrastructure_functions import *
 
 path = get_path()
-info_data_path = path + '/Data/alignment/info/'
-world_data_path = path + '/Data/world/'
+info_data_path = path + '/Data/world/rcrs/info/'
+world_data_path = path + '/Data/world/rcrs/wo_hg/'
 
-world_result_path = path + '/Result/world/'
+world_result_path = path + '/Result/world/rcrs/wo_hg/'
 if not os.path.exists(world_result_path):
     os.makedirs(world_result_path)
 

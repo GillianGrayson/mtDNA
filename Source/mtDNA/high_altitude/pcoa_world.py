@@ -22,10 +22,10 @@ def cmocean_to_plotly(cmap, pl_entries):
 
 
 path = get_path()
-dm_filename = path + '/DM.txt'
+dm_filename = path + '/Data/world/rcrs/DM.txt'
 dm_array = np.loadtxt(dm_filename)
 
-id_filename = path + '/Mapping.txt'
+id_filename = path + '/Data/world/rcrs/Mapping.txt'
 id_array = np.genfromtxt(id_filename, dtype='str')
 ids = [id_array[i][0] for i in range(0, len(id_array))]
 
@@ -158,6 +158,6 @@ layout_2d = go.Layout(
 
 fig_2d = go.Figure(data=traces_2d, layout=layout_2d)
 
-plotly.offline.plot(fig_2d, filename=path + '/pcoa_2d.html', auto_open=False, show_link=True)
-plotly.io.write_image(fig_2d, path + '/pcoa_2d.png')
-plotly.io.write_image(fig_2d, path + '/pcoa_2d.pdf')
+plotly.offline.plot(fig_2d, filename=path + '/Result/world/rcrs/pcoa_2d.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig_2d, path + '/Result/world/rcrs/pcoa_2d.png')
+plotly.io.write_image(fig_2d, path + '/Result/world/rcrs/pcoa_2d.pdf')
