@@ -3,7 +3,7 @@ import pandas as pd
 
 path = get_path()
 
-phylotrees_df = pd.read_excel(path + '/info/phylotrees.xlsx', engine='openpyxl')
+phylotrees_df = pd.read_excel(path + '/Data/world/rcrs/info/phylotrees.xlsx', engine='openpyxl')
 phylotrees_dict = phylotrees_df.to_dict('list')
 
 subjects_dict = {'subject': [], 'group': []}
@@ -11,7 +11,7 @@ subjects_dict = {'subject': [], 'group': []}
 fasta_data = {}
 classes = ['Andes', 'Ethiopia', 'Tibetan']
 for curr_class in classes:
-    f = open(path + '/' + curr_class + '.fasta', 'r')
+    f = open(path + '/Data/world/rcrs/rcrs/' + curr_class + '.fasta', 'r')
     curr_subject = ''
     for line in f:
         if line.startswith('>'):
@@ -24,7 +24,7 @@ for curr_class in classes:
             fasta_data[curr_subject] = line.rstrip()
     f.close()
 
-rcrs_df = pd.read_csv(path + '/info/rCRS_TEA.dat', delimiter='\t', header=None)
+rcrs_df = pd.read_csv(path + '/Data/world/rcrs/info/rCRS_TEA.dat', delimiter='\t', header=None)
 rcrs_dict = rcrs_df.to_dict('list')
 rcrs_dict['rcrs'] = rcrs_dict.pop(0)
 rcrs_dict['orig'] = rcrs_dict.pop(1)
@@ -38,7 +38,7 @@ for i in range(0, len(rcrs_dict['orig'])):
             for key in fasta_data:
                 data[key] += fasta_data[key][orig_id]
 
-f = open(path + '/data_rcrs.fasta', 'w')
+f = open(path + '/Data/world/rcrs/data_rcrs.fasta', 'w')
 for key in data:
     f.write('>' + key + '\n')
     f.write(data[key] + '\n')
@@ -63,12 +63,27 @@ for i in range(0, len(phylotrees_dict['position'])):
 positions_list = list(set(positions_to_remove.keys()))
 positions_list = [item - 1 for item in positions_list]
 positions_list.sort()
+
+data_correspond = {'Original': [], 'New': []}
+new_id = 0
+for i in range(0, len(data[key])):
+    data_correspond['Original'].append(i + 1)
+    if (i + 1) not in positions_list:
+        new_id += 1
+    data_correspond['New'].append(new_id)
+
+info_df = pd.DataFrame(data_correspond)
+writer = pd.ExcelWriter(path + '/Data/world/rcrs/correspond.xlsx', engine='xlsxwriter')
+info_df.to_excel(writer, index=False, startrow=0)
+worksheet = writer.sheets['Sheet1']
+writer.save()
+
 data_wo_hg = {}
 for key in data:
     curr_dna = data[key]
     data_wo_hg[key] = ''.join([i for j, i in enumerate(curr_dna) if j not in positions_list])
 
-f = open(path + '/data_wo_hg.fasta', 'w')
+f = open(path + '/Data/world/rcrs/data_wo_hg.fasta', 'w')
 for key in data_wo_hg:
     f.write('>' + key + '\n')
     f.write(data_wo_hg[key] + '\n')
