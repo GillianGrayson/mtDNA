@@ -1,16 +1,12 @@
 import os
-import numpy as np
 import pickle
 
 data_path = 'E:/YandexDisk/mtDNA/Data/genes/pkl/'
-data_path_txt = 'E:/YandexDisk/mtDNA/Data/genes/txt/'
-data_path_npz = 'E:/YandexDisk/mtDNA/Data/genes/npz/'
+data_path_txt = 'E:/YandexDisk/mtDNA/Data/genes/txt'
 
 gene_snp_dict = dict()
 person_index_nuc_dict = dict()
 person_index_mt_dict = dict()
-gene_chr_dict = dict()
-pop_person_dict = dict()
 
 for file_name in os.listdir(data_path_txt):
     print(file_name[:-4])
@@ -49,7 +45,6 @@ for file_name in os.listdir(data_path_txt):
             else:
                 person_index_nuc_dict[person] = i
     gene_snp_dict[gene] = dict()
-    data = np.empty(shape=(num_lines, len(subjects)), dtype=int)
     line_id = 0
     for line in f:
         line = line.replace('\n', '')
@@ -62,45 +57,14 @@ for file_name in os.listdir(data_path_txt):
         gene = curr_data[1]
         pos = curr_data[2]
         snp = curr_data[3]
+        curr_snp_name = snp
         if chr == 'chrMT' or chr == 'MT':
-            gene_snp_dict[gene][pos] = line_id
-        else:
-            gene_snp_dict[gene][snp] = line_id
-        if gene not in gene_chr_dict:
-            gene_chr_dict[gene] = chr
-        subject_id = 0
-        for item in curr_data[15:]:
-            if chr == 'chrMT' or chr == 'MT':
-                if item == '0':
-                    data[line_id, subject_id] = 0
-                elif item == '1':
-                    data[line_id, subject_id] = 1
-            else:
-                if item == '0|0':
-                    data[line_id, subject_id] = 0
-                elif item == '0|1':
-                    data[line_id, subject_id] = 1
-                elif item == '1|0':
-                    data[line_id, subject_id] = 2
-                elif item == '1|1':
-                    data[line_id, subject_id] = 3
-            subject_id += 1
-        line_id += 1
+            curr_snp_name = pos
+        if len(set(curr_data[15:])) > 1:
+            gene_snp_dict[gene][curr_snp_name] = line_id
+            line_id += 1
     f.close()
-    np.savez_compressed(data_path_npz + gene, data=data)
 
 if gene_snp_dict:
-    with open(data_path + 'gene_snp_dict.pickle', 'wb') as handle:
+    with open(data_path + 'gene_snp_dict_cold.pickle', 'wb') as handle:
         pickle.dump(gene_snp_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-if person_index_nuc_dict:
-    with open(data_path + 'person_index_nuc_dict.pickle', 'wb') as handle:
-        pickle.dump(person_index_nuc_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-if person_index_mt_dict:
-    with open(data_path + 'person_index_mt_dict.pickle', 'wb') as handle:
-        pickle.dump(person_index_mt_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-if gene_chr_dict:
-    with open(data_path + 'gene_chr_dict.pickle', 'wb') as handle:
-        pickle.dump(gene_chr_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-if pop_person_dict:
-    with open(data_path + 'pop_person_dict.pickle', 'wb') as handle:
-        pickle.dump(pop_person_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
