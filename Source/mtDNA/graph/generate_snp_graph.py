@@ -83,3 +83,11 @@ for subject in common_subjects:
         else:
             f.write(mt_snp + ':' + '\n')
     f.close()
+
+f = open(result_path + 'gene_snp.txt', 'w+')
+f.write('SNP\tGene\n')
+for gene in gene_snp_dict:
+    if gene in gene_list:
+        for snp in gene_snp_dict[gene]:
+            f.write(snp + '\t' + gene + '\n')
+f.close()
