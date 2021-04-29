@@ -2,18 +2,18 @@ from Source.mtDNA.tibet.functions.file_system import get_path
 from Source.mtDNA.high_altitude.functions import *
 from Source.mtDNA.high_altitude.infrastructure_functions import *
 
-read_tibet_data = 0
+read_tibet_data = 1
 
 path = get_path()
-info_data_path = path + '/Data/alignment/info/'
-tibet_data_path = path + '/Data/alignment/tibet/'
-world_data_path = path + '/Data/alignment/world/'
+info_data_path = path + '/Data/world/rcrs/info/'
+tibet_data_path = path + '/Data/tibet/rcrs/wo_hg/'
+world_data_path = path + '/Data/world/rcrs/wo_hg/'
 
-tibet_result_path = path + '/Result/tibet/'
+tibet_result_path = path + '/Result/tibet/rcrs/wo_hg/'
 if not os.path.exists(tibet_result_path):
     os.makedirs(tibet_result_path)
 
-world_result_path = path + '/Result/world/'
+world_result_path = path + '/Result/world/rcrs/wo_hg/'
 if not os.path.exists(world_result_path):
     os.makedirs(world_result_path)
 
@@ -27,7 +27,7 @@ tibet_subset, tibet_subject_classes = subset_subjects(tibet_data, tibet_classes,
 tibet_table, tibet_mutated_positions = create_classes_table(tibet_subset)
 
 if read_tibet_data:
-    tibet_results = read_results(tibet_result_path, 'tibet_rf_2000.txt')
+    tibet_results = read_results(tibet_result_path, 'tibet_rf_500.txt')
     tibet_accuracy = tibet_results[0]
     tibet_features = [int(item) for item in tibet_results[1:]]
 else:
@@ -38,15 +38,17 @@ else:
     save_results(tibet_result_path, 'tibet_rf_accuracy_500', tibet_accuracy_list)
     save_results(tibet_result_path, 'tibet_rf_features_500', tibet_features_rating)
 
-tibet_haplogroups = read_haplogroups(info_data_path, current_tibet_classes)
-positions_to_remove = get_haplogroups_positions(info_data_path, tibet_haplogroups)
-positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]  # haplogroups data has numeration from 1
+# tibet_haplogroups = read_haplogroups(info_data_path, current_tibet_classes)
+# positions_to_remove = get_haplogroups_positions(info_data_path, tibet_haplogroups)
+# positions_to_remove_corrected = [(item - 1) for item in positions_to_remove]  # haplogroups data has numeration from 1
 
-tibet_filtered_features = remove_items_from_list(tibet_features, positions_to_remove_corrected)
+# tibet_filtered_features = remove_items_from_list(tibet_features, positions_to_remove_corrected
 
 world_data, world_subjects, world_classes = read_data(world_data_path)
 current_world_classes = {'Tibetan': ['Tibetan'], 'Andes': ['Andes'], 'Ethiopia': ['Ethiopia']}
 world_subset, world_subject_classes = subset_subjects(world_data, world_classes, current_world_classes)
+
+tibet_filtered_features = [feature for feature in tibet_features if feature < len(world_data[0][0])]
 
 frequency_dict = calculate_mutation_frequency(world_data, world_classes, tibet_filtered_features)
 frequency_dict_non_zero_1, frequency_dict_non_zero_2, frequency_dict_non_zero_3 = filter_frequency_dict(frequency_dict)

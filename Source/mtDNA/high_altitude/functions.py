@@ -230,11 +230,13 @@ def calculate_mutation_frequency(data, classes, features):
     for position in features:
         for data_class in classes:
             data_class_id = classes.index(data_class)
-            curr_nuc = [data[data_class_id][person_id][position] for person_id in range(0, len(data[data_class_id]))]
+            curr_nuc = [data[data_class_id][person_id][position] for person_id in range(0, len(data[data_class_id])) if
+                        position < len(data[data_class_id][person_id])]
             count_dict = Counter(curr_nuc).most_common()
             count_dict = dict(count_dict)
             count_list = [count_dict[item] for item in count_dict]
             frequency_dict[str(position)][data_class] = np.sum(count_list[1:]) / np.sum(count_list)
+
     return frequency_dict
 
 
@@ -292,7 +294,8 @@ def create_mutation_statistics(data, positions, classes):
     for position in positions:
         result_dict['Position'].append(position + 1)
         for curr_class in classes:
-            curr_nucleotide = [data[curr_class][person_id][position] for person_id in range(0, len(data[curr_class]))]
+            curr_nucleotide = [data[curr_class][person_id][position] for person_id in range(0, len(data[curr_class])) if
+                               position < len(data[curr_class][person_id])]
             count_dict = Counter(curr_nucleotide).most_common()
             count_dict = dict(count_dict)
             variants_list = list(count_dict.keys())
@@ -312,7 +315,8 @@ def create_mutation_statistics(data, positions, classes):
             if len(variants_list) > 2:
                 result_dict[curr_class + ' Other'].append(''.join(variants_list[2:]))
                 result_dict[curr_class + ' Other Freq'].append(
-                    np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(curr_nucleotide))
+                    np.sum([count_dict[variants_list[i]] for i in range(2, len(variants_list))]) / len(
+                        curr_nucleotide))
     return result_dict
 
 

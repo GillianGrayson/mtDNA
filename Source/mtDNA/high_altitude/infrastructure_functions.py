@@ -53,7 +53,10 @@ def write_frequency_to_xlsx(path, filename, data):
         for key in data:
             worksheet.write(row_id, column_id, key)
             for column_name_id in range(0, len(column_names)):
-                worksheet.write(row_id, column_id + column_name_id + 1, data[key][column_names[column_name_id]])
+                try:
+                    worksheet.write(row_id, column_id + column_name_id + 1, data[key][column_names[column_name_id]])
+                except:
+                    pass
             row_id += 1
     workbook.close()
 

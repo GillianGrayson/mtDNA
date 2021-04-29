@@ -3,15 +3,15 @@ import pandas as pd
 
 path = get_path()
 
-phylotrees_df = pd.read_excel(path + '/Data/world/rcrs/info/phylotrees.xlsx', engine='openpyxl')
+phylotrees_df = pd.read_excel(path + '/Data/tibet/rcrs/info/phylotrees.xlsx', engine='openpyxl')
 phylotrees_dict = phylotrees_df.to_dict('list')
 
 subjects_dict = {'subject': [], 'group': []}
 
 fasta_data = {}
-classes = ['Andes', 'Ethiopia', 'Tibetan']
+classes = ['0-500', '501-1000', '1001-1500', '1501-2000', '2001-2500', '2501-3000', '3001-4000', '4001']
 for curr_class in classes:
-    f = open(path + '/Data/world/rcrs/rcrs/' + curr_class + '.fasta', 'r')
+    f = open(path + '/Data/tibet/rcrs/rcrs/' + curr_class + '.fasta', 'r')
     curr_subject = ''
     for line in f:
         if line.startswith('>'):
@@ -24,21 +24,21 @@ for curr_class in classes:
             fasta_data[curr_subject] = line.rstrip()
     f.close()
 
-rcrs_df = pd.read_csv(path + '/Data/world/rcrs/info/rCRS_TEA.dat', delimiter='\t', header=None)
+rcrs_df = pd.read_csv(path + '/Data/tibet/rcrs/info/rCRS_16659.dat', delimiter=',', header=None)
 rcrs_dict = rcrs_df.to_dict('list')
 rcrs_dict['rcrs'] = rcrs_dict.pop(0)
-rcrs_dict['orig'] = rcrs_dict.pop(1)
+rcrs_dict['orig'] = rcrs_dict.pop(4)
 
 data = {key: '' for key in fasta_data}
 for i in range(0, len(rcrs_dict['orig'])):
-    orig_id = rcrs_dict['orig'][i]
-    rcrs_id = rcrs_dict['rcrs'][i]
+    orig_id = int(rcrs_dict['orig'][i])
+    rcrs_id = int(rcrs_dict['rcrs'][i])
     if i > 0:
         if rcrs_dict['rcrs'][i] > rcrs_dict['rcrs'][i - 1]:
             for key in fasta_data:
                 data[key] += fasta_data[key][orig_id]
 
-f = open(path + '/Data/world/rcrs/data_rcrs.fasta', 'w')
+f = open(path + '/Data/tibet/rcrs/data_rcrs.fasta', 'w')
 for key in data:
     f.write('>' + key + '\n')
     f.write(data[key] + '\n')
@@ -73,7 +73,7 @@ for i in range(0, len(data[key])):
     data_correspond['New'].append(new_id)
 
 info_df = pd.DataFrame(data_correspond)
-writer = pd.ExcelWriter(path + '/Data/world/rcrs/correspond.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter(path + '/Data/tibet/rcrs/correspond.xlsx', engine='openpyxl')
 info_df.to_excel(writer, index=False, startrow=0)
 worksheet = writer.sheets['Sheet1']
 writer.save()
@@ -83,8 +83,16 @@ for key in data:
     curr_dna = data[key]
     data_wo_hg[key] = ''.join([i for j, i in enumerate(curr_dna) if j not in positions_list])
 
-f = open(path + '/Data/world/rcrs/data_wo_hg.fasta', 'w')
+f = open(path + '/Data/tibet/rcrs/data_wo_hg.fasta', 'w')
 for key in data_wo_hg:
     f.write('>' + key + '\n')
     f.write(data_wo_hg[key] + '\n')
 f.close()
+
+for curr_class in classes:
+    f = open(path + '/Data/tibet/rcrs/wo_hg/' + curr_class + '.fasta', 'w')
+    curr_ids = [i for i, x in enumerate(subjects_dict['group']) if x == curr_class]
+    for curr_id in curr_ids:
+        f.write('>' + subjects_dict['subject'][curr_id] + '\n')
+        f.write(data_wo_hg[subjects_dict['subject'][curr_id]] + '\n')
+    f.close()
