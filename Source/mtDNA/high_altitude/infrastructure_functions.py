@@ -8,15 +8,17 @@ def read_data(data_path):
     subjects = []
     data_classes = []
     for filename in os.listdir(data_path):
-        if filename.endswith('fasta') or filename.endswith('fa'):
+        if filename.endswith('fasta') or filename.endswith('fa') or filename.endswith('fas'):
             f = open(data_path + filename, 'r')
             raw_data.append([line.rstrip() for line in f][1::2])
             f = open(data_path + filename, 'r')
             subjects.append([line.rstrip().split(' ')[0][1:] for line in f][0::2])
             if filename.endswith('fasta'):
                 data_classes.append(filename[:-6])
-            else:
+            elif filename.endswith('fa'):
                 data_classes.append(filename[:-3])
+            else:
+                data_classes.append(filename[:-4])
             f.close()
     return raw_data, subjects, data_classes
 

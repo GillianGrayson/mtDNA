@@ -169,6 +169,32 @@ def run_sequential_random_forest(table, classes, positions, num_runs):
     return top_accuracy, features_top, accuracy_list, features_rating
 
 
+def run_single_random_forest(table, classes, positions):
+    factor = pd.factorize(classes)
+    y = factor[0]
+    clf = RandomForestClassifier(n_estimators=500)
+    output = cross_validate(clf, table, y, cv=10, scoring='accuracy', return_estimator=True)
+    accuracy = np.mean(output['test_score'])
+
+    features_dict = dict((key, []) for key in positions)
+    for idx, estimator in enumerate(output['estimator']):
+        feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                           index=positions,
+                                           columns=['importance']).sort_values('importance', ascending=False)
+
+        features_names = list(feature_importances.index.values)
+        features_values = list(feature_importances.values)
+        for i in range(0, len(features_names)):
+            features_dict[features_names[i]].append(features_values[i][0])
+    for key in features_dict.keys():
+        features_dict[key] = np.mean(features_dict[key])
+    features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+
+    features_rating = list(features_dict.keys())
+
+    return accuracy, features_rating
+
+
 def read_haplogroups(data_path, classes):
     data = pd.read_excel(data_path + 'subjects.xlsx').to_dict('list')
     data_classes = [item for curr_class in classes for item in classes[curr_class]]
@@ -197,6 +223,25 @@ def get_haplogroups_positions(data_path, haplogroups):
             else:
                 if position not in positions:
                     positions.append(position)
+    positions.sort()
+    return positions
+
+
+def get_all_haplogroups_positions(data_path):
+    phylotrees = pd.read_excel(data_path + 'phylotrees.xlsx').to_dict('list')
+    positions = []
+    for item_id in tqdm(range(0, len(phylotrees['phylotree']))):
+        position = phylotrees['position'][item_id]
+        if isinstance(position, str):
+            start_position = int(position.split('-')[0])
+            end_position = int(position.split('-')[1])
+            curr_positions = list(range(start_position, end_position + 1))
+            for curr_position in curr_positions:
+                if curr_position not in positions:
+                    positions.append(curr_position)
+        else:
+            if position not in positions:
+                positions.append(position)
     positions.sort()
     return positions
 
