@@ -63,6 +63,7 @@ for nucleotide_id in tqdm(range(0, len(rcrs))):
             curr_subject = list(data_dict.keys())[subject_id]
             table[subject_id, nucleotide_id - num_gaps] = data_dict[curr_subject][nucleotide_id]
 positions = list(range(0, num_nucleotides))
+rcrs = rcrs.replace('~', '')
 
 # Read phylotrees data
 phylotrees = pd.read_excel(info_data_path + 'phylotrees.xlsx').to_dict('list')
