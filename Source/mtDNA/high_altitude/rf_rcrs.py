@@ -386,9 +386,6 @@ for feature in features_rating:
 f.close()
 all_valuable_features.extend(features_rating)
 
-all_valuable_features = list(set(all_valuable_features))
-all_valuable_features.sort()
-
 # TEA classification
 curr_exp_classes = ['Tibetan', 'Ethiopia',  'Andes']
 curr_exp_indexes = []
@@ -427,6 +424,9 @@ for feature in features_rating:
     f.write(str(feature + 1) + '\n')
 f.close()
 all_valuable_features.extend(features_rating)
+
+all_valuable_features = list(set(all_valuable_features))
+all_valuable_features.sort()
 
 # Calculate mutation statistic
 all_classes = ['0-500', 'Tibetan', 'Andes', 'Ethiopia']
