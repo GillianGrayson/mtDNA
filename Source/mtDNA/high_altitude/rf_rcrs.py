@@ -8,13 +8,13 @@ from collections import Counter
 
 
 path = get_path()
-alignment_data_path = path + '/Data/alignment/'
+alignment_data_path = path + '/Data/alignment/low_data/'
 info_data_path = path + '/Data/alignment/info/'
-result_data_path = path + '/Result/align/'
+result_data_path = path + '/Result/align/low_data/'
 
 # Read data file
 data_dict = {}
-f = open(alignment_data_path + 'aligned.fas', 'r')
+f = open(alignment_data_path + 'all_low.txt', 'r')
 for line in f:
     if line.startswith('>'):
         curr_key = line.rstrip().split(' ')[0][1:]
@@ -30,12 +30,13 @@ rcrs = data_dict['rcrs']
 data_dict.pop('rcrs', None)
 
 # Read subjects groups file
-subjects_data = pd.read_excel(info_data_path + 'subjects.xlsx').to_dict('list')
-high_classes = ['Andes', 'Tibetan', 'Ethiopia']
+subjects_data = pd.read_excel(info_data_path + 'subjects_all.xlsx').to_dict('list')
+high_classes = ['Andes', 'Tibetan', 'Ethiopia', '4001']
 subject_info = {high_class: [] for high_class in high_classes}
 for subject in data_dict:
     if subject.split('_')[0] in high_classes:
         subject_info[subject.split('_')[0]].append(subject)
+        subject_info['4001'].append(subject)
     else:
         subject_id = subjects_data['subject'].index(subject)
         subject_group = subjects_data['height'][subject_id]
@@ -184,6 +185,45 @@ for feature in features_dict:
 
 # Save Low-Andes classification results
 f = open(result_data_path + '0-500_Andes.txt', 'w')
+f.write(str(mean_accuracy) + '\n')
+for feature in features_rating:
+    f.write(str(feature + 1) + '\n')
+f.close()
+all_valuable_features.extend(features_rating)
+
+# Low-Tibetan classification
+curr_exp_classes = ['0-500', 'Tibetan']
+curr_exp_indexes = []
+classes = []
+for low_high_class in curr_exp_classes:
+    for subject in subject_info[low_high_class]:
+        curr_exp_indexes.append(list(data_dict.keys()).index(subject))
+        classes.append(low_high_class)
+factor = pd.factorize(classes)
+y = factor[0]
+curr_table = table_code[curr_exp_indexes, :]
+rf_classifier = RandomForestClassifier(n_estimators=500)
+output = cross_validate(rf_classifier, curr_table, y, cv=5, scoring='accuracy', return_estimator=True)
+mean_accuracy = np.mean(output['test_score'])
+features_dict = dict((key, []) for key in index_phylotrees)
+for idx, estimator in enumerate(output['estimator']):
+    feature_importances = pd.DataFrame(estimator.feature_importances_,
+                                       index=index_phylotrees,
+                                       columns=['importance']).sort_values('importance', ascending=False)
+    features_names = list(feature_importances.index.values)
+    features_values = list(feature_importances.values)
+    for i in range(0, len(features_names)):
+        features_dict[features_names[i]].append(features_values[i][0])
+for key in features_dict.keys():
+    features_dict[key] = np.mean(features_dict[key])
+features_dict = {k: v for k, v in sorted(features_dict.items(), reverse=True, key=lambda x: x[1])}
+features_rating = []
+for feature in features_dict:
+    if features_dict[feature] > 0:
+        features_rating.append(feature)
+
+# Save Low-Tibetan classification results
+f = open(result_data_path + '0-500_Tibetan.txt', 'w')
 f.write(str(mean_accuracy) + '\n')
 for feature in features_rating:
     f.write(str(feature + 1) + '\n')

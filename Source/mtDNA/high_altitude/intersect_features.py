@@ -3,7 +3,7 @@ from Source.mtDNA.tibet.functions.file_system import get_path
 
 data = {}
 path = get_path()
-path += '/Result/align/01/'
+path += '/Result/align/low_data/freq/'
 
 for file in os.listdir(path):
     if file.endswith('txt'):
