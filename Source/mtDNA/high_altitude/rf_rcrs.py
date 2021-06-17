@@ -7,10 +7,17 @@ from sklearn.model_selection import cross_validate
 from collections import Counter
 
 
+align_with_phylo = True
+encode = '01'
+
 path = get_path()
 alignment_data_path = path + '/Data/alignment/low_data/'
 info_data_path = path + '/Data/alignment/info/'
-result_data_path = path + '/Result/align/low_data/'
+result_data_path = path + '/Result/low_data/'
+
+if not align_with_phylo:
+    result_data_path += 'wo_filt_'
+result_data_path += encode + '/'
 
 # Read data file
 data_dict = {}
@@ -28,6 +35,14 @@ f.close()
 
 rcrs = data_dict['rcrs']
 data_dict.pop('rcrs', None)
+
+# Read disease file
+disease_data = pd.read_excel(info_data_path + 'disease.xlsx').to_dict('list')
+positions_with_disease = disease_data['Position']
+position_disease_dict = {position: [] for position in positions_with_disease}
+for position_id in range(0, len(positions_with_disease)):
+    position = positions_with_disease[position_id]
+    position_disease_dict[position] = disease_data['Disease'][position_id].split(' / ')
 
 # Read subjects groups file
 subjects_data = pd.read_excel(info_data_path + 'subjects_all.xlsx').to_dict('list')
@@ -85,33 +100,38 @@ for position in phylotrees['position']:
 phylotrees_positions.sort()
 
 # Aligned data with phylotrees
-table_phylo = np.delete(table, phylotrees_positions, 1)
-index_phylotrees = [i for j, i in enumerate(list(range(0, num_nucleotides))) if j not in phylotrees_positions]
+if align_with_phylo:
+    table_phylo = np.delete(table, phylotrees_positions, 1)
+    index_phylotrees = [i for j, i in enumerate(list(range(0, num_nucleotides))) if j not in phylotrees_positions]
+else:
+    table_phylo = table
+    index_phylotrees = list(range(0, num_nucleotides))
 
-# Encode data as 0/1
-table_code = np.empty(shape=(num_subjects, len(index_phylotrees)), dtype=int)
-for nucleotide_id in tqdm(range(0, len(index_phylotrees))):
-    rcrs_id = index_phylotrees[nucleotide_id]
-    curr_rcrs_nucleotide = rcrs[rcrs_id]
-    for subject_id in range(0, num_subjects):
-        if table_phylo[subject_id, nucleotide_id] == curr_rcrs_nucleotide:
-            table_code[subject_id, nucleotide_id] = 0
-        else:
-            table_code[subject_id, nucleotide_id] = 1
-"""
-# Encode data using frequency
-table_code = np.empty(shape=(num_subjects, len(index_phylotrees)), dtype=int)
-for nucleotide_id in tqdm(range(0, len(index_phylotrees))):
-    rcrs_id = index_phylotrees[nucleotide_id]
-    curr_rcrs_nucleotide = rcrs[rcrs_id]
-    curr_nucleotide = table_phylo[:, nucleotide_id]
-    count_dict = Counter(curr_nucleotide).most_common()
-    count_dict = dict(count_dict)
-    variants_list = list(count_dict.keys())
-    for subject_id in range(0, num_subjects):
-        curr_subject_nucleotide = table_phylo[subject_id, nucleotide_id]
-        table_code[subject_id, nucleotide_id] = variants_list.index(curr_subject_nucleotide)
-"""
+if encode == '01':
+    # Encode data as 0/1
+    table_code = np.empty(shape=(num_subjects, len(index_phylotrees)), dtype=int)
+    for nucleotide_id in tqdm(range(0, len(index_phylotrees))):
+        rcrs_id = index_phylotrees[nucleotide_id]
+        curr_rcrs_nucleotide = rcrs[rcrs_id]
+        for subject_id in range(0, num_subjects):
+            if table_phylo[subject_id, nucleotide_id] == curr_rcrs_nucleotide:
+                table_code[subject_id, nucleotide_id] = 0
+            else:
+                table_code[subject_id, nucleotide_id] = 1
+else:
+    # Encode data using frequency
+    table_code = np.empty(shape=(num_subjects, len(index_phylotrees)), dtype=int)
+    for nucleotide_id in tqdm(range(0, len(index_phylotrees))):
+        rcrs_id = index_phylotrees[nucleotide_id]
+        curr_rcrs_nucleotide = rcrs[rcrs_id]
+        curr_nucleotide = table_phylo[:, nucleotide_id]
+        count_dict = Counter(curr_nucleotide).most_common()
+        count_dict = dict(count_dict)
+        variants_list = list(count_dict.keys())
+        for subject_id in range(0, num_subjects):
+            curr_subject_nucleotide = table_phylo[subject_id, nucleotide_id]
+            table_code[subject_id, nucleotide_id] = variants_list.index(curr_subject_nucleotide)
+
 all_valuable_features = []
 # Low-High classification
 curr_exp_classes = ['0-500', '4001']
@@ -150,6 +170,27 @@ f = open(result_data_path + '0-500_4001.txt', 'w')
 f.write(str(mean_accuracy) + '\n')
 for feature in features_rating:
     f.write(str(feature + 1) + '\n')
+f.close()
+
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + '0-500_4001_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
 f.close()
 
 # Low-Andes classification
@@ -191,6 +232,27 @@ for feature in features_rating:
 f.close()
 all_valuable_features.extend(features_rating)
 
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + '0-500_Andes_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
+
 # Low-Tibetan classification
 curr_exp_classes = ['0-500', 'Tibetan']
 curr_exp_indexes = []
@@ -229,6 +291,27 @@ for feature in features_rating:
     f.write(str(feature + 1) + '\n')
 f.close()
 all_valuable_features.extend(features_rating)
+
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + '0-500_Tibetan_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
 
 # Low-Ethiopia classification
 curr_exp_classes = ['0-500', 'Ethiopia']
@@ -269,6 +352,27 @@ for feature in features_rating:
 f.close()
 all_valuable_features.extend(features_rating)
 
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + '0-500_Ethiopia_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
+
 # Tibetan-Andes classification
 curr_exp_classes = ['Tibetan', 'Andes']
 curr_exp_indexes = []
@@ -307,6 +411,27 @@ for feature in features_rating:
     f.write(str(feature + 1) + '\n')
 f.close()
 all_valuable_features.extend(features_rating)
+
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + 'Tibetan_Andes_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
 
 # Tibetan-Ethiopia classification
 curr_exp_classes = ['Tibetan', 'Ethiopia']
@@ -347,6 +472,27 @@ for feature in features_rating:
 f.close()
 all_valuable_features.extend(features_rating)
 
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + 'Tibetan_Ethiopia_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
+
 # Andes-Ethiopia classification
 curr_exp_classes = ['Andes', 'Ethiopia']
 curr_exp_indexes = []
@@ -385,6 +531,27 @@ for feature in features_rating:
     f.write(str(feature + 1) + '\n')
 f.close()
 all_valuable_features.extend(features_rating)
+
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + 'Andes_Ethiopia_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
 
 # TEA classification
 curr_exp_classes = ['Tibetan', 'Ethiopia',  'Andes']
@@ -427,6 +594,27 @@ all_valuable_features.extend(features_rating)
 
 all_valuable_features = list(set(all_valuable_features))
 all_valuable_features.sort()
+
+# Save disease statistics
+disease_stat = {}
+for position in features_rating:
+    if position in position_disease_dict:
+        diseases = position_disease_dict[position]
+        for disease in diseases:
+            if disease in disease_stat:
+                disease_stat[disease] += 1
+            else:
+                disease_stat[disease] = 1
+x = [key for key in disease_stat]
+y = [disease_stat[key] for key in disease_stat]
+zipped_lists = zip(y, x)
+sorted_pairs = sorted(zipped_lists, reverse=True)
+tuples = zip(*sorted_pairs)
+y, x = [list(tuple) for tuple in tuples]
+f = open(result_data_path + 'Tibetan_Andes_Ethiopia_disease.txt', 'w')
+for disease_id in range(0, len(x)):
+    f.write(x[disease_id] + '\t' + str(y[disease_id]) + '\n')
+f.close()
 
 # Calculate mutation statistic
 all_classes = ['0-500', 'Tibetan', 'Andes', 'Ethiopia']
